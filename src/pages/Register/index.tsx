@@ -1,0 +1,137 @@
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router';
+import { authService } from '../../services/api';
+import type { ApiError } from '../../types';
+import { Beef } from 'lucide-react';
+
+const Register: React.FC = () => {
+  const navigate = useNavigate();
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState<'veterinarian' | 'zootechnician'>('veterinarian');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      await authService.signup({ username, email, password, role });
+      alert('Registro exitoso. Ahora puedes iniciar sesión.');
+      navigate('/login');
+    } catch (err: any) {
+      const apiError = err.response?.data;
+      let errorMessage = 'Error en el registro. Inténtalo de nuevo.';
+      
+      if (apiError) {
+        if (typeof apiError.error === 'string') {
+          errorMessage = apiError.error;
+        } else if (apiError.error?.message) {
+          errorMessage = apiError.error.message;
+        } else if (Array.isArray(apiError.errors) && apiError.errors.length > 0) {
+          errorMessage = typeof apiError.errors[0] === 'string' ? apiError.errors[0] : JSON.stringify(apiError.errors[0]);
+        } else if (typeof apiError === 'object' && apiError.message) {
+          errorMessage = apiError.message;
+        }
+      }
+      
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-center" style={{ minHeight: '100vh', padding: '20px' }}>
+      <div className="card" style={{ maxWidth: '500px', width: '100%' }}>
+        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+          <div style={{ display: 'inline-flex', backgroundColor: 'var(--primary)', color: 'white', padding: '12px', borderRadius: '50%', marginBottom: '15px' }}>
+            <Beef size={32} />
+          </div>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>Registro AgroVet</h1>
+          <p style={{ color: 'var(--text-muted)' }}>Crea una cuenta para profesionales</p>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          {error && (
+            <div style={{ backgroundColor: '#ffebee', color: 'var(--error)', padding: '10px', borderRadius: '6px', marginBottom: '16px', fontSize: '0.9rem' }}>
+              {error}
+            </div>
+          )}
+          
+          <div className="form-group">
+            <label htmlFor="username">Nombre de Usuario</label>
+            <input 
+              id="username"
+              type="text" 
+              className="form-control" 
+              placeholder="johndoe"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email">Correo Electrónico</label>
+            <input 
+              id="email"
+              type="email" 
+              className="form-control" 
+              placeholder="john@agrovet.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Contraseña</label>
+            <input 
+              id="password"
+              type="password" 
+              className="form-control" 
+              placeholder="********"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="role">Rol</label>
+            <select 
+              id="role"
+              className="form-control"
+              value={role}
+              onChange={(e) => setRole(e.target.value as any)}
+              required
+            >
+              <option value="veterinarian">Veterinario</option>
+              <option value="zootechnician">Zootecnista</option>
+            </select>
+          </div>
+
+          <button 
+            type="submit" 
+            className="btn btn-primary" 
+            style={{ width: '100%', marginTop: '10px' }}
+            disabled={loading}
+          >
+            {loading ? 'Registrando...' : 'Registrarse'}
+          </button>
+        </form>
+
+        <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '0.9rem' }}>
+          <p style={{ color: 'var(--text-muted)' }}>¿Ya tienes cuenta?</p>
+          <Link to="/login" style={{ color: 'var(--primary)', fontWeight: '600' }}>Inicia Sesión Aquí</Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Register;
