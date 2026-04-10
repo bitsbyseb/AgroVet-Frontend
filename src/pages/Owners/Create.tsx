@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ownerService } from '../../services/api';
+import type { OwnerInput } from '../../types';
 import { ArrowLeft, Save } from 'lucide-react';
 
 const CreateOwner: React.FC = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<OwnerInput>({
     name: '',
     document: '',
     phone: '',
@@ -24,8 +25,9 @@ const CreateOwner: React.FC = () => {
     try {
       await ownerService.create(formData);
       navigate('/owners');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Error al registrar propietario.');
+    } catch (err: unknown) {
+      const axiosError = err as any;
+      setError(axiosError.response?.data?.error || 'Error al registrar propietario.');
     } finally {
       setLoading(false);
     }
@@ -67,7 +69,7 @@ const CreateOwner: React.FC = () => {
             <div className="form-group" style={{ flex: 1 }}>
               <label>Documento / CC</label>
               <input 
-                type="text" 
+                type="number" 
                 className="form-control" 
                 value={formData.document}
                 onChange={(e) => setFormData({...formData, document: e.target.value})}

@@ -20,8 +20,9 @@ const LogIn: React.FC = () => {
       const response = await authService.login({ email, password });
       localStorage.setItem('token', response.token);
       navigate('/');
-    } catch (err: any) {
-      const apiError = err.response?.data;
+    } catch (err: unknown) {
+      const axiosError = err as Record<string, unknown>;
+      const apiError = (axiosError.response as Record<string, unknown>)?.data as Record<string, any>;
       let errorMessage = 'Error al iniciar sesión. Inténtalo de nuevo.';
       
       if (apiError) {

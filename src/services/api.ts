@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-import type { User, AuthResponse } from '../types';
+import type { User, AuthResponse, LoginCredentials, SignupData, AnimalInput, OwnerInput, Animal, Owner } from '../types';
 
 const API_BASE_URL = 'http://localhost:3000/api/v1';
 
@@ -34,11 +34,11 @@ api.interceptors.response.use(
 );
 
 export const authService = {
-  login: async (credentials: any): Promise<AuthResponse> => {
-    const response = await api.post('/auth/login', credentials);
+  login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
+    const response = await api.post<AuthResponse>('/auth/login', credentials);
     return response.data;
   },
-  signup: async (userData: any): Promise<any> => {
+  signup: async (userData: SignupData): Promise<void> => {
     const response = await api.post('/auth/signup', userData);
     return response.data;
   },
@@ -46,7 +46,12 @@ export const authService = {
     const token = localStorage.getItem('token');
     if (!token) return null;
     try {
-      return jwtDecode<User>(token);
+      const decoded = jwtDecode<any>(token);
+      // Aseguramos que el rol esté en minúsculas para evitar problemas de case-sensitivity
+      if (decoded && decoded.role) {
+        decoded.role = decoded.role.toLowerCase();
+      }
+      return decoded as User;
     } catch {
       return null;
     }
@@ -58,23 +63,23 @@ export const authService = {
 };
 
 export const animalService = {
-  list: async () => {
-    const response = await api.get('/animals');
+  list: async (): Promise<Animal[]> => {
+    const response = await api.get<Animal[]>('/animals');
     return response.data;
   },
-  create: async (animalData: any) => {
-    const response = await api.post('/animals', animalData);
+  create: async (animalData: AnimalInput): Promise<Animal> => {
+    const response = await api.post<Animal>('/animals', animalData);
     return response.data;
   },
 };
 
 export const ownerService = {
-  list: async () => {
-    const response = await api.get('/owners');
+  list: async (): Promise<Owner[]> => {
+    const response = await api.get<Owner[]>('/owners');
     return response.data;
   },
-  create: async (ownerData: any) => {
-    const response = await api.post('/owners', ownerData);
+  create: async (ownerData: OwnerInput): Promise<Owner> => {
+    const response = await api.post<Owner>('/owners', ownerData);
     return response.data;
   },
 };

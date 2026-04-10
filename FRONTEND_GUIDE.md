@@ -1,26 +1,28 @@
 # Guía de Integración Frontend - AgroVet API
 
-Esta guía contiene toda la información necesaria para consumir los servicios del backend de AgroVet.
+Esta guía contiene la referencia completa, estructurada y verificada para consumir los endpoints del sistema AgroVet.
+
+---
 
 ## 1. Configuración General
 
 - **Base URL**: `http://localhost:3000/api/v1`
 - **Content-Type**: `application/json`
-- **Documentación Interactiva**: `http://localhost:3000/ui` (Swagger)
+- **Documentación Interactiva (Swagger)**: `http://localhost:3000/ui`
 
 ---
 
-## 2. Autenticación y Seguridad
+## 2. Autenticación, Seguridad y RBAC
 
-La mayoría de los endpoints están protegidos. Se utiliza el esquema **Bearer Token**.
+Se emplea el esquema de seguridad **Bearer Token**.
 
-1. **Obtener Token**: Realizar login en `/auth/login`.
-2. **Uso**: Incluir el token en el header de cada petición:
-   `Authorization: Bearer <TU_TOKEN_JWT>`
+1. **Obtener Token**: Loguéate usando el endpoint `/auth/login`.
+2. **Uso del Token**: Envía el header en cada petición:
+   `Authorization: Bearer <TU_TOKEN>`
 
-### Roles y Permisos (RBAC)
+### Matriz de Permisos por Rol
 
-| Recurso | Veterinario | Zootecnista | Administrador |
+| Recurso / Módulo | Veterinario | Zootecnista | Administrador |
 | :--- | :--- | :--- | :--- |
 | **Animales** | Full Access | Full Access | Full Access |
 | **Historial Médico** | Full Access | Solo Lectura | Solo Lectura |
@@ -30,129 +32,139 @@ La mayoría de los endpoints están protegidos. Se utiliza el esquema **Bearer T
 | **Alimentación** | No | Full Access | Solo Lectura |
 | **Reproducción** | No | Full Access | Solo Lectura |
 | **Propietarios** | Solo Lectura | No | Full Access |
-| **Usuarios** | No | No | Full Access |
+| **Usuarios / Personal**| No | No | Full Access |
 
 ---
 
-## 3. Endpoints de Autenticación (`/auth`)
+## 3. Catálogo de Endpoints
 
-### Login
-- **Método**: `POST /auth/login`
-- **Público**: Sí
-- **Request Body**:
-```json
-{
-  "email": "jspuentes@ucundinamar.edu.co",
-  "password": "AgroVet2026*"
-}
-```
-- **Response (200 OK)**:
-```json
-{
-  "token": "eyJhbG..."
-}
-```
+### 🔑 Autenticación (`/auth`)
 
-### Registro de Usuario
-- **Método**: `POST /auth/signup`
-- **Protegido**: Sí (Solo ADMINISTRADOR)
-- **Regla Especial**: Solo se pueden crear cuentas de tipo Veterinario o Zootecnista. No se pueden crear Administradores por aquí.
-- **Request Body**:
-```json
-{
-  "username": "johndoe",
-  "email": "john@agrovet.com",
-  "password": "password123",
-  "role": "veterinarian" // Valores permitidos: "veterinarian", "zootechnician"
-}
-```
+#### 1. Iniciar Sesión (Público)
+- **Método y Ruta**: `POST /auth/login`
+- **Body Esperado**:
+  ```json
+  {
+    "email": "jspuentes@ucundinamar.edu.co",
+    "password": "AgroVet2026*"
+  }
+  ```
+- **Respuesta (200)**: Devuelve un `{ "token": "..." }`.
+
+#### 2. Registrar Personal (Solo Admin)
+- **Método y Ruta**: `POST /auth/signup`
+- **Body Esperado**:
+  ```json
+  {
+    "username": "Carlos Perez",
+    "email": "carlos@agrovet.com",
+    "password": "password123",
+    "role": "veterinarian" // Valores: "veterinarian", "zootechnician"
+  }
+  ```
+  *(Nota: El backend bloquea intencionalmente la creación de un rol "administrator" aquí).*
 
 ---
 
-## 4. Endpoints de Animales (`/animals`)
+### 🐾 Animales (`/animals`)
 
-### Listar Animales
-- **Método**: `GET /animals`
-- **Protegido**: Sí (Todos los roles)
-- **Response**: Array de objetos Animal.
+> **Importante:** Al crear un animal, el **ID lo genera el backend**. El frontend NO debe enviar la propiedad `id`. 
 
-### Registrar Animal
-- **Método**: `POST /animals`
-- **Request Body**:
-```json
-{
-  "name": "Bessie",
-  "species": "Bovino",
-  "breed": "Holstein",
-  "birthDate": "2022-01-15",
-  "ownerId": "uuid-propietario"
-}
-```
+#### 1. Registrar Animal
+- **Método y Ruta**: `POST /animals`
+- **Body Esperado**:
+  ```json
+  {
+    "name": "Bessie",
+    "species": "bovine", // Opciones: canine, feline, bovine, caprine, equine, poultry, pig
+    "animalType": "rural", // Opciones: urban, rural
+    "breed": "Holstein",
+    "gender": "female", // Opciones: male, female
+    "birthDate": "2022-01-15T00:00:00.000Z", // Formato ISO 8601
+    "color": "Blanco y Negro",
+    "ownerId": "uuid-del-propietario"
+  }
+  ```
 
-### Gestión Clínica y Nutricional (Sub-rutas)
-- **Historial Médico**: `GET` / `POST` `/animals/:id/history`
-- **Vacunas**: `GET` / `POST` `/animals/:id/vaccines`
-- **Dietas**: `GET` / `POST` `/animals/:id/diet`
-- **Producción**: `GET` / `POST` `/animals/:id/production`
-- **Reproducción**: `GET` / `POST` `/animals/:id/reproduction`
+#### 2. Actualizar Datos Físicos del Animal
+- **Método y Ruta**: `PUT /animals/{id}`
+- **Body Esperado** (Envia solo lo que quieras actualizar):
+  ```json
+  {
+    "name": "Bessie 2",
+    "color": "Negro",
+    "breed": "Angus",
+    "status": "inactive" // Opciones: active, inactive
+  }
+  ```
 
-*(Recuerda revisar la tabla de permisos RBAC para saber qué rol puede hacer POST en cada ruta).*
+#### 3. Transferir Dueño
+- **Método y Ruta**: `PATCH /animals/{id}/transfer`
+- **Body Esperado**:
+  ```json
+  {
+    "newOwnerId": "uuid-del-nuevo-dueño"
+  }
+  ```
 
----
-
-## 5. Endpoints de Propietarios (`/owners`)
-
-### Listar Propietarios
-- **Método**: `GET /owners`
-- **Protegido**: Sí (Veterinario: Lectura / Admin: Full)
-
-### Registrar Propietario
-- **Método**: `POST /owners`
-- **Protegido**: Sí (Solo Administrador)
-- **Request Body**:
-```json
-{
-  "name": "Juan Pérez",
-  "document": "1234567890",
-  "phone": "+1234567890",
-  "email": "juan@example.com",
-  "address": "Calle Falsa 123",
-  "ownerType": "urban" // Valores permitidos: "urban", "rural"
-}
-```
+#### 4. Listar Animales
+- **Método y Ruta**: `GET /animals`
+- **Respuesta (200)**: Array de objetos que incluirán el `id`, el `status` por defecto ("active"), y todos sus atributos.
 
 ---
 
-## 6. Manejo de Errores
+### 🧑‍🌾 Propietarios (`/owners`)
 
-El backend responde con códigos HTTP estándar:
-- `400 Bad Request`: Error en los datos enviados o validación de formulario fallida.
-- `401 Unauthorized`: Token faltante o expirado.
-- `403 Forbidden`: El usuario no tiene el rol necesario para esta acción.
-- `404 Not Found`: El recurso o ID solicitado no existe.
+#### 1. Registrar Propietario (Solo Admin)
+- **Método y Ruta**: `POST /owners`
+- **Body Esperado**:
+  ```json
+  {
+    "name": "Juan Pérez",
+    "document": "1234567890",
+    "phone": "+1234567890",
+    "email": "juan@example.com",
+    "address": "Calle Falsa 123",
+    "ownerType": "urban" // Opciones: urban, rural
+  }
+  ```
 
-### Formato de Error de Validación
-Cuando envías datos incorrectos, el backend responde así (útil para mapear errores en formularios):
-```json
-{
-  "errors": [
-    "password must be at least 10 characters long",
-    "email is invalid"
-  ]
-}
-```
-O en errores de lógica de negocio general:
-```json
-{
-  "error": "User is already in the system"
-}
-```
+#### 2. Actualizar Propietario
+- **Método y Ruta**: `PUT /owners/{id}`
+- **Body Esperado**: Igual al registro, pero **no** se envía la propiedad `document` (el número de documento no es editable).
+
+#### 3. Ver Animales del Propietario
+- **Método y Ruta**: `GET /owners/{id}/animals`
+- **Respuesta (200)**: Array de animales asociados a ese ID de propietario.
 
 ---
 
-## 7. Consejos para el Frontend
+### 🩺 Gestión Clínica, Nutricional y Productiva (Sub-rutas de Animal)
 
-1. **Persistencia**: Guarda el token en `localStorage` o `sessionStorage`.
-2. **Intercepción de Peticiones**: Usa algo como Axios Interceptors para añadir automáticamente el header `Authorization: Bearer <token>` a todas las llamadas.
-3. **Manejo de Expiración**: El token dura 1 hora. Si el backend responde `401`, limpia el `localStorage` y redirige al usuario a la pantalla de login.
-4. **UI Dinámica**: Puedes decodificar el JWT en el frontend (con librerías como `jwt-decode`) para obtener el rol del usuario actual. Úsalo para ocultar botones o menús a los que no tienen permiso (por ejemplo, ocultar el botón "Nuevo Propietario" si no es administrador).
+Se accede a ellos a través del ID del animal. **El backend inyecta el `id` del animal automáticamente a través de la URL**, no lo mandes en el body.
+
+| Módulo | Creación (POST) | Lectura (GET) | Body (Ejemplo para POST) |
+| :--- | :--- | :--- | :--- |
+| **Historial Médico** | `/animals/{id}/history` | `/animals/{id}/history` | `{"diagnosis": "Fiebre", "treatment": "Reposo", "notes": "..."}` |
+| **Vacunas** | `/animals/{id}/vaccines` | `/animals/{id}/vaccines` | `{"vaccineName": "Antirrábica", "dose": "2ml", "applicationDate": "2023-10-05"}` |
+| **Alimentación** | `/animals/{id}/diet` | `/animals/{id}/diet` | `{"foodId": "uuid-comida", "quantity": 2.5, "frequency": "Diario"}` |
+| **Producción** | `/animals/{id}/production`| `/animals/{id}/production` | `{"type": "Leche", "quantity": 15, "unit": "Litros", "date": "2023-11-01"}` |
+| **Reproducción** | `/animals/{id}/reproduction`| `/animals/{id}/reproduction`| `{"eventType": "Inseminación", "date": "2023-12-01"}` |
+
+---
+
+## 4. Códigos de Estado y Manejo de Errores
+
+El backend está programado con `zod-openapi`, por lo cual las validaciones son muy estrictas. 
+
+- `200 / 201`: Éxito.
+- `400 Bad Request`: Si fallas al enviar un Enum (ej. envías `dog` en lugar de `canine`) o te falta un dato requerido, recibirás un arreglo de `errors` detallando exactamente qué campo falló.
+- `401 Unauthorized`: No has enviado el Bearer Token, o ya expiró (dura 1 hora).
+- `403 Forbidden`: Tienes un token válido, pero tu rol actual no te permite hacer la acción (ej. un Veterinario tratando de cambiar la Dieta).
+- `404 Not Found`: El `id` buscado en la URL no existe en la base de datos.
+- `500 Internal Server Error`: Problemas con la base de datos o lógica interna.
+
+### Recomendaciones para el Frontend (React / Angular / Vue)
+1. Extrae tus enums del backend (ej. `canine`, `urban`, `male`) en variables estáticas para tus Selects/Dropdowns.
+2. Formatea todas las fechas (`birthDate`, `applicationDate`, etc.) usando `toISOString()` o librerías como `date-fns` antes de enviarlas.
+3. Si el usuario recibe un código `401`, usa tus interceptores de HTTP (ej. de Axios) para limpiar el estado global de Redux/Context y regresarlo a la pantalla de Login.

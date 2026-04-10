@@ -8,7 +8,7 @@ const OwnersList: React.FC = () => {
   const [owners, setOwners] = useState<Owner[]>([]);
   const [loading, setLoading] = useState(true);
   const user = authService.getCurrentUser();
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'administrator';
 
   useEffect(() => {
     const fetchOwners = async () => {

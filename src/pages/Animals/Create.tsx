@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { animalService, ownerService } from '../../services/api';
-import type { Owner } from '../../types';
+import { animalService, ownerService, authService } from '../../services/api';
+import { SpeciesType, AnimalType, Gender } from '../../types';
+import type { Owner, AnimalInput } from '../../types';
 import { ArrowLeft, Save } from 'lucide-react';
 
 const CreateAnimal: React.FC = () => {
   const navigate = useNavigate();
+  const user = authService.getCurrentUser();
   const [owners, setOwners] = useState<Owner[]>([]);
-  const [formData, setFormData] = useState({
+  const [canFetchOwners, setCanFetchOwners] = useState(true);
+  const [formData, setFormData] = useState<AnimalInput>({
     name: '',
     species: '',
+    animalType: '',
     breed: '',
+    gender: '',
     birthDate: '',
+    color: '',
     ownerId: ''
   });
   const [loading, setLoading] = useState(false);
@@ -19,23 +25,30 @@ const CreateAnimal: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (user?.role === 'zootechnician') {
+      setCanFetchOwners(false);
+      setOwnersLoading(false);
+      return;
+    }
+
     const fetchOwners = async () => {
       try {
         const data = await ownerService.list();
         setOwners(data);
-      } catch (err) {
-        console.error('Error fetching owners:', err);
+        setCanFetchOwners(true);
+      } catch (err: unknown) {
+        setCanFetchOwners(false);
       } finally {
         setOwnersLoading(false);
       }
     };
     fetchOwners();
-  }, []);
+  }, [user?.role]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.ownerId) {
-      setError('Debes seleccionar un propietario.');
+    if (!formData.ownerId.trim()) {
+      setError('Debes ingresar o seleccionar un propietario.');
       return;
     }
     setLoading(true);
@@ -44,15 +57,16 @@ const CreateAnimal: React.FC = () => {
     try {
       await animalService.create(formData);
       navigate('/animals');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Error al registrar animal.');
+    } catch (err: unknown) {
+      const axiosError = err as any;
+      setError(axiosError.response?.data?.error || 'Error al registrar animal.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+    <div style={{ maxWidth: '700px', margin: '0 auto' }}>
       <button 
         onClick={() => navigate('/animals')} 
         className="btn" 
@@ -72,30 +86,68 @@ const CreateAnimal: React.FC = () => {
         )}
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Nombre del Animal</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              placeholder="Ej: Bessie"
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-              required
-            />
+          <div className="flex gap-10">
+            <div className="form-group" style={{ flex: 2 }}>
+              <label>Nombre del Animal</label>
+              <input 
+                type="text" 
+                className="form-control" 
+                placeholder="Ej: Bessie"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
+              />
+            </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label>Género</label>
+              <select 
+                className="form-control" 
+                value={formData.gender}
+                onChange={(e) => setFormData({...formData, gender: e.target.value})}
+                required
+              >
+                <option value="">Seleccionar</option>
+                <option value={Gender.MALE}>Macho</option>
+                <option value={Gender.FEMALE}>Hembra</option>
+              </select>
+            </div>
           </div>
 
           <div className="flex gap-10">
             <div className="form-group" style={{ flex: 1 }}>
               <label>Especie</label>
-              <input 
-                type="text" 
+              <select 
                 className="form-control" 
-                placeholder="Ej: Bovino"
                 value={formData.species}
                 onChange={(e) => setFormData({...formData, species: e.target.value})}
                 required
-              />
+              >
+                <option value="">Seleccionar especie</option>
+                <option value={SpeciesType.CANINE}>Canino</option>
+                <option value={SpeciesType.FELINE}>Felino</option>
+                <option value={SpeciesType.BOVINE}>Bovino</option>
+                <option value={SpeciesType.CAPRINE}>Caprino</option>
+                <option value={SpeciesType.EQUINE}>Equino</option>
+                <option value={SpeciesType.POULTRY}>Ave de corral</option>
+                <option value={SpeciesType.PIG}>Porcino</option>
+              </select>
             </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label>Tipo de Entorno</label>
+              <select 
+                className="form-control" 
+                value={formData.animalType}
+                onChange={(e) => setFormData({...formData, animalType: e.target.value})}
+                required
+              >
+                <option value="">Seleccionar</option>
+                <option value={AnimalType.URBAN}>Urbano</option>
+                <option value={AnimalType.RURAL}>Rural</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex gap-10">
             <div className="form-group" style={{ flex: 1 }}>
               <label>Raza</label>
               <input 
@@ -104,6 +156,17 @@ const CreateAnimal: React.FC = () => {
                 placeholder="Ej: Holstein"
                 value={formData.breed}
                 onChange={(e) => setFormData({...formData, breed: e.target.value})}
+                required
+              />
+            </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label>Color</label>
+              <input 
+                type="text" 
+                className="form-control" 
+                placeholder="Ej: Blanco con negro"
+                value={formData.color}
+                onChange={(e) => setFormData({...formData, color: e.target.value})}
                 required
               />
             </div>
@@ -122,18 +185,29 @@ const CreateAnimal: React.FC = () => {
 
           <div className="form-group">
             <label>Propietario</label>
-            <select 
-              className="form-control" 
-              value={formData.ownerId}
-              onChange={(e) => setFormData({...formData, ownerId: e.target.value})}
-              required
-              disabled={ownersLoading}
-            >
-              <option value="">{ownersLoading ? 'Cargando propietarios...' : 'Seleccione un propietario'}</option>
-              {owners.map(owner => (
-                <option key={owner.id} value={owner.id}>{owner.name} ({owner.document})</option>
-              ))}
-            </select>
+            {canFetchOwners ? (
+              <select 
+                className="form-control" 
+                value={formData.ownerId}
+                onChange={(e) => setFormData({...formData, ownerId: e.target.value})}
+                required
+                disabled={ownersLoading}
+              >
+                <option value="">{ownersLoading ? 'Cargando propietarios...' : 'Seleccione un propietario'}</option>
+                {owners.map(owner => (
+                  <option key={owner.id} value={owner.id}>{owner.name} ({owner.document})</option>
+                ))}
+              </select>
+            ) : (
+              <input 
+                type="text" 
+                className="form-control" 
+                placeholder="Ingrese el ID del propietario"
+                value={formData.ownerId}
+                onChange={(e) => setFormData({...formData, ownerId: e.target.value})}
+                required
+              />
+            )}
           </div>
 
           <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }} disabled={loading}>

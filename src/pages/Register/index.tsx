@@ -22,8 +22,9 @@ const Register: React.FC = () => {
       await authService.signup({ username, email, password, role });
       alert('Registro exitoso. Ahora puedes iniciar sesión.');
       navigate('/login');
-    } catch (err: any) {
-      const apiError = err.response?.data;
+    } catch (err: unknown) {
+      const axiosError = err as Record<string, unknown>;
+      const apiError = (axiosError.response as Record<string, unknown>)?.data as Record<string, any>;
       let errorMessage = 'Error en el registro. Inténtalo de nuevo.';
       
       if (apiError) {

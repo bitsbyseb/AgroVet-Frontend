@@ -14,9 +14,9 @@ const MainLayout: React.FC = () => {
   };
 
   const menuItems = [
-    { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
-    { name: 'Animales', path: '/animals', icon: <Cat size={20} /> },
-    { name: 'Propietarios', path: '/owners', icon: <Users size={20} /> },
+    { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} />, roles: ['veterinarian', 'zootechnician', 'administrator'] },
+    { name: 'Animales', path: '/animals', icon: <Cat size={20} />, roles: ['veterinarian', 'zootechnician', 'administrator'] },
+    { name: 'Propietarios', path: '/owners', icon: <Users size={20} />, roles: ['veterinarian', 'administrator'] },
   ];
 
   return (
@@ -35,7 +35,9 @@ const MainLayout: React.FC = () => {
         </div>
         
         <nav style={{ flex: 1 }}>
-          {menuItems.map((item) => {
+          {menuItems
+            .filter(item => !user || item.roles.includes(user.role))
+            .map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link 
@@ -62,7 +64,9 @@ const MainLayout: React.FC = () => {
             <UserIcon size={20} />
             <div style={{ overflow: 'hidden' }}>
               <p style={{ fontSize: '0.9rem', fontWeight: 'bold', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{user?.username}</p>
-              <p style={{ fontSize: '0.8rem', color: '#b0bec5' }}>{user?.role}</p>
+              <p style={{ fontSize: '0.8rem', color: '#b0bec5' }}>
+                {user?.role === 'administrator' ? 'Administrador' : user?.role === 'zootechnician' ? 'Zootecnista' : 'Veterinario'}
+              </p>
             </div>
           </div>
           <button 
