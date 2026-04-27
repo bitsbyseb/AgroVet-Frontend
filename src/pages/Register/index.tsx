@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { authService } from '../../services/api';
-import type { ApiError } from '../../types';
 import { Beef } from 'lucide-react';
 
 const Register: React.FC = () => {
