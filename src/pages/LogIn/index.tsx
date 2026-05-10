@@ -18,7 +18,7 @@ const LogIn: React.FC = () => {
     try {
       const response = await authService.login({ email, password });
       localStorage.setItem('token', response.token);
-      navigate('/');
+      window.location.href = '/';
     } catch (err: unknown) {
       const axiosError = err as Record<string, unknown>;
       const apiError = (axiosError.response as Record<string, unknown>)?.data as Record<string, any>;

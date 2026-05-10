@@ -52,6 +52,7 @@ export interface Animal {
   color: string;
   ownerId: string;
   owner?: Owner;
+  status: 'active' | 'inactive';
 }
 
 export interface ApiError {
@@ -82,6 +83,57 @@ export interface AnimalInput {
   ownerId: string;
 }
 
+export interface AnimalUpdateInput {
+  name?: string;
+  color?: string;
+  breed?: string;
+  status?: 'active' | 'inactive';
+}
+
+export interface MedicalHistoryRecord {
+  id: string;
+  date: string;
+  reason: string;
+  diagnosis: string;
+  treatment: string;
+  observations?: string;
+  animalId: string;
+  professionalId: string;
+  professional?: {
+    username: string;
+    role: string;
+  };
+}
+
+export interface MedicalHistoryInput {
+  date: string;
+  reason: string;
+  diagnosis: string;
+  treatment: string;
+  observations?: string;
+}
+
+export interface VaccineRecord {
+  id: string;
+  vaccineName: string;
+  applicationDate: string;
+  nextDoseDate?: string;
+  batchNumber?: string;
+  animalId: string;
+  administeredById: string;
+  administeredBy?: {
+    username: string;
+    role: string;
+  };
+}
+
+export interface VaccineInput {
+  vaccineName: string;
+  applicationDate: string;
+  nextDoseDate?: string;
+  batchNumber?: string;
+}
+
 export interface OwnerInput {
   name: string;
   document: string;
@@ -89,4 +141,12 @@ export interface OwnerInput {
   email: string;
   address: string;
   ownerType: string;
+}
+
+export interface OwnerUpdateInput {
+  name?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  ownerType?: string;
 }

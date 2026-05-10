@@ -1,37 +1,64 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router';
 import { ownerService } from '../../services/api';
-import type { OwnerInput } from '../../types';
+import type { OwnerUpdateInput } from '../../types';
 import { ArrowLeft, Save } from 'lucide-react';
 
-const CreateOwner: React.FC = () => {
+const EditOwner: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<OwnerInput>({
+  const [formData, setFormData] = useState<OwnerUpdateInput>({
     name: '',
-    document: '',
     phone: '',
     email: '',
     address: '',
     ownerType: 'urban'
   });
-  const [loading, setLoading] = useState(false);
+  const [document, setDocument] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchOwner = async () => {
+      if (!id) return;
+      try {
+        const owner = await ownerService.getById(id);
+        setFormData({
+          name: owner.name,
+          phone: owner.phone,
+          email: owner.email,
+          address: owner.address,
+          ownerType: owner.ownerType
+        });
+        setDocument(owner.document);
+      } catch (err: unknown) {
+        setError('Error al cargar datos del propietario.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOwner();
+  }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    if (!id) return;
+    setSaving(true);
     setError(null);
 
     try {
-      await ownerService.create(formData);
+      await ownerService.update(id, formData);
       navigate('/owners');
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { error?: string } } };
-      setError(axiosError.response?.data?.error || 'Error al registrar propietario.');
+      setError(axiosError.response?.data?.error || 'Error al actualizar propietario.');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
+
+  if (loading) return <div style={{ padding: '20px' }}>Cargando...</div>;
 
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto' }}>
@@ -45,7 +72,7 @@ const CreateOwner: React.FC = () => {
       </button>
 
       <div className="card">
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '25px' }}>Registrar Nuevo Propietario</h1>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '25px' }}>Editar Propietario</h1>
         
         {error && (
           <div style={{ backgroundColor: '#ffebee', color: 'var(--error)', padding: '10px', borderRadius: '6px', marginBottom: '20px' }}>
@@ -67,14 +94,12 @@ const CreateOwner: React.FC = () => {
 
           <div className="flex gap-10">
             <div className="form-group" style={{ flex: 1 }}>
-              <label>Documento / CC</label>
+              <label>Documento / CC (No editable)</label>
               <input 
                 type="text" 
                 className="form-control" 
-                value={formData.document}
-                onChange={(e) => setFormData({...formData, document: e.target.value.replace(/\D/g, '')})}
-                placeholder="Solo números"
-                required
+                value={document}
+                disabled
               />
             </div>
             <div className="form-group" style={{ flex: 1 }}>
@@ -125,9 +150,9 @@ const CreateOwner: React.FC = () => {
             </select>
           </div>
 
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }} disabled={loading}>
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }} disabled={saving}>
             <Save size={20} />
-            {loading ? 'Guardando...' : 'Guardar Propietario'}
+            {saving ? 'Guardando...' : 'Actualizar Propietario'}
           </button>
         </form>
       </div>
@@ -135,4 +160,4 @@ const CreateOwner: React.FC = () => {
   );
 };
 
-export default CreateOwner;
+export default EditOwner;

@@ -55,10 +55,16 @@ const CreateAnimal: React.FC = () => {
     setError(null);
 
     try {
-      await animalService.create(formData);
+      // Se envía con T00:00:00.000Z para forzar UTC e ISO 8601 sin que JS lo mueva de zona horaria si se pasa como argumento a new Date
+      const isoDate = formData.birthDate ? `${formData.birthDate}T00:00:00.000Z` : '';
+      const dataToSubmit = {
+        ...formData,
+        birthDate: isoDate
+      };
+      await animalService.create(dataToSubmit);
       navigate('/animals');
     } catch (err: unknown) {
-      const axiosError = err as any;
+      const axiosError = err as { response?: { data?: { error?: string } } };
       setError(axiosError.response?.data?.error || 'Error al registrar animal.');
     } finally {
       setLoading(false);

@@ -1,6 +1,6 @@
 # Guía de Integración Frontend - AgroVet API
 
-Esta guía contiene la referencia completa, estructurada y verificada para consumir los endpoints del sistema AgroVet.
+Esta guía contiene la referencia completa, estructurada y verificada para consumir los endpoints del sistema AgroVet. Todos los endpoints retornan y reciben JSON.
 
 ---
 
@@ -16,7 +16,7 @@ Esta guía contiene la referencia completa, estructurada y verificada para consu
 
 Se emplea el esquema de seguridad **Bearer Token**.
 
-1. **Obtener Token**: Loguéate usando el endpoint `/auth/login`.
+1. **Obtener Token**: Inicia sesión usando el endpoint `/auth/login`.
 2. **Uso del Token**: Envía el header en cada petición:
    `Authorization: Bearer <TU_TOKEN>`
 
@@ -33,27 +33,30 @@ Se emplea el esquema de seguridad **Bearer Token**.
 | **Reproducción** | No | Full Access | Solo Lectura |
 | **Propietarios** | Solo Lectura | No | Full Access |
 | **Usuarios / Personal**| No | No | Full Access |
+| **Comidas (Foods)** | Solo Lectura | Full Access | Full Access |
 
 ---
 
-## 3. Catálogo de Endpoints
+## 3. Catálogo Completo de Endpoints
+
+A continuación se listan todos los endpoints disponibles, qué envían y qué retornan.
 
 ### 🔑 Autenticación (`/auth`)
 
-#### 1. Iniciar Sesión (Público)
-- **Método y Ruta**: `POST /auth/login`
-- **Body Esperado**:
+#### `POST /auth/login` (Público)
+- **Descripción**: Inicia sesión y obtiene el token JWT.
+- **Request Body**:
   ```json
   {
-    "email": "jspuentes@ucundinamar.edu.co",
-    "password": "AgroVet2026*"
+    "email": "correo@ejemplo.com",
+    "password": "MiPasswordSeguro123"
   }
   ```
-- **Respuesta (200)**: Devuelve un `{ "token": "..." }`.
+- **Response (200)**: `{ "token": "eyJhbGciOiJIUzI1..." }`
 
-#### 2. Registrar Personal (Solo Admin)
-- **Método y Ruta**: `POST /auth/signup`
-- **Body Esperado**:
+#### `POST /auth/signup` (Solo Admin)
+- **Descripción**: Registra nuevo personal médico/administrativo.
+- **Request Body**:
   ```json
   {
     "username": "Carlos Perez",
@@ -62,17 +65,25 @@ Se emplea el esquema de seguridad **Bearer Token**.
     "role": "veterinarian" // Valores: "veterinarian", "zootechnician"
   }
   ```
-  *(Nota: El backend bloquea intencionalmente la creación de un rol "administrator" aquí).*
+- **Response (201)**: `{ "message": "User registered successfully" }`
 
 ---
 
 ### 🐾 Animales (`/animals`)
 
-> **Importante:** Al crear un animal, el **ID lo genera el backend**. El frontend NO debe enviar la propiedad `id`. 
+> **Importante:** Al crear un animal, el **ID lo genera el backend**.
 
-#### 1. Registrar Animal
-- **Método y Ruta**: `POST /animals`
-- **Body Esperado**:
+#### `GET /animals`
+- **Descripción**: Lista todos los animales del sistema.
+- **Response (200)**: Array de animales incluyendo `id`, `status` ("active"/"inactive"), `name`, `species`, etc.
+
+#### `GET /animals/{id}`
+- **Descripción**: Obtiene los detalles de un animal específico por su UUID.
+- **Response (200)**: Objeto con toda la información del animal.
+
+#### `POST /animals`
+- **Descripción**: Registra un nuevo animal.
+- **Request Body**:
   ```json
   {
     "name": "Bessie",
@@ -85,10 +96,11 @@ Se emplea el esquema de seguridad **Bearer Token**.
     "ownerId": "uuid-del-propietario"
   }
   ```
+- **Response (201)**: `{ "message": "Animal registered successfully" }`
 
-#### 2. Actualizar Datos Físicos del Animal
-- **Método y Ruta**: `PUT /animals/{id}`
-- **Body Esperado** (Envia solo lo que quieras actualizar):
+#### `PUT /animals/{id}`
+- **Descripción**: Actualiza los datos físicos o el estado del animal.
+- **Request Body** (Opcional - envía solo lo que quieras actualizar):
   ```json
   {
     "name": "Bessie 2",
@@ -97,27 +109,37 @@ Se emplea el esquema de seguridad **Bearer Token**.
     "status": "inactive" // Opciones: active, inactive
   }
   ```
+- **Response (200)**: `{ "message": "Animal updated successfully" }`
 
-#### 3. Transferir Dueño
-- **Método y Ruta**: `PATCH /animals/{id}/transfer`
-- **Body Esperado**:
+#### `PATCH /animals/{id}/transfer`
+- **Descripción**: Transfiere la propiedad del animal a otro dueño.
+- **Request Body**:
   ```json
   {
     "newOwnerId": "uuid-del-nuevo-dueño"
   }
   ```
+- **Response (200)**: `{ "message": "Animal ownership transferred" }`
 
-#### 4. Listar Animales
-- **Método y Ruta**: `GET /animals`
-- **Respuesta (200)**: Array de objetos que incluirán el `id`, el `status` por defecto ("active"), y todos sus atributos.
+#### `DELETE /animals/{id}`
+- **Descripción**: Elimina un animal del sistema.
+- **Response (200)**: `{ "message": "Animal deleted successfully" }`
 
 ---
 
 ### 🧑‍🌾 Propietarios (`/owners`)
 
-#### 1. Registrar Propietario (Solo Admin)
-- **Método y Ruta**: `POST /owners`
-- **Body Esperado**:
+#### `GET /owners`
+- **Descripción**: Lista todos los propietarios.
+- **Response (200)**: Array de objetos Propietario.
+
+#### `GET /owners/{id}`
+- **Descripción**: Obtiene un propietario por su ID.
+- **Response (200)**: Detalles completos del propietario.
+
+#### `POST /owners`
+- **Descripción**: Registra un nuevo propietario.
+- **Request Body**:
   ```json
   {
     "name": "Juan Pérez",
@@ -128,28 +150,151 @@ Se emplea el esquema de seguridad **Bearer Token**.
     "ownerType": "urban" // Opciones: urban, rural
   }
   ```
+- **Response (201)**: `{ "message": "Owner registered successfully" }`
 
-#### 2. Actualizar Propietario
-- **Método y Ruta**: `PUT /owners/{id}`
-- **Body Esperado**: Igual al registro, pero **no** se envía la propiedad `document` (el número de documento no es editable).
+#### `PUT /owners/{id}`
+- **Descripción**: Actualiza los datos de contacto de un propietario (el documento no es editable).
+- **Request Body** (Datos opcionales):
+  ```json
+  {
+    "name": "Juan Pablo Pérez",
+    "phone": "+0987654321",
+    "email": "juanpablo@example.com",
+    "address": "Avenida Siempre Viva",
+    "ownerType": "rural"
+  }
+  ```
+- **Response (200)**: `{ "message": "Owner updated successfully" }`
 
-#### 3. Ver Animales del Propietario
-- **Método y Ruta**: `GET /owners/{id}/animals`
-- **Respuesta (200)**: Array de animales asociados a ese ID de propietario.
+#### `DELETE /owners/{id}`
+- **Descripción**: Elimina a un propietario.
+- **Response (200)**: `{ "message": "Owner deleted successfully" }`
+
+#### `GET /owners/{id}/animals`
+- **Descripción**: Lista todos los animales pertenecientes a un propietario.
+- **Response (200)**: Array de animales.
+
+---
+
+### 🥗 Alimentos (`/foods`)
+
+#### `GET /foods`
+- **Descripción**: Lista todo el catálogo de alimentos disponibles.
+- **Response (200)**: Array de objetos alimento.
+
+#### `POST /foods`
+- **Descripción**: Agrega un nuevo alimento al catálogo.
+- **Request Body**:
+  ```json
+  {
+    "name": "Concentrado Lechero 16%",
+    "type": "Concentrado",
+    "brand": "Purina",
+    "nutritionalValue": "Proteína 16%, Energía 2.5 Mcal"
+  }
+  ```
+- **Response (201)**: `{ "message": "Food registered successfully" }`
+
+---
+
+### 📅 Consultas / Citas (`/appointments`)
+
+#### `GET /appointments`
+- **Descripción**: Lista todas las citas médicas programadas.
+- **Response (200)**: Array de citas.
+
+#### `POST /appointments`
+- **Descripción**: Programa una nueva cita.
+- **Request Body**:
+  ```json
+  {
+    "date": "2023-12-01T10:00:00Z",
+    "reason": "Revisión general",
+    "animalId": "uuid-del-animal",
+    "status": "Scheduled" // Scheduled, Completed, Cancelled
+  }
+  ```
+- **Response (201)**: `{ "message": "Appointment registered successfully" }`
+
+#### `PUT /appointments/{id}`
+- **Descripción**: Actualiza el estado de una cita.
+- **Request Body**:
+  ```json
+  {
+    "status": "Completed"
+  }
+  ```
+- **Response (200)**: `{ "message": "Appointment updated successfully" }`
 
 ---
 
 ### 🩺 Gestión Clínica, Nutricional y Productiva (Sub-rutas de Animal)
 
-Se accede a ellos a través del ID del animal. **El backend inyecta el `id` del animal automáticamente a través de la URL**, no lo mandes en el body.
+Se accede a estos endpoints a través del ID del animal específico. **El backend inyecta el `id` del animal automáticamente a través de la URL**.
 
-| Módulo | Creación (POST) | Lectura (GET) | Body (Ejemplo para POST) |
-| :--- | :--- | :--- | :--- |
-| **Historial Médico** | `/animals/{id}/history` | `/animals/{id}/history` | `{"diagnosis": "Fiebre", "treatment": "Reposo", "notes": "..."}` |
-| **Vacunas** | `/animals/{id}/vaccines` | `/animals/{id}/vaccines` | `{"vaccineName": "Antirrábica", "dose": "2ml", "applicationDate": "2023-10-05"}` |
-| **Alimentación** | `/animals/{id}/diet` | `/animals/{id}/diet` | `{"foodId": "uuid-comida", "quantity": 2.5, "frequency": "Diario"}` |
-| **Producción** | `/animals/{id}/production`| `/animals/{id}/production` | `{"type": "Leche", "quantity": 15, "unit": "Litros", "date": "2023-11-01"}` |
-| **Reproducción** | `/animals/{id}/reproduction`| `/animals/{id}/reproduction`| `{"eventType": "Inseminación", "date": "2023-12-01"}` |
+#### 1. Historial Médico (`/animals/{id}/history`)
+- **GET**: Devuelve el historial médico del animal.
+- **POST Body**:
+  ```json
+  {
+    "date": "2023-10-01T00:00:00Z",
+    "reason": "Decaimiento",
+    "diagnosis": "Fiebre aftosa",
+    "treatment": "Antibióticos y reposo",
+    "observations": "Observar evolución en 3 días"
+  }
+  ```
+
+#### 2. Vacunas (`/animals/{id}/vaccines`)
+- **GET**: Devuelve el registro de vacunación.
+- **POST Body**:
+  ```json
+  {
+    "vaccineName": "Antiaftosa",
+    "dose": "5ml",
+    "applicationDate": "2023-10-05T00:00:00Z",
+    "nextDoseDate": "2024-10-05T00:00:00Z", 
+    "batchNumber": "LOTE123"
+  }
+  ```
+
+#### 3. Alimentación / Dieta (`/animals/{id}/diet`)
+- **GET**: Devuelve el plan de alimentación.
+- **POST Body**:
+  ```json
+  {
+    "foodId": "uuid-del-alimento",
+    "quantity": 2.5,
+    "frequency": "Diario",
+    "startDate": "2023-10-01T00:00:00Z",
+    "endDate": "2023-11-01T00:00:00Z",
+    "observations": "Mezclar con forraje"
+  }
+  ```
+  *(Nota: Asegúrate de enviar un `foodId` válido existente en `/foods`)*
+
+#### 4. Producción (`/animals/{id}/production`)
+- **GET**: Devuelve los registros de producción.
+- **POST Body**:
+  ```json
+  {
+    "type": "Leche",
+    "quantity": 15.5,
+    "unit": "Litros",
+    "date": "2023-10-12T00:00:00Z"
+  }
+  ```
+
+#### 5. Reproducción (`/animals/{id}/reproduction`)
+- **GET**: Devuelve el registro reproductivo.
+- **POST Body**:
+  ```json
+  {
+    "date": "2023-11-01T00:00:00Z",
+    "eventType": "Inseminación",
+    "notes": "Procedimiento exitoso"
+  }
+  ```
 
 ---
 
@@ -158,13 +303,14 @@ Se accede a ellos a través del ID del animal. **El backend inyecta el `id` del 
 El backend está programado con `zod-openapi`, por lo cual las validaciones son muy estrictas. 
 
 - `200 / 201`: Éxito.
-- `400 Bad Request`: Si fallas al enviar un Enum (ej. envías `dog` en lugar de `canine`) o te falta un dato requerido, recibirás un arreglo de `errors` detallando exactamente qué campo falló.
+- `400 Bad Request`: Si fallas al enviar un Enum (ej. envías `perro` en lugar de `canine`) o te falta un dato requerido, recibirás un arreglo de `errors` detallando exactamente qué campo falló en la respuesta JSON.
 - `401 Unauthorized`: No has enviado el Bearer Token, o ya expiró (dura 1 hora).
 - `403 Forbidden`: Tienes un token válido, pero tu rol actual no te permite hacer la acción (ej. un Veterinario tratando de cambiar la Dieta).
-- `404 Not Found`: El `id` buscado en la URL no existe en la base de datos.
+- `404 Not Found`: El recurso buscado o el ID especificado en la URL no existe en la base de datos.
 - `500 Internal Server Error`: Problemas con la base de datos o lógica interna.
 
-### Recomendaciones para el Frontend (React / Angular / Vue)
-1. Extrae tus enums del backend (ej. `canine`, `urban`, `male`) en variables estáticas para tus Selects/Dropdowns.
-2. Formatea todas las fechas (`birthDate`, `applicationDate`, etc.) usando `toISOString()` o librerías como `date-fns` antes de enviarlas.
-3. Si el usuario recibe un código `401`, usa tus interceptores de HTTP (ej. de Axios) para limpiar el estado global de Redux/Context y regresarlo a la pantalla de Login.
+### Recomendaciones para el Frontend
+1. Extrae tus enums del backend (ej. `canine`, `urban`, `male`, `active`) en variables estáticas o types de TypeScript para tus Selects/Dropdowns. La UI puede mostrar "Canino", pero el valor enviado **debe ser** `canine`.
+2. Formatea todas las fechas usando `new Date().toISOString()` antes de enviarlas al servidor.
+3. El Backend asocia automáticamente a los responsables (`createdBy`, `administeredBy`) a partir del usuario logueado en base al Token JWT. ¡No intentes enviarlos en los cuerpos de las peticiones (Body)!
+4. Configura interceptores en tu cliente HTTP (Axios / Fetch) para atrapar el código `401` y redirigir al usuario al login globalmente.

@@ -2,27 +2,44 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { ownerService, authService } from '../../services/api';
 import type { Owner } from '../../types';
-import { Plus, User as UserIcon } from 'lucide-react';
+import { Plus, User as UserIcon, Edit2, Eye, Trash2 } from 'lucide-react';
 
 const OwnersList: React.FC = () => {
   const [owners, setOwners] = useState<Owner[]>([]);
   const [loading, setLoading] = useState(true);
-  const user = authService.getCurrentUser();
+  const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState(authService.getCurrentUser());
   const isAdmin = user?.role === 'administrator';
 
   useEffect(() => {
-    const fetchOwners = async () => {
-      try {
-        const data = await ownerService.list();
-        setOwners(data);
-      } catch (err) {
-        console.error('Error fetching owners:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    setUser(authService.getCurrentUser());
     fetchOwners();
   }, []);
+
+  const fetchOwners = async () => {
+    try {
+      setLoading(true);
+      const data = await ownerService.list();
+      setOwners(data);
+    } catch (err) {
+      console.error('Error fetching owners:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    if (window.confirm(`¿Estás seguro de que deseas eliminar permanentemente a ${name}? Esto podría fallar si tiene animales asociados.`)) {
+      try {
+        await ownerService.delete(id);
+        setOwners(owners.filter(owner => owner.id !== id));
+      } catch (err: unknown) {
+        const axiosError = err as { response?: { data?: { error?: string } } };
+        setError(axiosError.response?.data?.error || 'Error al eliminar el propietario. Verifica que no tenga animales asociados.');
+        setTimeout(() => setError(null), 5000);
+      }
+    }
+  };
 
   return (
     <div>
@@ -39,6 +56,12 @@ const OwnersList: React.FC = () => {
         )}
       </div>
 
+      {error && (
+        <div style={{ backgroundColor: '#ffebee', color: 'var(--error)', padding: '10px', borderRadius: '6px', marginBottom: '20px' }}>
+          {error}
+        </div>
+      )}
+
       <div className="card">
         {loading ? (
           <p>Cargando propietarios...</p>
@@ -54,7 +77,7 @@ const OwnersList: React.FC = () => {
                   <th>Email</th>
                   <th>Teléfono</th>
                   <th>Tipo</th>
-                  <th>Dirección</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -80,7 +103,28 @@ const OwnersList: React.FC = () => {
                          {owner.ownerType === 'rural' ? 'Rural' : 'Urbano'}
                        </span>
                     </td>
-                    <td style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{owner.address}</td>
+                    <td>
+                      <div className="flex gap-10">
+                        <Link to={`/owners/${owner.id}/animals`} className="btn btn-sm" title="Ver Animales">
+                          <Eye size={16} />
+                        </Link>
+                        {isAdmin && (
+                          <>
+                            <Link to={`/owners/${owner.id}/edit`} className="btn btn-sm" title="Editar">
+                              <Edit2 size={16} />
+                            </Link>
+                            <button 
+                              onClick={() => handleDelete(owner.id, owner.name)} 
+                              className="btn btn-sm" 
+                              style={{ color: 'var(--error)' }} 
+                              title="Eliminar"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
