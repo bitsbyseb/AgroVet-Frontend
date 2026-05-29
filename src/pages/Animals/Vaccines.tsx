@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { animalService, authService } from '../../services/api';
 import type { Animal, VaccineRecord, VaccineInput } from '../../types';
-import { ArrowLeft, Plus, Syringe, Save, X, Calendar, User as UserIcon, FileText } from 'lucide-react';
+import { ArrowLeft, Plus, Syringe, Save, X, User as UserIcon, FileText } from 'lucide-react';
 
 const AnimalVaccines: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -41,7 +41,9 @@ const AnimalVaccines: React.FC = () => {
       ]);
       setAnimal(animalData);
       setVaccines(vaccinesData);
-    } catch (err) {
+    } catch(err) {
+      // eslint-disable-next-line no-unused-vars
+
       console.error('Error fetching vaccines:', err);
       setError('No se pudo cargar la información del animal o sus vacunas.');
     } finally {
@@ -72,8 +74,8 @@ const AnimalVaccines: React.FC = () => {
         batchNumber: ''
       });
       fetchData(); // Refresh history
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Error al guardar la vacuna.');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { error?: string }, status?: number } }).response?.data?.error || 'Error al guardar la vacuna.');
     } finally {
       setSaving(false);
     }

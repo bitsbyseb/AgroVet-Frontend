@@ -150,3 +150,87 @@ export interface OwnerUpdateInput {
   address?: string;
   ownerType?: string;
 }
+
+export interface ProductionRecord {
+  id: string;
+  type: string;
+  quantity: number;
+  unit: string;
+  date: string;
+  purpose: string;
+  animalId: string;
+}
+
+export interface ProductionInput {
+  type: string;
+  quantity: number;
+  unit: string;
+  date: string;
+  purpose: string;
+}
+
+export interface ReproductionRecord {
+  id: string;
+  reproductiveStatus: string;
+  lastCalvingDate?: string;
+  offspringCount: number;
+  breedingType?: string;
+  animalId: string;
+}
+
+export interface ReproductionInput {
+  reproductiveStatus: string;
+  lastCalvingDate?: string;
+  offspringCount: number;
+  breedingType?: string;
+}
+
+export interface Food {
+  id: string;
+  name: string;
+  type: string;
+  description: string;
+}
+
+export interface FoodInput {
+  name: string;
+  type: string;
+  description: string;
+}
+
+export interface DietRecord {
+  id: string;
+  animalId: string;
+  foodId: string;
+  quantity: number;
+  frequency: string;
+  date: string;
+  food?: Food;
+}
+
+export interface DietInput {
+  foodId: string;
+  quantity: number;
+  frequency: string;
+}
+
+export interface Appointment {
+  id: string;
+  date: string;
+  reason: string;
+  animalId: string;
+  status: 'Scheduled' | 'Completed' | 'Cancelled';
+  animal?: Animal;
+}
+
+export interface AppointmentInput {
+  date: string;
+  reason: string;
+  animalId: string;
+  status?: string;
+}
+
+export interface UpdateAppointmentInput {
+  status: string;
+}
+

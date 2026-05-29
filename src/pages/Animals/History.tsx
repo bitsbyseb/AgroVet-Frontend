@@ -41,7 +41,9 @@ const AnimalHistory: React.FC = () => {
       ]);
       setAnimal(animalData);
       setHistory(historyData);
-    } catch (err) {
+    } catch(err) {
+      // eslint-disable-next-line no-unused-vars
+
       console.error('Error fetching history:', err);
       setError('No se pudo cargar la información del animal o su historial.');
     } finally {
@@ -71,8 +73,8 @@ const AnimalHistory: React.FC = () => {
         observations: ''
       });
       fetchData(); // Refresh history
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Error al guardar el registro médico.');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { error?: string }, status?: number } }).response?.data?.error || 'Error al guardar el registro médico.');
     } finally {
       setSaving(false);
     }

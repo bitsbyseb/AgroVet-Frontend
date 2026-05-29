@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { animalService, authService } from '../../services/api';
 import type { Animal } from '../../types';
-import { Plus, Cat, Edit2, RefreshCw, Trash2, Stethoscope, Syringe } from 'lucide-react';
+import { Plus, Cat, Edit2, RefreshCw, Trash2, Stethoscope, Syringe, Package, Activity, Utensils } from 'lucide-react';
 
 const AnimalsList: React.FC = () => {
   const [animals, setAnimals] = useState<Animal[]>([]);
@@ -20,7 +20,9 @@ const AnimalsList: React.FC = () => {
       setLoading(true);
       const data = await animalService.list();
       setAnimals(data);
-    } catch (err) {
+    } catch(err) {
+      // eslint-disable-next-line no-unused-vars
+
       console.error('Error fetching animals:', err);
     } finally {
       setLoading(false);
@@ -108,6 +110,23 @@ const AnimalsList: React.FC = () => {
                         <Link to={`/animals/${animal.id}/vaccines`} className="btn btn-sm" title="Ver Vacunas" style={{ color: '#00acc1' }}>
                           <Syringe size={16} />
                         </Link>
+                        {user?.role !== 'veterinarian' && (
+                          <Link to={`/animals/${animal.id}/diet`} className="btn btn-sm" title="Plan de Alimentación" style={{ color: '#f57c00' }}>
+                            <Utensils size={16} />
+                          </Link>
+                        )}
+                        {animal.animalType === 'rural' && (
+                          <>
+                            <Link to={`/animals/${animal.id}/production`} className="btn btn-sm" title="Producción" style={{ color: '#2e7d32' }}>
+                              <Package size={16} />
+                            </Link>
+                            {user?.role !== 'veterinarian' && (
+                              <Link to={`/animals/${animal.id}/reproduction`} className="btn btn-sm" title="Reproducción" style={{ color: '#e91e63' }}>
+                                <Activity size={16} />
+                              </Link>
+                            )}
+                          </>
+                        )}
                         <Link to={`/animals/${animal.id}/edit`} className="btn btn-sm" title="Editar">
                           <Edit2 size={16} />
                         </Link>

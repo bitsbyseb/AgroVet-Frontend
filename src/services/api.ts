@@ -1,11 +1,16 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-import type { 
-  User, AuthResponse, LoginCredentials, SignupData, 
-  AnimalInput, OwnerInput, Animal, Owner, 
+import type {
+  User, AuthResponse, LoginCredentials, SignupData,
+  AnimalInput, OwnerInput, Animal, Owner,
   AnimalUpdateInput, OwnerUpdateInput,
   MedicalHistoryRecord, MedicalHistoryInput,
-  VaccineRecord, VaccineInput
+  VaccineRecord, VaccineInput,
+  ProductionRecord, ProductionInput,
+  ReproductionRecord, ReproductionInput,
+  Food, FoodInput,
+  DietRecord, DietInput,
+  Appointment, AppointmentInput, UpdateAppointmentInput
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_SERVICE_URL + "/api/v1";
@@ -109,6 +114,30 @@ export const animalService = {
     const response = await api.post<VaccineRecord>(`/animals/${id}/vaccines`, data);
     return response.data;
   },
+  getProduction: async (id: string): Promise<ProductionRecord[]> => {
+    const response = await api.get<ProductionRecord[]>(`/animals/${id}/production`);
+    return response.data;
+  },
+  addProduction: async (id: string, data: ProductionInput): Promise<ProductionRecord> => {
+    const response = await api.post<ProductionRecord>(`/animals/${id}/production`, data);
+    return response.data;
+  },
+  getReproduction: async (id: string): Promise<ReproductionRecord[]> => {
+    const response = await api.get<ReproductionRecord[]>(`/animals/${id}/reproduction`);
+    return response.data;
+  },
+  addReproduction: async (id: string, data: ReproductionInput): Promise<ReproductionRecord> => {
+    const response = await api.post<ReproductionRecord>(`/animals/${id}/reproduction`, data);
+    return response.data;
+  },
+  getDiet: async (id: string): Promise<DietRecord[]> => {
+    const response = await api.get<DietRecord[]>(`/animals/${id}/diet`);
+    return response.data;
+  },
+  addDiet: async (id: string, data: DietInput): Promise<DietRecord> => {
+    const response = await api.post<DietRecord>(`/animals/${id}/diet`, data);
+    return response.data;
+  },
 };
 
 export const ownerService = {
@@ -135,6 +164,32 @@ export const ownerService = {
     const response = await api.get<Animal[]>(`/owners/${id}/animals`);
     return response.data;
   },
+};
+
+export const foodService = {
+  list: async (): Promise<Food[]> => {
+    const response = await api.get<Food[]>('/foods');
+    return response.data;
+  },
+  create: async (foodData: FoodInput): Promise<Food> => {
+    const response = await api.post<Food>('/foods', foodData);
+    return response.data;
+  }
+};
+
+export const appointmentService = {
+  list: async (): Promise<Appointment[]> => {
+    const response = await api.get<Appointment[]>('/appointments');
+    return response.data;
+  },
+  create: async (appointmentData: AppointmentInput): Promise<Appointment> => {
+    const response = await api.post<Appointment>('/appointments', appointmentData);
+    return response.data;
+  },
+  updateStatus: async (id: string, statusData: UpdateAppointmentInput): Promise<Appointment> => {
+    const response = await api.put<Appointment>(`/appointments/${id}`, statusData);
+    return response.data;
+  }
 };
 
 export default api;

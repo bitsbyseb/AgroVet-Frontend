@@ -21,7 +21,9 @@ const OwnersList: React.FC = () => {
       setLoading(true);
       const data = await ownerService.list();
       setOwners(data);
-    } catch (err) {
+    } catch(err) {
+      // eslint-disable-next-line no-unused-vars
+
       console.error('Error fetching owners:', err);
     } finally {
       setLoading(false);
