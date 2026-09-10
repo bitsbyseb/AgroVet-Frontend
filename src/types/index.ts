@@ -52,6 +52,8 @@ export interface Animal {
   color: string;
   ownerId: string;
   owner?: Owner;
+  paddockId?: string | null;
+  paddock?: IPaddock;
   status: 'active' | 'inactive';
 }
 
@@ -81,6 +83,7 @@ export interface AnimalInput {
   birthDate: string;
   color: string;
   ownerId: string;
+  paddockId?: string | null;
 }
 
 export interface AnimalUpdateInput {
@@ -88,6 +91,7 @@ export interface AnimalUpdateInput {
   color?: string;
   breed?: string;
   status?: 'active' | 'inactive';
+  paddockId?: string | null;
 }
 
 export interface MedicalHistoryRecord {
@@ -233,4 +237,35 @@ export interface AppointmentInput {
 export interface UpdateAppointmentInput {
   status: string;
 }
+
+export type PaddockStatus = 'ACTIVE' | 'RESTING' | 'MAINTENANCE';
+
+export interface IPaddock {
+  id: string;
+  name: string;
+  area?: number | null;
+  capacity: number;
+  status: PaddockStatus;
+  description?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  animals?: Animal[];
+}
+
+export interface PaddockInput {
+  name: string;
+  area?: number | null;
+  capacity: number;
+  status?: PaddockStatus;
+  description?: string | null;
+}
+
+export interface PaddockUpdateInput {
+  name?: string;
+  area?: number | null;
+  capacity?: number;
+  status?: PaddockStatus;
+  description?: string | null;
+}
+
 

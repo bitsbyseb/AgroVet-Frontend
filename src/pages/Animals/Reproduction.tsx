@@ -106,60 +106,66 @@ const AnimalReproduction: React.FC = () => {
   }
 
   return (
-    <div>
-      <div className="flex items-center gap-10" style={{ marginBottom: '20px' }}>
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
         <button 
           onClick={() => navigate('/animals')} 
-          className="btn btn-sm" 
-          style={{ color: 'var(--text-muted)' }}
+          className="btn bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 shadow-xs inline-flex items-center justify-center gap-2 transition cursor-pointer"
         >
-          <ArrowLeft size={20} />
-          Regresar
+          <ArrowLeft size={18} />
+          <span>Regresar</span>
         </button>
       </div>
 
-      <div className="flex justify-between items-start" style={{ marginBottom: '25px' }}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>
-            Registro Reproductivo: <span style={{ color: 'var(--primary)' }}>{animal?.name}</span>
+          <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
+            <Heart className="text-pink-600" size={28} />
+            <span>Registro Reproductivo: <span className="text-pink-600">{animal?.name}</span></span>
           </h1>
-          <p style={{ color: 'var(--text-muted)' }}>
+          <p className="text-sm text-gray-500 mt-0.5 capitalize">
             {animal?.species} • {animal?.breed} • {animal?.gender === 'male' ? 'Macho' : 'Hembra'}
           </p>
         </div>
         
         {canAddReproduction && !showAddForm && (
-          <button onClick={() => setShowAddForm(true)} className="btn btn-primary" style={{ backgroundColor: '#e91e63' }}>
-            <Plus size={20} />
-            Nuevo Evento
+          <button 
+            onClick={() => setShowAddForm(true)} 
+            className="btn btn-primary bg-pink-600 hover:bg-pink-700 text-white inline-flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
+          >
+            <Plus size={18} />
+            <span>Nuevo Evento</span>
           </button>
         )}
       </div>
 
       {error && (
-        <div style={{ backgroundColor: '#ffebee', color: 'var(--error)', padding: '10px', borderRadius: '6px', marginBottom: '20px' }}>
-          {error}
+        <div className="p-4 bg-red-50 border-l-4 border-red-600 text-red-800 rounded-r-md shadow-xs flex items-center gap-2 text-sm">
+          <span>{error}</span>
         </div>
       )}
 
       {showAddForm && (
-        <div className="card" style={{ marginBottom: '30px', border: '1px solid #e91e63' }}>
-          <div className="flex justify-between items-center" style={{ marginBottom: '20px' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#e91e63' }} className="flex items-center gap-10">
-              <Heart size={20} />
-              Agregar Nuevo Evento Reproductivo
+        <div className="card bg-white rounded-xl shadow-md border border-pink-200 p-6">
+          <div className="flex justify-between items-center pb-4 mb-6 border-b border-gray-100">
+            <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <Heart size={20} className="text-pink-600" />
+              <span>Agregar Nuevo Evento Reproductivo</span>
             </h2>
-            <button onClick={() => setShowAddForm(false)} className="btn btn-sm" style={{ color: 'var(--text-muted)' }}>
-              <X size={20} />
+            <button 
+              onClick={() => setShowAddForm(false)} 
+              className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition inline-flex items-center justify-center cursor-pointer"
+            >
+              <X size={18} />
             </button>
           </div>
           
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-2 gap-20">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-group">
-                <label>Estado Reproductivo</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Estado Reproductivo <span className="text-red-500">*</span></label>
                 <select 
-                  className="form-control"
+                  className="form-control w-full text-sm"
                   value={formData.reproductiveStatus}
                   onChange={(e) => setFormData({...formData, reproductiveStatus: e.target.value})}
                   required
@@ -170,10 +176,11 @@ const AnimalReproduction: React.FC = () => {
                   <option value="dry">Seca (Dry)</option>
                 </select>
               </div>
+
               <div className="form-group">
-                <label>Tipo de Reproducción</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Tipo de Reproducción <span className="text-red-500">*</span></label>
                 <select 
-                  className="form-control"
+                  className="form-control w-full text-sm"
                   value={formData.breedingType}
                   onChange={(e) => setFormData({...formData, breedingType: e.target.value})}
                 >
@@ -182,21 +189,23 @@ const AnimalReproduction: React.FC = () => {
                   <option value="embryo_transfer">Transferencia de Embriones</option>
                 </select>
               </div>
+
               <div className="form-group">
-                <label>Fecha de Último Parto (Opcional)</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Fecha de Último Parto (Opcional)</label>
                 <input 
                   type="date" 
-                  className="form-control" 
+                  className="form-control w-full text-sm" 
                   value={formData.lastCalvingDate}
                   onChange={(e) => setFormData({...formData, lastCalvingDate: e.target.value})}
                 />
               </div>
+
               <div className="form-group">
-                <label>Número de Crías</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Número de Crías <span className="text-red-500">*</span></label>
                 <input 
                   type="number" 
                   min="0"
-                  className="form-control" 
+                  className="form-control w-full text-sm" 
                   value={formData.offspringCount}
                   onChange={(e) => setFormData({...formData, offspringCount: Number(e.target.value)})}
                   required
@@ -204,42 +213,52 @@ const AnimalReproduction: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex gap-10 justify-end" style={{ marginTop: '10px' }}>
-              <button type="button" onClick={() => setShowAddForm(false)} className="btn">
-                Cancelar
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+              <button 
+                type="button" 
+                onClick={() => setShowAddForm(false)} 
+                className="btn bg-gray-100 hover:bg-gray-200 text-gray-700 transition inline-flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <X size={18} />
+                <span>Cancelar</span>
               </button>
-              <button type="submit" className="btn btn-primary" style={{ backgroundColor: '#e91e63' }} disabled={saving}>
-                <Save size={20} />
-                {saving ? 'Guardando...' : 'Guardar Evento'}
+              <button 
+                type="submit" 
+                className="btn btn-primary bg-pink-600 hover:bg-pink-700 text-white transition inline-flex items-center justify-center gap-2 shadow-xs cursor-pointer" 
+                disabled={saving}
+              >
+                <Save size={18} />
+                <span>{saving ? 'Guardando...' : 'Guardar Evento'}</span>
               </button>
             </div>
           </form>
         </div>
       )}
 
-      <div className="flex flex-column gap-20">
+      <div className="space-y-4">
         {reproduction.length === 0 ? (
-          <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-            <Activity size={48} style={{ color: '#cfd8dc', margin: '0 auto 15px' }} />
-            <p style={{ color: 'var(--text-muted)' }}>No hay eventos reproductivos registrados para este animal.</p>
+          <div className="card bg-white rounded-xl shadow-xs border border-gray-100 text-center py-16 px-4">
+            <Activity size={48} className="text-gray-300 mx-auto mb-3" />
+            <h3 className="text-base font-semibold text-gray-700">No hay eventos reproductivos</h3>
+            <p className="text-xs text-gray-500 mt-1">Este animal no cuenta con registros reproductivos ingresados.</p>
           </div>
         ) : (
           reproduction.map((record) => (
-            <div key={record.id} className="card" style={{ borderLeft: '4px solid #e91e63' }}>
-              <div className="flex justify-between items-start" style={{ marginBottom: '15px' }}>
-                <div className="flex items-center gap-10">
-                  <div style={{ backgroundColor: '#fce4ec', color: '#e91e63', padding: '8px', borderRadius: '8px' }}>
+            <div key={record.id} className="card bg-white rounded-xl shadow-xs border-l-4 border-l-pink-500 border border-gray-100 p-5">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-pink-50 text-pink-600 rounded-xl flex items-center justify-center shrink-0">
                     <Heart size={20} />
                   </div>
                   <div>
-                    <h3 style={{ fontWeight: 'bold', fontSize: '1.1rem', textTransform: 'capitalize' }}>
+                    <h3 className="font-bold text-gray-900 text-base capitalize">
                       Estado: {record.reproductiveStatus}
                     </h3>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                    <p className="text-xs text-gray-500">
                       Crías: {record.offspringCount} | Tipo: {record.breedingType || 'N/A'}
                     </p>
                     {record.lastCalvingDate && (
-                      <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                      <p className="text-xs text-gray-500 mt-0.5">
                         Último Parto: {new Date(record.lastCalvingDate).toLocaleDateString('es-ES')}
                       </p>
                     )}

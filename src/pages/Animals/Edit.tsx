@@ -1,40 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { animalService } from '../../services/api';
-import type { AnimalUpdateInput } from '../../types';
+import { animalService, paddockService } from '../../services/api';
+import type { AnimalUpdateInput, IPaddock } from '../../types';
 import { ArrowLeft, Save } from 'lucide-react';
 
 const EditAnimal: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [paddocks, setPaddocks] = useState<IPaddock[]>([]);
+  const [paddocksLoading, setPaddocksLoading] = useState(true);
   const [formData, setFormData] = useState<AnimalUpdateInput>({
     name: '',
     color: '',
     breed: '',
-    status: 'active'
+    status: 'active',
+    paddockId: ''
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchAnimal = async () => {
+    const fetchData = async () => {
       if (!id) return;
       try {
-        const animal = await animalService.getById(id);
+        const [animal, paddocksList] = await Promise.all([
+          animalService.getById(id),
+          paddockService.getPaddocks().catch(() => [] as IPaddock[])
+        ]);
+
         setFormData({
           name: animal.name,
           color: animal.color,
           breed: animal.breed,
-          status: animal.status || 'active'
+          status: animal.status || 'active',
+          paddockId: animal.paddockId || ''
         });
+        setPaddocks(paddocksList);
       } catch (err: unknown) {
         setError('Error al cargar datos del animal.');
       } finally {
         setLoading(false);
+        setPaddocksLoading(false);
       }
     };
-    fetchAnimal();
+    fetchData();
   }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,7 +54,11 @@ const EditAnimal: React.FC = () => {
     setError(null);
 
     try {
-      await animalService.update(id, formData);
+      const dataToSubmit: AnimalUpdateInput = {
+        ...formData,
+        paddockId: formData.paddockId ? formData.paddockId : null
+      };
+      await animalService.update(id, dataToSubmit);
       navigate('/animals');
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { error?: string } } };
@@ -88,44 +102,64 @@ const EditAnimal: React.FC = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label>Raza</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              value={formData.breed}
-              onChange={(e) => setFormData({...formData, breed: e.target.value})}
-              required
-            />
+          <div className="flex gap-10">
+            <div className="form-group" style={{ flex: 1 }}>
+              <label>Raza</label>
+              <input 
+                type="text" 
+                className="form-control" 
+                value={formData.breed}
+                onChange={(e) => setFormData({...formData, breed: e.target.value})}
+                required
+              />
+            </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label>Color</label>
+              <input 
+                type="text" 
+                className="form-control" 
+                value={formData.color}
+                onChange={(e) => setFormData({...formData, color: e.target.value})}
+                required
+              />
+            </div>
           </div>
 
-          <div className="form-group">
-            <label>Color</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              value={formData.color}
-              onChange={(e) => setFormData({...formData, color: e.target.value})}
-              required
-            />
-          </div>
+          <div className="flex gap-10">
+            <div className="form-group" style={{ flex: 1 }}>
+              <label>Estado</label>
+              <select 
+                className="form-control" 
+                value={formData.status || 'active'}
+                onChange={(e) => setFormData({...formData, status: e.target.value as 'active' | 'inactive'})}
+                required
+              >
+                <option value="active">Activo</option>
+                <option value="inactive">Inactivo</option>
+              </select>
+            </div>
 
-          <div className="form-group">
-            <label>Estado</label>
-            <select 
-              className="form-control" 
-              value={formData.status || 'active'}
-              onChange={(e) => setFormData({...formData, status: e.target.value as 'active' | 'inactive'})}
-              required
-            >
-              <option value="active">Activo</option>
-              <option value="inactive">Inactivo</option>
-            </select>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label>Potrero (Opcional)</label>
+              <select 
+                className="form-control" 
+                value={formData.paddockId || ''}
+                onChange={(e) => setFormData({...formData, paddockId: e.target.value || null})}
+                disabled={paddocksLoading}
+              >
+                <option value="">{paddocksLoading ? 'Cargando potreros...' : 'Sin potrero asignado'}</option>
+                {paddocks.map(paddock => (
+                  <option key={paddock.id} value={paddock.id}>
+                    {paddock.name} (Capacidad: {paddock.capacity})
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }} disabled={saving}>
             <Save size={20} />
-            {saving ? 'Guardando...' : 'Actualizar Registro'}
+            {saving ? 'Guardando...' : 'Actualizar Animal'}
           </button>
         </form>
       </div>

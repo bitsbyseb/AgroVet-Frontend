@@ -1,13 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router';
 import { animalService, authService } from '../../services/api';
 import type { Animal } from '../../types';
-import { Plus, Cat, Edit2, RefreshCw, Trash2, Stethoscope, Syringe, Package, Activity, Utensils } from 'lucide-react';
+import {
+  Plus,
+  Cat,
+  Edit2,
+  RefreshCw,
+  Trash2,
+  Stethoscope,
+  Syringe,
+  Package,
+  Activity,
+  Utensils,
+  AlertCircle
+} from 'lucide-react';
 
 const AnimalsList: React.FC = () => {
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [user, setUser] = useState(authService.getCurrentUser());
 
   useEffect(() => {
@@ -20,9 +33,7 @@ const AnimalsList: React.FC = () => {
       setLoading(true);
       const data = await animalService.list();
       setAnimals(data);
-    } catch(err) {
-      // eslint-disable-next-line no-unused-vars
-
+    } catch (err) {
       console.error('Error fetching animals:', err);
     } finally {
       setLoading(false);
@@ -42,101 +53,174 @@ const AnimalsList: React.FC = () => {
     }
   };
 
+  const filteredAnimals = useMemo(() => {
+    return animals.filter((animal) => {
+      const term = searchTerm.toLowerCase();
+      return (
+        animal.name.toLowerCase().includes(term) ||
+        animal.species.toLowerCase().includes(term) ||
+        animal.breed.toLowerCase().includes(term)
+      );
+    });
+  }, [animals, searchTerm]);
+
   return (
-    <div>
-      <div className="flex justify-between items-center" style={{ marginBottom: '20px' }}>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>Animales</h1>
-          <p style={{ color: 'var(--text-muted)' }}>Lista de todos los animales registrados</p>
+          <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
+            <Cat className="text-emerald-700" size={28} />
+            Gestión de Animales
+          </h1>
+          <p className="text-sm text-gray-500 mt-0.5">
+            Catálogo y control clínico, reproductivo y productivo de los ejemplares registrados.
+          </p>
         </div>
-        <Link to="/animals/new" className="btn btn-primary">
-          <Plus size={20} />
+        <Link 
+          to="/animals/new" 
+          className="btn btn-primary bg-emerald-700 hover:bg-emerald-800 text-white inline-flex items-center justify-center gap-2 shadow-xs transition"
+        >
+          <Plus size={18} />
           <span>Nuevo Registro</span>
         </Link>
       </div>
 
       {error && (
-        <div style={{ backgroundColor: '#ffebee', color: 'var(--error)', padding: '10px', borderRadius: '6px', marginBottom: '20px' }}>
-          {error}
+        <div className="p-4 bg-red-50 border-l-4 border-red-600 text-red-800 rounded-r-md shadow-xs flex items-center gap-2 text-sm">
+          <AlertCircle size={18} className="shrink-0" />
+          <span>{error}</span>
         </div>
       )}
 
-      <div className="card">
+      {/* Barra de búsqueda */}
+      <div className="card bg-white shadow-xs border border-gray-100 p-4 rounded-xl">
+        <div className="w-full md:w-96">
+          <input
+            type="text"
+            placeholder="Buscar por nombre, especie o raza..."
+            className="form-control px-4 py-2 w-full text-sm rounded-lg border-gray-200"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="card bg-white shadow-xs border border-gray-100 rounded-xl overflow-hidden">
         {loading ? (
-          <p>Cargando animales...</p>
-        ) : animals.length === 0 ? (
-          <p style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>No hay animales registrados.</p>
+          <div className="text-center py-16">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-600 border-t-transparent mb-3" />
+            <p className="text-gray-500 text-sm">Cargando animales...</p>
+          </div>
+        ) : filteredAnimals.length === 0 ? (
+          <div className="text-center py-16 px-4">
+            <Cat size={48} className="text-gray-300 mx-auto mb-3" />
+            <h3 className="text-base font-semibold text-gray-700">No se encontraron animales</h3>
+            <p className="text-xs text-gray-500 mt-1">
+              {searchTerm
+                ? 'Intenta con otro término de búsqueda.'
+                : 'No hay animales registrados aún. Comienza registrando un nuevo animal.'}
+            </p>
+          </div>
         ) : (
           <div className="table-container">
-            <table>
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Especie</th>
-                  <th>Raza</th>
-                  <th>Fecha Nac.</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
+                <tr className="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider border-b border-gray-200">
+                  <th className="py-3.5 px-4 font-bold">Animal</th>
+                  <th className="py-3.5 px-4 font-bold">Especie</th>
+                  <th className="py-3.5 px-4 font-bold">Raza</th>
+                  <th className="py-3.5 px-4 font-bold">Fecha Nac.</th>
+                  <th className="py-3.5 px-4 font-bold">Estado</th>
+                  <th className="py-3.5 px-4 font-bold text-right">Acciones</th>
                 </tr>
               </thead>
-              <tbody>
-                {animals.map((animal) => (
-                  <tr key={animal.id}>
-                    <td className="flex items-center gap-10">
-                      <div style={{ backgroundColor: '#fff3e0', color: '#ef6c00', padding: '8px', borderRadius: '50%' }}>
-                        <Cat size={16} />
+              <tbody className="divide-y divide-gray-100 text-sm">
+                {filteredAnimals.map((animal) => (
+                  <tr key={animal.id} className="hover:bg-gray-50/75 transition-colors">
+                    <td className="py-3.5 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-amber-50 text-amber-700 rounded-xl flex items-center justify-center shrink-0">
+                          <Cat size={18} />
+                        </div>
+                        <span className="font-bold text-gray-900">{animal.name}</span>
                       </div>
-                      <span style={{ fontWeight: '500' }}>{animal.name}</span>
                     </td>
-                    <td>{animal.species}</td>
-                    <td>{animal.breed}</td>
-                    <td>{animal.birthDate ? new Date(animal.birthDate).toLocaleDateString() : 'N/A'}</td>
-                    <td>
-                       <span style={{ 
-                         padding: '4px 8px', 
-                         borderRadius: '12px', 
-                         fontSize: '0.8rem',
-                         backgroundColor: animal.status === 'inactive' ? '#ffebee' : '#e8f5e9',
-                         color: animal.status === 'inactive' ? 'var(--error)' : 'var(--primary)'
-                       }}>
-                         {animal.status === 'inactive' ? 'Inactivo' : 'Activo'}
-                       </span>
+                    <td className="py-3.5 px-4 capitalize text-gray-700">{animal.species}</td>
+                    <td className="py-3.5 px-4 text-gray-700">{animal.breed}</td>
+                    <td className="py-3.5 px-4 text-gray-600">
+                      {animal.birthDate ? new Date(animal.birthDate).toLocaleDateString() : 'N/A'}
                     </td>
-                    <td>
-                      <div className="flex gap-10">
-                        <Link to={`/animals/${animal.id}/history`} className="btn btn-sm" title="Ver Historial Médico" style={{ color: 'var(--primary)' }}>
+                    <td className="py-3.5 px-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                        animal.status === 'inactive'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-emerald-100 text-emerald-800'
+                      }`}>
+                        {animal.status === 'inactive' ? 'Inactivo' : 'Activo'}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <div className="inline-flex items-center justify-end gap-1.5">
+                        <Link 
+                          to={`/animals/${animal.id}/history`} 
+                          className="p-1.5 text-emerald-700 hover:bg-emerald-50 rounded-lg transition inline-flex items-center justify-center" 
+                          title="Historial Médico"
+                        >
                           <Stethoscope size={16} />
                         </Link>
-                        <Link to={`/animals/${animal.id}/vaccines`} className="btn btn-sm" title="Ver Vacunas" style={{ color: '#00acc1' }}>
+                        <Link 
+                          to={`/animals/${animal.id}/vaccines`} 
+                          className="p-1.5 text-cyan-700 hover:bg-cyan-50 rounded-lg transition inline-flex items-center justify-center" 
+                          title="Vacunas"
+                        >
                           <Syringe size={16} />
                         </Link>
                         {user?.role !== 'veterinarian' && (
-                          <Link to={`/animals/${animal.id}/diet`} className="btn btn-sm" title="Plan de Alimentación" style={{ color: '#f57c00' }}>
+                          <Link 
+                            to={`/animals/${animal.id}/diet`} 
+                            className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition inline-flex items-center justify-center" 
+                            title="Plan de Alimentación"
+                          >
                             <Utensils size={16} />
                           </Link>
                         )}
                         {animal.animalType === 'rural' && (
                           <>
-                            <Link to={`/animals/${animal.id}/production`} className="btn btn-sm" title="Producción" style={{ color: '#2e7d32' }}>
+                            <Link 
+                              to={`/animals/${animal.id}/production`} 
+                              className="p-1.5 text-emerald-800 hover:bg-emerald-50 rounded-lg transition inline-flex items-center justify-center" 
+                              title="Producción"
+                            >
                               <Package size={16} />
                             </Link>
                             {user?.role !== 'veterinarian' && (
-                              <Link to={`/animals/${animal.id}/reproduction`} className="btn btn-sm" title="Reproducción" style={{ color: '#e91e63' }}>
+                              <Link 
+                                to={`/animals/${animal.id}/reproduction`} 
+                                className="p-1.5 text-pink-600 hover:bg-pink-50 rounded-lg transition inline-flex items-center justify-center" 
+                                title="Reproducción"
+                              >
                                 <Activity size={16} />
                               </Link>
                             )}
                           </>
                         )}
-                        <Link to={`/animals/${animal.id}/edit`} className="btn btn-sm" title="Editar">
+                        <Link 
+                          to={`/animals/${animal.id}/edit`} 
+                          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition inline-flex items-center justify-center" 
+                          title="Editar"
+                        >
                           <Edit2 size={16} />
                         </Link>
-                        <Link to={`/animals/${animal.id}/transfer`} className="btn btn-sm" title="Transferir Dueño">
+                        <Link 
+                          to={`/animals/${animal.id}/transfer`} 
+                          className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition inline-flex items-center justify-center" 
+                          title="Transferir Dueño"
+                        >
                           <RefreshCw size={16} />
                         </Link>
                         <button 
                           onClick={() => handleDelete(animal.id, animal.name)} 
-                          className="btn btn-sm" 
-                          style={{ color: 'var(--error)' }} 
+                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition inline-flex items-center justify-center cursor-pointer" 
                           title="Eliminar"
                         >
                           <Trash2 size={16} />

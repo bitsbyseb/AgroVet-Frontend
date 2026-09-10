@@ -10,7 +10,8 @@ import type {
   ReproductionRecord, ReproductionInput,
   Food, FoodInput,
   DietRecord, DietInput,
-  Appointment, AppointmentInput, UpdateAppointmentInput
+  Appointment, AppointmentInput, UpdateAppointmentInput,
+  IPaddock, PaddockInput, PaddockUpdateInput
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_SERVICE_URL + "/api/v1";
@@ -192,4 +193,24 @@ export const appointmentService = {
   }
 };
 
+export const paddockService = {
+  getPaddocks: async (): Promise<IPaddock[]> => {
+    const response = await api.get<IPaddock[]>('/paddocks');
+    return response.data;
+  },
+  getPaddockById: async (id: string): Promise<IPaddock> => {
+    const response = await api.get<IPaddock>(`/paddocks/${id}`);
+    return response.data;
+  },
+  createPaddock: async (paddockData: PaddockInput): Promise<{ message: string; id: string }> => {
+    const response = await api.post<{ message: string; id: string }>('/paddocks', paddockData);
+    return response.data;
+  },
+  updatePaddock: async (id: string, paddockData: PaddockUpdateInput): Promise<{ message: string }> => {
+    const response = await api.put<{ message: string }>(`/paddocks/${id}`, paddockData);
+    return response.data;
+  }
+};
+
 export default api;
+

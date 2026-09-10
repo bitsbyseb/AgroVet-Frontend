@@ -18,6 +18,7 @@ import EditOwner from "./pages/Owners/Edit";
 import OwnerAnimals from "./pages/Owners/OwnerAnimals";
 import FoodsList from "./pages/Foods";
 import AppointmentsList from "./pages/Appointments";
+import PaddockListView, { PaddockDetailView } from "./pages/Paddocks";
 
 const isAuthenticated = () => !!localStorage.getItem("token");
 
@@ -53,6 +54,8 @@ export const router = createBrowserRouter([
             { path: "animals/:id/production", element: <AnimalProduction /> },
             { path: "animals/:id/reproduction", element: <AnimalReproduction /> },
             { path: "animals/:id/diet", element: <AnimalDiet /> },
+            { path: "paddocks", element: <PaddockListView /> },
+            { path: "paddocks/:id", element: <PaddockDetailView /> },
             { path: "foods", element: <FoodsList /> },
             { path: "appointments", element: <AppointmentsList /> },
             { path: "owners", element: <OwnersList /> },

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { animalService, ownerService } from '../../services/api';
 import type { Owner, Animal } from '../../types';
-import { ArrowLeft, Send } from 'lucide-react';
+import { ArrowLeft, RefreshCw } from 'lucide-react';
 
 const TransferAnimal: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -51,7 +51,24 @@ const TransferAnimal: React.FC = () => {
   };
 
   if (loading) return <div style={{ padding: '20px' }}>Cargando...</div>;
-  if (!animal) return <div style={{ padding: '20px' }}>Animal no encontrado.</div>;
+
+  if (!animal) {
+    return (
+      <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+        <button 
+          onClick={() => navigate('/animals')} 
+          className="btn" 
+          style={{ marginBottom: '20px', color: 'var(--text-muted)' }}
+        >
+          <ArrowLeft size={20} />
+          Regresar
+        </button>
+        <div style={{ backgroundColor: '#ffebee', color: 'var(--error)', padding: '10px', borderRadius: '6px' }}>
+          Animal no encontrado.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto' }}>
@@ -66,8 +83,8 @@ const TransferAnimal: React.FC = () => {
 
       <div className="card">
         <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '10px' }}>Transferir Animal</h1>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '25px' }}>
-          Transfiere a <strong>{animal.name}</strong> a un nuevo propietario.
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '20px' }}>
+          Transfiere la custodia de <strong>{animal.name}</strong> a un nuevo propietario registrado.
         </p>
         
         {error && (
@@ -92,8 +109,13 @@ const TransferAnimal: React.FC = () => {
             </select>
           </div>
 
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }} disabled={saving || !newOwnerId}>
-            <Send size={20} />
+          <button 
+            type="submit" 
+            className="btn btn-primary" 
+            style={{ width: '100%', marginTop: '10px' }} 
+            disabled={saving || !newOwnerId}
+          >
+            <RefreshCw size={20} />
             {saving ? 'Transfiriendo...' : 'Confirmar Transferencia'}
           </button>
         </form>

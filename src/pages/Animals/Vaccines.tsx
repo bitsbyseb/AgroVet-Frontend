@@ -84,60 +84,66 @@ const AnimalVaccines: React.FC = () => {
   if (loading) return <div style={{ padding: '20px' }}>Cargando vacunas...</div>;
 
   return (
-    <div>
-      <div className="flex items-center gap-10" style={{ marginBottom: '20px' }}>
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
         <button 
           onClick={() => navigate('/animals')} 
-          className="btn btn-sm" 
-          style={{ color: 'var(--text-muted)' }}
+          className="btn bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 shadow-xs inline-flex items-center justify-center gap-2 transition cursor-pointer"
         >
-          <ArrowLeft size={20} />
-          Regresar
+          <ArrowLeft size={18} />
+          <span>Regresar</span>
         </button>
       </div>
 
-      <div className="flex justify-between items-start" style={{ marginBottom: '25px' }}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>
-            Registro de Vacunas: <span style={{ color: 'var(--primary)' }}>{animal?.name}</span>
+          <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
+            <Syringe className="text-cyan-700" size={28} />
+            <span>Registro de Vacunas: <span className="text-cyan-700">{animal?.name}</span></span>
           </h1>
-          <p style={{ color: 'var(--text-muted)' }}>
+          <p className="text-sm text-gray-500 mt-0.5 capitalize">
             {animal?.species} • {animal?.breed} • {animal?.gender === 'male' ? 'Macho' : 'Hembra'}
           </p>
         </div>
         
         {canAddVaccine && !showAddForm && (
-          <button onClick={() => setShowAddForm(true)} className="btn btn-primary">
-            <Plus size={20} />
-            Nueva Vacuna
+          <button 
+            onClick={() => setShowAddForm(true)} 
+            className="btn btn-primary bg-cyan-700 hover:bg-cyan-800 text-white inline-flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
+          >
+            <Plus size={18} />
+            <span>Nueva Vacuna</span>
           </button>
         )}
       </div>
 
       {error && (
-        <div style={{ backgroundColor: '#ffebee', color: 'var(--error)', padding: '10px', borderRadius: '6px', marginBottom: '20px' }}>
-          {error}
+        <div className="p-4 bg-red-50 border-l-4 border-red-600 text-red-800 rounded-r-md shadow-xs flex items-center gap-2 text-sm">
+          <span>{error}</span>
         </div>
       )}
 
       {showAddForm && (
-        <div className="card" style={{ marginBottom: '30px', border: '1px solid var(--primary)' }}>
-          <div className="flex justify-between items-center" style={{ marginBottom: '20px' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold' }} className="flex items-center gap-10">
-              <Syringe size={20} />
-              Registrar Nueva Vacuna
+        <div className="card bg-white rounded-xl shadow-md border border-cyan-200 p-6">
+          <div className="flex justify-between items-center pb-4 mb-6 border-b border-gray-100">
+            <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <Syringe size={20} className="text-cyan-700" />
+              <span>Registrar Nueva Vacuna</span>
             </h2>
-            <button onClick={() => setShowAddForm(false)} className="btn btn-sm" style={{ color: 'var(--text-muted)' }}>
-              <X size={20} />
+            <button 
+              onClick={() => setShowAddForm(false)} 
+              className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition inline-flex items-center justify-center cursor-pointer"
+            >
+              <X size={18} />
             </button>
           </div>
           
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="form-group">
-              <label>Nombre de la Vacuna</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Nombre de la Vacuna <span className="text-red-500">*</span></label>
               <input 
                 type="text" 
-                className="form-control" 
+                className="form-control w-full text-sm" 
                 placeholder="Ej: Antirrábica, Parvovirus..."
                 value={formData.vaccineName}
                 onChange={(e) => setFormData({...formData, vaccineName: e.target.value})}
@@ -145,22 +151,23 @@ const AnimalVaccines: React.FC = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-20" style={{ marginTop: '15px' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-group">
-                <label>Fecha de Aplicación</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Fecha de Aplicación <span className="text-red-500">*</span></label>
                 <input 
                   type="date" 
-                  className="form-control" 
+                  className="form-control w-full text-sm" 
                   value={formData.applicationDate}
                   onChange={(e) => setFormData({...formData, applicationDate: e.target.value})}
                   required
                 />
               </div>
+
               <div className="form-group">
-                <label>Próxima Dosis (Opcional)</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Próxima Dosis (Opcional)</label>
                 <input 
                   type="date" 
-                  className="form-control" 
+                  className="form-control w-full text-sm" 
                   value={formData.nextDoseDate}
                   onChange={(e) => setFormData({...formData, nextDoseDate: e.target.value})}
                 />
@@ -168,70 +175,80 @@ const AnimalVaccines: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label>Número de Lote (Opcional)</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Número de Lote (Opcional)</label>
               <input 
-                  type="text" 
-                  className="form-control" 
-                  placeholder="Ej: LOTE-12345"
-                  value={formData.batchNumber}
-                  onChange={(e) => setFormData({...formData, batchNumber: e.target.value})}
-                />
+                type="text" 
+                className="form-control w-full text-sm" 
+                placeholder="Ej: LOTE-12345"
+                value={formData.batchNumber}
+                onChange={(e) => setFormData({...formData, batchNumber: e.target.value})}
+              />
             </div>
 
-            <div className="flex gap-10 justify-end" style={{ marginTop: '10px' }}>
-              <button type="button" onClick={() => setShowAddForm(false)} className="btn">
-                Cancelar
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+              <button 
+                type="button" 
+                onClick={() => setShowAddForm(false)} 
+                className="btn bg-gray-100 hover:bg-gray-200 text-gray-700 transition inline-flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <X size={18} />
+                <span>Cancelar</span>
               </button>
-              <button type="submit" className="btn btn-primary" disabled={saving}>
-                <Save size={20} />
-                {saving ? 'Guardando...' : 'Guardar Registro'}
+              <button 
+                type="submit" 
+                className="btn btn-primary bg-cyan-700 hover:bg-cyan-800 text-white transition inline-flex items-center justify-center gap-2 shadow-xs cursor-pointer" 
+                disabled={saving}
+              >
+                <Save size={18} />
+                <span>{saving ? 'Guardando...' : 'Guardar Registro'}</span>
               </button>
             </div>
           </form>
         </div>
       )}
 
-      <div className="flex flex-column gap-20">
+      <div className="space-y-4">
         {vaccines.length === 0 ? (
-          <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-            <FileText size={48} style={{ color: '#cfd8dc', margin: '0 auto 15px' }} />
-            <p style={{ color: 'var(--text-muted)' }}>No hay vacunas registradas para este animal.</p>
+          <div className="card bg-white rounded-xl shadow-xs border border-gray-100 text-center py-16 px-4">
+            <FileText size={48} className="text-gray-300 mx-auto mb-3" />
+            <h3 className="text-base font-semibold text-gray-700">No hay vacunas registradas</h3>
+            <p className="text-xs text-gray-500 mt-1">Este animal no cuenta con esquemas de vacunación ingresados.</p>
           </div>
         ) : (
           vaccines.map((record) => (
-            <div key={record.id} className="card" style={{ borderLeft: '4px solid var(--primary)' }}>
-              <div className="flex justify-between items-start" style={{ marginBottom: '15px' }}>
-                <div className="flex items-center gap-10">
-                  <div style={{ backgroundColor: '#e3f2fd', color: 'var(--primary)', padding: '8px', borderRadius: '8px' }}>
+            <div key={record.id} className="card bg-white rounded-xl shadow-xs border-l-4 border-l-cyan-600 border border-gray-100 p-5">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-cyan-50 text-cyan-700 rounded-xl flex items-center justify-center shrink-0">
                     <Syringe size={20} />
                   </div>
                   <div>
-                    <h3 style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{record.vaccineName}</h3>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                    <h3 className="font-bold text-gray-900 text-base">{record.vaccineName}</h3>
+                    <p className="text-xs text-gray-500">
                       Aplicada: {new Date(record.applicationDate).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
                     </p>
                   </div>
                 </div>
                 {record.administeredBy && (
-                  <div className="flex items-center gap-5" style={{ fontSize: '0.85rem', color: 'var(--text-muted)', backgroundColor: '#f5f5f5', padding: '4px 10px', borderRadius: '15px' }}>
+                  <div className="inline-flex items-center gap-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 px-3 py-1 rounded-full">
                     <UserIcon size={14} />
                     <span>{record.administeredBy.username} ({record.administeredBy.role})</span>
                   </div>
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-20" style={{ marginTop: '15px' }}>
-                <div>
-                  <h4 style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#546e7a', marginBottom: '5px' }}>Lote</h4>
-                  <p style={{ fontSize: '0.95rem' }}>{record.batchNumber || 'N/A'}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                <div className="bg-gray-50/75 p-3.5 rounded-lg border border-gray-100">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Lote</h4>
+                  <p className="text-sm text-gray-800 font-medium">{record.batchNumber || 'N/A'}</p>
                 </div>
-                <div>
-                   <h4 style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#546e7a', marginBottom: '5px' }}>Próxima Dosis</h4>
-                   <p style={{ fontSize: '0.95rem', color: record.nextDoseDate ? 'inherit' : 'var(--text-muted)' }}>
-                     {record.nextDoseDate 
-                       ? new Date(record.nextDoseDate).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) 
-                       : 'No programada'}
-                   </p>
+                <div className="bg-gray-50/75 p-3.5 rounded-lg border border-gray-100">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Próxima Dosis</h4>
+                  <p className="text-sm text-gray-800 font-medium">
+                    {record.nextDoseDate 
+                      ? new Date(record.nextDoseDate).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) 
+                      : 'No programada'}
+                  </p>
                 </div>
               </div>
             </div>
