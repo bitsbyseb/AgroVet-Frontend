@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router';
-import { paddockService, animalService, authService } from '../../services/api';
-import type { IPaddock, Animal, PaddockStatus, PaddockInput } from '../../types';
+import { paddockService, animalService, grazingService, authService } from '../../services/api';
+import type { IPaddock, Animal, PaddockStatus, PaddockInput, IGrazingActivity } from '../../types';
 import { PaddockForm } from '../../components/Paddocks/PaddockForm';
+import { GrazingForm } from '../../components/Grazing/GrazingForm';
 import {
   Plus,
   Layers,
@@ -11,12 +12,17 @@ import {
   CheckCircle2,
   Clock,
   Wrench,
-  X
+  X,
+  Compass,
+  Users,
+  ExternalLink,
+  RefreshCw
 } from 'lucide-react';
 
 export const PaddockListView: React.FC = () => {
   const [paddocks, setPaddocks] = useState<IPaddock[]>([]);
   const [animals, setAnimals] = useState<Animal[]>([]);
+  const [grazingActivities, setGrazingActivities] = useState<IGrazingActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -30,6 +36,12 @@ export const PaddockListView: React.FC = () => {
   const [editingPaddock, setEditingPaddock] = useState<IPaddock | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Quick View Animals Modal
+  const [viewingAnimalsPaddock, setViewingAnimalsPaddock] = useState<IPaddock | null>(null);
+
+  // Quick Grazing Modal
+  const [grazingPaddock, setGrazingPaddock] = useState<IPaddock | null>(null);
+
   const currentUser = authService.getCurrentUser();
   const canManage = currentUser?.role === 'zootechnician' || currentUser?.role === 'administrator';
 
@@ -41,12 +53,14 @@ export const PaddockListView: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const [paddocksData, animalsData] = await Promise.all([
+      const [paddocksData, animalsData, grazingData] = await Promise.all([
         paddockService.getPaddocks(),
-        animalService.list().catch(() => [] as Animal[])
+        animalService.list().catch(() => [] as Animal[]),
+        grazingService.getGrazingActivities().catch(() => [] as IGrazingActivity[])
       ]);
       setPaddocks(paddocksData);
       setAnimals(animalsData);
+      setGrazingActivities(grazingData);
     } catch (err: unknown) {
       console.error('Error fetching paddocks:', err);
       const errObj = err as { response?: { data?: { error?: string } } };
@@ -56,22 +70,52 @@ export const PaddockListView: React.FC = () => {
     }
   };
 
-  // Map animal count per paddock
-  const animalCountMap = useMemo(() => {
-    const map: Record<string, number> = {};
-    animals.forEach((animal) => {
-      if (animal.paddockId) {
-        map[animal.paddockId] = (map[animal.paddockId] || 0) + 1;
-      }
+  // Active grazing activities
+  const activeGrazingActivities = useMemo(() => {
+    return grazingActivities.filter(
+      (act) => !act.exitDate || new Date(act.exitDate) > new Date()
+    );
+  }, [grazingActivities]);
+
+  // Animals grouped by paddock (direct + active grazing, without duplicates)
+  const paddockAnimalsMap = useMemo(() => {
+    const map: Record<string, Animal[]> = {};
+    paddocks.forEach((paddock) => {
+      const direct = animals.filter((a) => a.paddockId === paddock.id);
+      const activeForPaddock = activeGrazingActivities.filter(
+        (g) => g.paddockId === paddock.id
+      );
+      const grazingAnimalIds = new Set<string>();
+      activeForPaddock.forEach((g) =>
+        g.animalIds?.forEach((id) => grazingAnimalIds.add(id))
+      );
+      const grazing = animals.filter((a) => grazingAnimalIds.has(a.id));
+
+      const combinedMap = new Map<string, Animal>();
+      direct.forEach((a) => combinedMap.set(a.id, a));
+      grazing.forEach((a) => combinedMap.set(a.id, a));
+
+      map[paddock.id] = Array.from(combinedMap.values());
     });
     return map;
-  }, [animals]);
+  }, [paddocks, animals, activeGrazingActivities]);
+
+  // Animal count per paddock
+  const animalCountMap = useMemo(() => {
+    const counts: Record<string, number> = {};
+    Object.entries(paddockAnimalsMap).forEach(([paddockId, list]) => {
+      counts[paddockId] = list.length;
+    });
+    return counts;
+  }, [paddockAnimalsMap]);
 
   // Filtered paddocks
   const filteredPaddocks = useMemo(() => {
     return paddocks.filter((paddock) => {
-      const matchesSearch = paddock.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (paddock.description && paddock.description.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesSearch =
+        paddock.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (paddock.description &&
+          paddock.description.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesStatus = statusFilter === 'ALL' || paddock.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -118,23 +162,23 @@ export const PaddockListView: React.FC = () => {
     switch (status) {
       case 'ACTIVE':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
-            <CheckCircle2 size={13} />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
+            <CheckCircle2 size={14} />
             Activo
           </span>
         );
       case 'RESTING':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300">
-            <Clock size={13} />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300">
+            <Clock size={14} />
             En Descanso
           </span>
         );
       case 'MAINTENANCE':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-300">
-            <Wrench size={13} />
-            En Mantenimiento
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-300">
+            <Wrench size={14} />
+            Mantenimiento
           </span>
         );
       default:
@@ -156,15 +200,26 @@ export const PaddockListView: React.FC = () => {
           </p>
         </div>
 
-        {canManage && (
+        <div className="flex items-center gap-2">
           <button
-            onClick={handleOpenCreateModal}
-            className="btn btn-primary bg-emerald-700 hover:bg-emerald-800 text-white flex items-center gap-2 shadow-sm transition"
+            type="button"
+            onClick={loadData}
+            className="btn bg-gray-100 hover:bg-gray-200 text-gray-700 p-2.5 rounded-lg"
+            title="Refrescar potreros"
           >
-            <Plus size={18} />
-            <span>Nuevo Potrero</span>
+            <RefreshCw size={16} />
           </button>
-        )}
+
+          {canManage && (
+            <button
+              onClick={handleOpenCreateModal}
+              className="btn btn-primary bg-emerald-700 hover:bg-emerald-800 text-white flex items-center gap-2 shadow-sm transition"
+            >
+              <Plus size={18} />
+              <span>Nuevo Potrero</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Notifications */}
@@ -241,15 +296,21 @@ export const PaddockListView: React.FC = () => {
               <tbody className="divide-y divide-gray-100 text-sm">
                 {filteredPaddocks.map((paddock) => {
                   const currentAnimals = animalCountMap[paddock.id] || 0;
-                  const occupancyPercent = paddock.capacity > 0
-                    ? Math.min(100, Math.round((currentAnimals / paddock.capacity) * 100))
-                    : 0;
+                  const occupancyPercent =
+                    paddock.capacity > 0
+                      ? Math.min(100, Math.round((currentAnimals / paddock.capacity) * 100))
+                      : 0;
                   const isOverCapacity = currentAnimals > paddock.capacity;
 
                   return (
                     <tr key={paddock.id} className="hover:bg-gray-50/75 transition-colors">
                       <td className="py-4 px-4">
-                        <div className="font-bold text-gray-900">{paddock.name}</div>
+                        <Link
+                          to={`/paddocks/${paddock.id}`}
+                          className="font-bold text-gray-900 hover:text-emerald-700 transition"
+                        >
+                          {paddock.name}
+                        </Link>
                         {paddock.description && (
                           <p className="text-xs text-gray-500 truncate max-w-xs mt-0.5">
                             {paddock.description}
@@ -258,16 +319,28 @@ export const PaddockListView: React.FC = () => {
                       </td>
 
                       <td className="py-4 px-4 font-medium text-gray-700">
-                        {paddock.area !== null && paddock.area !== undefined ? `${paddock.area} ha` : 'N/A'}
+                        {paddock.area !== null && paddock.area !== undefined
+                          ? `${paddock.area} ha`
+                          : 'N/A'}
                       </td>
 
                       <td className="py-4 px-4">
                         <div className="space-y-1">
                           <div className="flex justify-between text-xs font-semibold text-gray-700">
-                            <span>
-                              {currentAnimals} / {paddock.capacity} animales
-                            </span>
-                            <span className={isOverCapacity ? 'text-red-600 font-bold' : 'text-gray-500'}>
+                            <button
+                              type="button"
+                              onClick={() => setViewingAnimalsPaddock(paddock)}
+                              className="text-emerald-800 hover:underline flex items-center gap-1 font-semibold"
+                              title="Ver lista de animales en este potrero"
+                            >
+                              <Users size={13} className="text-emerald-700" />
+                              <span>
+                                {currentAnimals} / {paddock.capacity} animales
+                              </span>
+                            </button>
+                            <span
+                              className={isOverCapacity ? 'text-red-600 font-bold' : 'text-gray-500'}
+                            >
                               {occupancyPercent}%
                             </span>
                           </div>
@@ -286,19 +359,38 @@ export const PaddockListView: React.FC = () => {
                         </div>
                       </td>
 
-                      <td className="py-4 px-4">
-                        {renderStatusBadge(paddock.status)}
-                      </td>
+                      <td className="py-4 px-4">{renderStatusBadge(paddock.status)}</td>
 
                       <td className="py-4 px-4 text-right">
                         <div className="inline-flex items-center gap-2 justify-end">
+                          <button
+                            type="button"
+                            onClick={() => setViewingAnimalsPaddock(paddock)}
+                            className="p-1.5 text-gray-600 hover:text-emerald-800 hover:bg-emerald-50 rounded-lg transition"
+                            title="Ver animales asignados"
+                          >
+                            <Users size={18} />
+                          </button>
+
+                          {canManage && paddock.status !== 'MAINTENANCE' && (
+                            <button
+                              type="button"
+                              onClick={() => setGrazingPaddock(paddock)}
+                              className="p-1.5 text-purple-700 hover:bg-purple-50 rounded-lg transition"
+                              title="Iniciar Pastoreo en este potrero"
+                            >
+                              <Compass size={18} />
+                            </button>
+                          )}
+
                           <Link
                             to={`/paddocks/${paddock.id}`}
                             className="p-1.5 text-emerald-700 hover:bg-emerald-50 rounded-lg transition"
-                            title="Ver Detalle y Animales"
+                            title="Ver Detalle Completo"
                           >
                             <Eye size={18} />
                           </Link>
+
                           {canManage && (
                             <button
                               onClick={() => handleOpenEditModal(paddock)}
@@ -319,7 +411,125 @@ export const PaddockListView: React.FC = () => {
         )}
       </div>
 
-      {/* Create / Edit Modal */}
+      {/* Modal: Vista Rápida de Animales en el Potrero */}
+      {viewingAnimalsPaddock && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 relative max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-emerald-50 text-emerald-700 rounded-lg">
+                  <Users size={20} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-gray-900">
+                    Animales en {viewingAnimalsPaddock.name}
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    Capacidad: {viewingAnimalsPaddock.capacity} | Ocupados:{' '}
+                    {paddockAnimalsMap[viewingAnimalsPaddock.id]?.length || 0}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewingAnimalsPaddock(null)}
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-lg"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto mt-4 space-y-2">
+              {(paddockAnimalsMap[viewingAnimalsPaddock.id] || []).length === 0 ? (
+                <div className="text-center py-10 text-gray-400 text-xs">
+                  No hay animales asignados ni en pastoreo activo en este potrero actualmente.
+                </div>
+              ) : (
+                (paddockAnimalsMap[viewingAnimalsPaddock.id] || []).map((animal) => (
+                  <div
+                    key={animal.id}
+                    className="p-3 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between text-xs"
+                  >
+                    <div>
+                      <div className="font-bold text-gray-900">{animal.name}</div>
+                      <div className="text-[11px] text-gray-500 capitalize">
+                        {animal.species} • {animal.breed} • {animal.gender}
+                      </div>
+                    </div>
+                    <Link
+                      to={`/animals/${animal.id}/history`}
+                      className="text-emerald-700 hover:underline flex items-center gap-1 font-semibold text-[11px]"
+                    >
+                      <span>Ver Ficha</span>
+                      <ExternalLink size={12} />
+                    </Link>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-100">
+              <Link
+                to={`/paddocks/${viewingAnimalsPaddock.id}`}
+                className="text-xs text-emerald-700 hover:underline font-semibold flex items-center gap-1"
+              >
+                <span>Ir al Detalle Completo del Potrero</span>
+                <ExternalLink size={13} />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setViewingAnimalsPaddock(null)}
+                className="btn bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs py-1.5 px-4 rounded-lg"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Iniciar Pastoreo Rápido */}
+      {grazingPaddock && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-emerald-50 text-emerald-700 rounded-lg">
+                  <Compass size={20} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-gray-900">
+                    Iniciar Pastoreo en {grazingPaddock.name}
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    Asigna un lote de animales a este potrero para rotación.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setGrazingPaddock(null)}
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-lg"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <GrazingForm
+              initialPaddockId={grazingPaddock.id}
+              onSubmitSuccess={() => {
+                setGrazingPaddock(null);
+                setSuccessMsg('Actividad de pastoreo registrada exitosamente.');
+                loadData();
+                setTimeout(() => setSuccessMsg(null), 4000);
+              }}
+              onCancel={() => setGrazingPaddock(null)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Create / Edit Paddock Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 relative animate-in fade-in zoom-in-95 duration-200">

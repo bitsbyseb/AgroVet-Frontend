@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router';
 import { authService } from '../services/api';
-import { LayoutDashboard, Users, Cat, LogOut, User as UserIcon, Calendar, Wheat, Layers } from 'lucide-react';
+import { LayoutDashboard, Users, Cat, LogOut, User as UserIcon, Calendar, Wheat, Layers, Compass } from 'lucide-react';
 
 const MainLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -17,6 +17,7 @@ const MainLayout: React.FC = () => {
     { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} />, roles: ['veterinarian', 'zootechnician', 'administrator'] },
     { name: 'Animales', path: '/animals', icon: <Cat size={20} />, roles: ['veterinarian', 'zootechnician', 'administrator'] },
     { name: 'Potreros', path: '/paddocks', icon: <Layers size={20} />, roles: ['veterinarian', 'zootechnician', 'administrator'] },
+    { name: 'Pastoreo', path: '/grazing', icon: <Compass size={20} />, roles: ['veterinarian', 'zootechnician', 'administrator'] },
     { name: 'Consultas', path: '/appointments', icon: <Calendar size={20} />, roles: ['veterinarian', 'administrator'] },
     { name: 'Alimentos', path: '/foods', icon: <Wheat size={20} />, roles: ['veterinarian', 'zootechnician', 'administrator'] },
     { name: 'Propietarios', path: '/owners', icon: <Users size={20} />, roles: ['veterinarian', 'administrator'] },

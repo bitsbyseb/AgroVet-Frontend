@@ -268,4 +268,26 @@ export interface PaddockUpdateInput {
   description?: string | null;
 }
 
+export interface IGrazingActivity {
+  id: string;
+  paddockId: string;
+  animalIds: string[];
+  entryDate: string;
+  exitDate?: string | null;
+  rotationNumber: number;
+  observations?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  paddock?: IPaddock;
+}
+
+export interface GrazingActivityInput {
+  paddockId: string;
+  animalIds: string[];
+  entryDate: string;
+  exitDate?: string | null;
+  rotationNumber: number;
+  observations?: string | null;
+}
+
 

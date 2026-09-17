@@ -11,7 +11,8 @@ import type {
   Food, FoodInput,
   DietRecord, DietInput,
   Appointment, AppointmentInput, UpdateAppointmentInput,
-  IPaddock, PaddockInput, PaddockUpdateInput
+  IPaddock, PaddockInput, PaddockUpdateInput,
+  IGrazingActivity, GrazingActivityInput
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_SERVICE_URL + "/api/v1";
@@ -211,6 +212,21 @@ export const paddockService = {
     return response.data;
   }
 };
+
+export const grazingService = {
+  getGrazingActivities: async (paddockId?: string): Promise<IGrazingActivity[]> => {
+    const params = paddockId ? { paddockId } : {};
+    const response = await api.get<IGrazingActivity[]>('/grazing', { params });
+    return response.data;
+  },
+  createGrazingActivity: async (activityData: GrazingActivityInput): Promise<{ message: string; id: string }> => {
+    const response = await api.post<{ message: string; id: string }>('/grazing', activityData);
+    return response.data;
+  }
+};
+
+export const getGrazingActivities = grazingService.getGrazingActivities;
+export const createGrazingActivity = grazingService.createGrazingActivity;
 
 export default api;
 
