@@ -12,7 +12,8 @@ import type {
   DietRecord, DietInput,
   Appointment, AppointmentInput, UpdateAppointmentInput,
   IPaddock, PaddockInput, PaddockUpdateInput,
-  IGrazingActivity, GrazingActivityInput
+  IGrazingActivity, GrazingActivityInput,
+  IGrazingHistoryItem, GrazingHistoryFilters
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_SERVICE_URL + "/api/v1";
@@ -222,11 +223,33 @@ export const grazingService = {
   createGrazingActivity: async (activityData: GrazingActivityInput): Promise<{ message: string; id: string }> => {
     const response = await api.post<{ message: string; id: string }>('/grazing', activityData);
     return response.data;
+  },
+  getGrazingHistory: async (params?: GrazingHistoryFilters): Promise<IGrazingHistoryItem[]> => {
+    const cleanParams: Record<string, string> = {};
+    if (params?.paddockId && params.paddockId !== 'ALL') cleanParams.paddockId = params.paddockId;
+    if (params?.animalId && params.animalId !== 'ALL') cleanParams.animalId = params.animalId;
+    if (params?.startDate) {
+      const d = new Date(params.startDate);
+      cleanParams.startDate = !isNaN(d.getTime()) ? d.toISOString() : params.startDate;
+    }
+    if (params?.endDate) {
+      const d = new Date(params.endDate);
+      if (!isNaN(d.getTime())) {
+        d.setHours(23, 59, 59, 999);
+        cleanParams.endDate = d.toISOString();
+      } else {
+        cleanParams.endDate = params.endDate;
+      }
+    }
+
+    const response = await api.get<IGrazingHistoryItem[]>('/grazing/history', { params: cleanParams });
+    return response.data;
   }
 };
 
 export const getGrazingActivities = grazingService.getGrazingActivities;
 export const createGrazingActivity = grazingService.createGrazingActivity;
+export const getGrazingHistory = grazingService.getGrazingHistory;
 
 export default api;
 

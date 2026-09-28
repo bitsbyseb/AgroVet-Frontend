@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { Link } from 'react-router';
 import { grazingService, paddockService, animalService, authService } from '../../services/api';
 import type { IGrazingActivity, IPaddock, Animal } from '../../types';
 import { GrazingForm } from '../../components/Grazing/GrazingForm';
@@ -160,16 +161,27 @@ export const GrazingListView: React.FC = () => {
           </p>
         </div>
 
-        {canManage && (
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="btn btn-primary"
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <Link
+            to="/grazing/history"
+            className="btn"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#e8f5e9', color: '#1b5e20', border: '1px solid #c8e6c9' }}
           >
-            <Plus size={20} />
-            Registrar Pastoreo
-          </button>
-        )}
+            <Clock size={18} />
+            Historial de Pastoreo
+          </Link>
+
+          {canManage && (
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="btn btn-primary"
+              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
+              <Plus size={20} />
+              Registrar Pastoreo
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Alertas */}

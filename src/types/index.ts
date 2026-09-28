@@ -290,4 +290,32 @@ export interface GrazingActivityInput {
   observations?: string | null;
 }
 
+export interface GrazingPermanenceTime {
+  days: number;
+  hours: number;
+  totalHours: number;
+  inProgress: boolean;
+  formatted: string;
+}
+
+export interface IGrazingHistoryItem {
+  id: string;
+  paddockId: string;
+  animalIds: string[];
+  entryDate: string;
+  exitDate?: string | null;
+  rotationNumber: number;
+  observations?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  permanenceTime: GrazingPermanenceTime;
+}
+
+export interface GrazingHistoryFilters {
+  paddockId?: string;
+  animalId?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
 
