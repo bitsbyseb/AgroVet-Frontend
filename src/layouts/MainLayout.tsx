@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router';
 import { authService } from '../services/api';
-import { LayoutDashboard, Users, Cat, LogOut, User as UserIcon, Calendar, Wheat, Layers, Compass } from 'lucide-react';
+import { LayoutDashboard, Users, Cat, LogOut, User as UserIcon, Calendar, Wheat, Layers, Compass, PawPrint } from 'lucide-react';
 
 const MainLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -15,6 +15,7 @@ const MainLayout: React.FC = () => {
 
   const menuItems = [
     { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} />, roles: ['veterinarian', 'zootechnician', 'administrator'] },
+    { name: 'Mis Animales', path: '/my-animals', icon: <PawPrint size={20} />, roles: ['owner'] },
     { name: 'Animales', path: '/animals', icon: <Cat size={20} />, roles: ['veterinarian', 'zootechnician', 'administrator'] },
     { name: 'Potreros', path: '/paddocks', icon: <Layers size={20} />, roles: ['veterinarian', 'zootechnician', 'administrator'] },
     { name: 'Pastoreo', path: '/grazing', icon: <Compass size={20} />, roles: ['veterinarian', 'zootechnician', 'administrator'] },
@@ -69,7 +70,7 @@ const MainLayout: React.FC = () => {
             <div style={{ overflow: 'hidden' }}>
               <p style={{ fontSize: '0.9rem', fontWeight: 'bold', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{user?.username}</p>
               <p style={{ fontSize: '0.8rem', color: '#b0bec5' }}>
-                {user?.role === 'administrator' ? 'Administrador' : user?.role === 'zootechnician' ? 'Zootecnista' : 'Veterinario'}
+                {user?.role === 'administrator' ? 'Administrador' : user?.role === 'zootechnician' ? 'Zootecnista' : user?.role === 'owner' ? 'Propietario' : 'Veterinario'}
               </p>
             </div>
           </div>

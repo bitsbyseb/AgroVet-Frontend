@@ -20,6 +20,7 @@ import FoodsList from "./pages/Foods";
 import AppointmentsList from "./pages/Appointments";
 import PaddockListView, { PaddockDetailView } from "./pages/Paddocks";
 import GrazingListView, { GrazingHistoryView } from "./pages/Grazing";
+import MyAnimalsView from "./pages/owner/MyAnimalsView";
 
 const isAuthenticated = () => !!localStorage.getItem("token");
 
@@ -65,6 +66,8 @@ export const router = createBrowserRouter([
             { path: "owners/new", element: <CreateOwner /> },
             { path: "owners/:id/edit", element: <EditOwner /> },
             { path: "owners/:id/animals", element: <OwnerAnimals /> },
+            { path: "my-animals", element: <MyAnimalsView /> },
+            { path: "owner/animals", element: <MyAnimalsView /> },
         ],
     },
 ]);

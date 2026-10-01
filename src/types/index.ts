@@ -1,4 +1,4 @@
-export type UserRole = 'veterinarian' | 'zootechnician' | 'administrator';
+export type UserRole = 'veterinarian' | 'zootechnician' | 'administrator' | 'owner';
 
 export enum SpeciesType {
     CANINE = "canine",
@@ -316,6 +316,35 @@ export interface GrazingHistoryFilters {
   animalId?: string;
   startDate?: string;
   endDate?: string;
+}
+
+// ─── Tipos del Portal del Propietario (Sprint 11) ────────────────────────────
+
+export interface OwnerAnimal {
+  id: string;
+  name: string;
+  species: SpeciesType | string;
+  animalType: AnimalType | string;
+  breed: string;
+  gender: Gender | string;
+  birthDate: string;
+  status: 'active' | 'inactive';
+  color: string;
+  ownerId: string;
+  paddockId?: string | null;
+}
+
+export interface OwnerMedicalHistoryEntry {
+  id: string;
+  animalId: string;
+  date: string;
+  reason: string;
+  diagnosis: string;
+  treatment: string;
+  observations: string;
+  createdBy: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 
