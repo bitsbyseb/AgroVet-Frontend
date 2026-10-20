@@ -13,7 +13,8 @@ import type {
   Appointment, AppointmentInput, UpdateAppointmentInput,
   IPaddock, PaddockInput, PaddockUpdateInput,
   IGrazingActivity, GrazingActivityInput,
-  IGrazingHistoryItem, GrazingHistoryFilters
+  IGrazingHistoryItem, GrazingHistoryFilters,
+  OwnerReminderDTO, OwnerAnimal
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_SERVICE_URL + "/api/v1";
@@ -152,12 +153,12 @@ export const ownerService = {
     const response = await api.get<Owner>(`/owners/${id}`);
     return response.data;
   },
-  create: async (ownerData: OwnerInput): Promise<Owner> => {
-    const response = await api.post<Owner>('/owners', ownerData);
+  create: async (ownerData: OwnerInput): Promise<{ id: string }> => {
+    const response = await api.post<{ id: string }>('/owners', ownerData);
     return response.data;
   },
-  update: async (id: string, ownerData: OwnerUpdateInput): Promise<Owner> => {
-    const response = await api.put<Owner>(`/owners/${id}`, ownerData);
+  update: async (id: string, ownerData: OwnerUpdateInput): Promise<{ message: string }> => {
+    const response = await api.put<{ message: string }>(`/owners/${id}`, ownerData);
     return response.data;
   },
   delete: async (id: string): Promise<void> => {
@@ -165,6 +166,18 @@ export const ownerService = {
   },
   getAnimals: async (id: string): Promise<Animal[]> => {
     const response = await api.get<Animal[]>(`/owners/${id}/animals`);
+    return response.data;
+  },
+  getReminders: async (animalId?: string): Promise<OwnerReminderDTO[]> => {
+    const params: Record<string, string> = {};
+    if (animalId && animalId.trim() !== '' && animalId !== 'ALL') {
+      params.animalId = animalId;
+    }
+    const response = await api.get<OwnerReminderDTO[]>('/owner/reminders', { params });
+    return response.data;
+  },
+  getOwnerAnimals: async (): Promise<OwnerAnimal[]> => {
+    const response = await api.get<OwnerAnimal[]>('/owner/animals');
     return response.data;
   },
 };

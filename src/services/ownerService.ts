@@ -1,5 +1,5 @@
 import api from './api';
-import type { OwnerAnimal, OwnerMedicalHistoryEntry } from '../types';
+import type { OwnerAnimal, OwnerMedicalHistoryEntry, OwnerReminderDTO } from '../types';
 
 /**
  * Obtiene la lista de animales pertenecientes al propietario autenticado.
@@ -20,9 +20,25 @@ export const getOwnerAnimalMedicalHistory = async (animalId: string): Promise<Ow
   return response.data;
 };
 
+/**
+ * Obtiene los recordatorios unificados (vacunas, citas, alimentación) del propietario autenticado.
+ * Soporta filtro opcional por animalId (ASIDGA-174 / ASIDGA-175).
+ * @param animalId UUID opcional del animal
+ */
+export const getOwnerReminders = async (animalId?: string): Promise<OwnerReminderDTO[]> => {
+  const params: Record<string, string> = {};
+  if (animalId && animalId.trim() !== '' && animalId !== 'ALL') {
+    params.animalId = animalId;
+  }
+  const response = await api.get<OwnerReminderDTO[]>('/owner/reminders', { params });
+  return response.data;
+};
+
 export const ownerService = {
   getOwnerAnimals,
   getOwnerAnimalMedicalHistory,
+  getOwnerReminders,
 };
 
 export default ownerService;
+

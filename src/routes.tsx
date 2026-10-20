@@ -21,11 +21,23 @@ import AppointmentsList from "./pages/Appointments";
 import PaddockListView, { PaddockDetailView } from "./pages/Paddocks";
 import GrazingListView, { GrazingHistoryView } from "./pages/Grazing";
 import MyAnimalsView from "./pages/owner/MyAnimalsView";
+import Reminders from "./pages/owner/Reminders";
+
+import { authService } from "./services/api";
 
 const isAuthenticated = () => !!localStorage.getItem("token");
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return isAuthenticated() ? <>{children}</> : <Navigate to="/login" replace />;
+};
+
+const RoleProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode; allowedRoles: string[] }) => {
+  if (!isAuthenticated()) return <Navigate to="/login" replace />;
+  const user = authService.getCurrentUser();
+  if (user && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
+  return <>{children}</>;
 };
 
 /* eslint-disable react-refresh/only-export-components */
@@ -62,12 +74,56 @@ export const router = createBrowserRouter([
             { path: "grazing/history", element: <GrazingHistoryView /> },
             { path: "foods", element: <FoodsList /> },
             { path: "appointments", element: <AppointmentsList /> },
-            { path: "owners", element: <OwnersList /> },
-            { path: "owners/new", element: <CreateOwner /> },
-            { path: "owners/:id/edit", element: <EditOwner /> },
-            { path: "owners/:id/animals", element: <OwnerAnimals /> },
+            { 
+              path: "owners", 
+              element: (
+                <RoleProtectedRoute allowedRoles={['administrator', 'veterinarian']}>
+                  <OwnersList />
+                </RoleProtectedRoute>
+              ) 
+            },
+            { 
+              path: "owners/new", 
+              element: (
+                <RoleProtectedRoute allowedRoles={['administrator']}>
+                  <CreateOwner />
+                </RoleProtectedRoute>
+              ) 
+            },
+            { 
+              path: "owners/:id/edit", 
+              element: (
+                <RoleProtectedRoute allowedRoles={['administrator']}>
+                  <EditOwner />
+                </RoleProtectedRoute>
+              ) 
+            },
+            { 
+              path: "owners/:id/animals", 
+              element: (
+                <RoleProtectedRoute allowedRoles={['administrator', 'veterinarian']}>
+                  <OwnerAnimals />
+                </RoleProtectedRoute>
+              ) 
+            },
             { path: "my-animals", element: <MyAnimalsView /> },
             { path: "owner/animals", element: <MyAnimalsView /> },
+            { 
+              path: "my-reminders", 
+              element: (
+                <RoleProtectedRoute allowedRoles={['owner', 'administrator', 'veterinarian']}>
+                  <Reminders />
+                </RoleProtectedRoute>
+              ) 
+            },
+            { 
+              path: "owner/reminders", 
+              element: (
+                <RoleProtectedRoute allowedRoles={['owner', 'administrator', 'veterinarian']}>
+                  <Reminders />
+                </RoleProtectedRoute>
+              ) 
+            },
         ],
     },
 ]);

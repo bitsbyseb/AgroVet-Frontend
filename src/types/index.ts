@@ -39,6 +39,9 @@ export interface Owner {
   email: string;
   address: string;
   ownerType: 'urban' | 'rural';
+  userId?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Animal {
@@ -72,6 +75,13 @@ export interface SignupData {
   email: string;
   password?: string;
   role: UserRole;
+  ownerData?: {
+    name?: string;
+    document?: string;
+    phone?: string;
+    address?: string;
+    ownerType?: 'urban' | 'rural';
+  };
 }
 
 export interface AnimalInput {
@@ -144,7 +154,7 @@ export interface OwnerInput {
   phone: string;
   email: string;
   address: string;
-  ownerType: string;
+  ownerType: 'urban' | 'rural';
 }
 
 export interface OwnerUpdateInput {
@@ -152,7 +162,7 @@ export interface OwnerUpdateInput {
   phone?: string;
   email?: string;
   address?: string;
-  ownerType?: string;
+  ownerType?: 'urban' | 'rural';
 }
 
 export interface ProductionRecord {
@@ -346,5 +356,21 @@ export interface OwnerMedicalHistoryEntry {
   createdAt?: string;
   updatedAt?: string;
 }
+
+// ─── Tipos de Recordatorios del Propietario (Sprint 16 - HU7 / ASIDGA-172 a ASIDGA-179) ───
+
+export type ReminderCategory = 'vaccination' | 'appointment' | 'alimentation' | 'deworming';
+
+export interface OwnerReminderDTO {
+  id: string;
+  animalId: string;
+  animalName: string;
+  category: ReminderCategory | string;
+  title: string;
+  description: string;
+  dueDate: string;
+  status: string;
+}
+
 
 
