@@ -14,7 +14,8 @@ import type {
   IPaddock, PaddockInput, PaddockUpdateInput,
   IGrazingActivity, GrazingActivityInput,
   IGrazingHistoryItem, GrazingHistoryFilters,
-  OwnerReminderDTO, OwnerAnimal
+  OwnerReminderDTO, OwnerAnimal,
+  AlertRecord, AlertFilter, GenerateAlertsInput, GenerateAlertsResult
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_SERVICE_URL + "/api/v1";
@@ -39,7 +40,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Si obtenemos un 401 pero la petición fue para iniciar sesión, no recargamos la página
+    // Si obtenemos un 401 pero la peticiÃ³n fue para iniciar sesiÃ³n, no recargamos la pÃ¡gina
     if (error.response?.status === 401 && !error.config.url?.includes('/auth/login')) {
       localStorage.removeItem('token');
       window.location.href = '/login';
@@ -62,7 +63,7 @@ export const authService = {
     if (!token) return null;
     try {
       const decoded = jwtDecode<User>(token);
-      // Aseguramos que el rol esté en minúsculas para evitar problemas de case-sensitivity
+      // Aseguramos que el rol estÃ© en minÃºsculas para evitar problemas de case-sensitivity
       if (decoded && decoded.role) {
         decoded.role = decoded.role.toLowerCase() as User['role'];
       }
@@ -108,6 +109,10 @@ export const animalService = {
   },
   addHistory: async (id: string, data: MedicalHistoryInput): Promise<MedicalHistoryRecord> => {
     const response = await api.post<MedicalHistoryRecord>(`/animals/${id}/history`, data);
+    return response.data;
+  },
+  updateHistory: async (animalId: string, historyId: string, data: Partial<MedicalHistoryInput>): Promise<MedicalHistoryRecord> => {
+    const response = await api.put<MedicalHistoryRecord>(`/animals/${animalId}/history/${historyId}`, data);
     return response.data;
   },
   getVaccines: async (id: string): Promise<VaccineRecord[]> => {
@@ -260,9 +265,72 @@ export const grazingService = {
   }
 };
 
+export const medicalHistoryService = {
+  getByAnimal: async (animalId: string): Promise<MedicalHistoryRecord[]> => {
+    const response = await api.get<MedicalHistoryRecord[]>(`/medical-histories/animal/${animalId}`);
+    return response.data;
+  },
+  create: async (data: MedicalHistoryInput): Promise<MedicalHistoryRecord> => {
+    const response = await api.post<MedicalHistoryRecord>('/medical-histories', data);
+    return response.data;
+  },
+  createForAnimal: async (animalId: string, data: MedicalHistoryInput): Promise<MedicalHistoryRecord> => {
+    const response = await api.post<MedicalHistoryRecord>(`/animals/${animalId}/history`, data);
+    return response.data;
+  },
+  update: async (id: string, data: Partial<MedicalHistoryInput>): Promise<MedicalHistoryRecord> => {
+    const response = await api.put<MedicalHistoryRecord>(`/medical-histories/${id}`, data);
+    return response.data;
+  },
+  updateForAnimal: async (animalId: string, historyId: string, data: Partial<MedicalHistoryInput>): Promise<MedicalHistoryRecord> => {
+    const response = await api.put<MedicalHistoryRecord>(`/animals/${animalId}/history/${historyId}`, data);
+    return response.data;
+  }
+};
+
 export const getGrazingActivities = grazingService.getGrazingActivities;
 export const createGrazingActivity = grazingService.createGrazingActivity;
 export const getGrazingHistory = grazingService.getGrazingHistory;
 
+
+export const alertService = {
+  /** Obtiene alertas del sistema con filtros opcionales. */
+  list: async (filters: AlertFilter = {}): Promise<AlertRecord[]> => {
+    const params: Record<string, string> = {};
+    if (filters.userId)     params.userId     = filters.userId;
+    if (filters.animalId)   params.animalId   = filters.animalId;
+    if (filters.status)     params.status     = filters.status;
+    if (filters.priority)   params.priority   = filters.priority;
+    if (filters.moduleType) params.moduleType = filters.moduleType;
+    if (filters.onlyDue)    params.onlyDue    = 'true';
+    const response = await api.get<AlertRecord[]>('/alerts', { params });
+    return response.data;
+  },
+
+  /** Obtiene las alertas pendientes del usuario autenticado. */
+  getPending: async (): Promise<AlertRecord[]> => {
+    const response = await api.get<AlertRecord[]>('/alerts/pending');
+    return response.data;
+  },
+
+  /** Genera alertas automáticas para un animal. */
+  generate: async (input: GenerateAlertsInput): Promise<GenerateAlertsResult> => {
+    const response = await api.post<GenerateAlertsResult>('/alerts/generate', input);
+    return response.data;
+  },
+
+  /** Marca una alerta específica como leída. */
+  markAsRead: async (alertId: string): Promise<{ message: string; data?: AlertRecord }> => {
+    const response = await api.patch<{ message: string; data?: AlertRecord }>(`/alerts/${alertId}/read`);
+    return response.data;
+  },
+
+  /** Marca todas las alertas pendientes del usuario como leídas. */
+  markAllAsRead: async (): Promise<{ message: string; marked: number }> => {
+    const response = await api.patch<{ message: string; marked: number }>('/alerts/read-all');
+    return response.data;
+  },
+};
 export default api;
+
 

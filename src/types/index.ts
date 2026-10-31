@@ -104,15 +104,36 @@ export interface AnimalUpdateInput {
   paddockId?: string | null;
 }
 
+export interface PhysiologicalConstants {
+  heartRate?: number | null;
+  respiratoryRate?: number | null;
+  temperature?: number | null;
+  capillaryRefillTime?: number | null;
+  mucosalState?: string | null;
+  [key: string]: any;
+}
+
 export interface MedicalHistoryRecord {
   id: string;
   date: string;
   reason: string;
   diagnosis: string;
   treatment: string;
-  observations?: string;
+  observations?: string | null;
+  evolution?: string | null;
+  physiologicalConstants?: PhysiologicalConstants | null;
+  heartRate?: number | null;
+  respiratoryRate?: number | null;
+  temperature?: number | null;
+  capillaryRefillTime?: number | null;
+  mucosalState?: string | null;
+  weight?: number | null;
+  bodyConditionScore?: number | null;
   animalId: string;
-  professionalId: string;
+  professionalId?: string;
+  createdBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
   professional?: {
     username: string;
     role: string;
@@ -124,7 +145,17 @@ export interface MedicalHistoryInput {
   reason: string;
   diagnosis: string;
   treatment: string;
-  observations?: string;
+  observations?: string | null;
+  evolution?: string | null;
+  physiologicalConstants?: PhysiologicalConstants | null;
+  heartRate?: number | null;
+  respiratoryRate?: number | null;
+  temperature?: number | null;
+  capillaryRefillTime?: number | null;
+  mucosalState?: string | null;
+  weight?: number | null;
+  bodyConditionScore?: number | null;
+  animalId?: string;
 }
 
 export interface VaccineRecord {
@@ -353,6 +384,10 @@ export interface OwnerMedicalHistoryEntry {
   treatment: string;
   observations: string;
   createdBy: string;
+  evolution?: string | null;
+  physiologicalConstants?: PhysiologicalConstants | null;
+  weight?: number | null;
+  bodyConditionScore?: number | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -360,6 +395,54 @@ export interface OwnerMedicalHistoryEntry {
 // ─── Tipos de Recordatorios del Propietario (Sprint 16 - HU7 / ASIDGA-172 a ASIDGA-179) ───
 
 export type ReminderCategory = 'vaccination' | 'appointment' | 'alimentation' | 'deworming';
+
+// ─── Tipos de Alertas del Sistema (Sprint 18 - HU10/HU11) ────────────────────
+
+export type AlertModuleType =
+  | 'vaccination'
+  | 'treatment'
+  | 'control'
+  | 'feeding'
+  | 'reproduction'
+  | 'production'
+  | 'grazing';
+
+export type AlertStatus = 'pending' | 'read';
+export type AlertPriority = 'low' | 'medium' | 'high';
+
+export interface AlertRecord {
+  id: string;
+  animalId: string;
+  userId: string;
+  moduleType: AlertModuleType;
+  message: string;
+  triggerDate: string;
+  status: AlertStatus;
+  priority: AlertPriority;
+  emailSent: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface AlertFilter {
+  userId?: string;
+  animalId?: string;
+  status?: AlertStatus;
+  priority?: AlertPriority;
+  moduleType?: AlertModuleType;
+  onlyDue?: boolean;
+}
+
+export interface GenerateAlertsInput {
+  animalId: string;
+  daysAhead?: number;
+}
+
+export interface GenerateAlertsResult {
+  message: string;
+  generated: number;
+  alerts: AlertRecord[];
+}
 
 export interface OwnerReminderDTO {
   id: string;

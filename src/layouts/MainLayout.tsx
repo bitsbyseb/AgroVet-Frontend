@@ -1,12 +1,44 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router';
-import { authService } from '../services/api';
-import { LayoutDashboard, Users, Cat, LogOut, User as UserIcon, Calendar, Wheat, Layers, Compass, PawPrint, Bell, UserPlus } from 'lucide-react';
+import { authService, alertService } from '../services/api';
+import {
+  LayoutDashboard,
+  Users,
+  Cat,
+  LogOut,
+  User as UserIcon,
+  Calendar,
+  Wheat,
+  Layers,
+  Compass,
+  PawPrint,
+  Bell,
+  UserPlus
+} from 'lucide-react';
 
 const MainLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = authService.getCurrentUser();
+
+  const hasAlertsAccess = !!(user && ['veterinarian', 'zootechnician', 'administrator'].includes(user.role));
+  const [pendingCount, setPendingCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (hasAlertsAccess) {
+      const fetchPending = async () => {
+        try {
+          const pending = await alertService.getPending();
+          setPendingCount(pending.length);
+        } catch {
+          // Ignorar fallo silencioso
+        }
+      };
+      fetchPending();
+      const interval = setInterval(fetchPending, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [hasAlertsAccess, location.pathname]);
 
   const handleLogout = () => {
     authService.logout();
@@ -15,6 +47,7 @@ const MainLayout: React.FC = () => {
 
   const menuItems = [
     { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} />, roles: ['veterinarian', 'zootechnician', 'administrator'] },
+    { name: 'Alertas', path: '/alerts', icon: <Bell size={20} />, roles: ['veterinarian', 'zootechnician', 'administrator'] },
     { name: 'Mis Animales', path: '/my-animals', icon: <PawPrint size={20} />, roles: ['owner'] },
     { name: 'Recordatorios', path: '/my-reminders', icon: <Bell size={20} />, roles: ['owner', 'administrator'] },
     { name: 'Animales', path: '/animals', icon: <Cat size={20} />, roles: ['veterinarian', 'zootechnician', 'administrator'] },
@@ -52,18 +85,24 @@ const MainLayout: React.FC = () => {
               <Link 
                 key={item.path} 
                 to={item.path}
-                className="flex items-center"
+                className="flex items-center justify-between"
                 style={{
                   padding: '12px 20px',
-                  gap: '12px',
                   backgroundColor: isActive ? 'var(--primary)' : 'transparent',
                   color: 'white',
                   transition: 'background 0.2s',
                   fontWeight: isActive ? 600 : 400
                 }}
               >
-                {item.icon}
-                <span>{item.name}</span>
+                <div className="flex items-center" style={{ gap: '12px' }}>
+                  {item.icon}
+                  <span>{item.name}</span>
+                </div>
+                {item.path === '/alerts' && pendingCount > 0 && (
+                  <span className="bg-red-500 text-white text-[11px] font-bold rounded-full px-2 py-0.5">
+                    {pendingCount > 99 ? '99+' : pendingCount}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -94,12 +133,27 @@ const MainLayout: React.FC = () => {
       <main style={{ flex: 1, backgroundColor: 'var(--bg-color)', overflowY: 'auto' }}>
         <header style={{ 
           backgroundColor: 'white', 
-          padding: '15px 30px', 
+          padding: '12px 30px', 
           borderBottom: '1px solid var(--border-color)',
           display: 'flex',
-          justifyContent: 'flex-end'
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          gap: '16px'
         }}>
-           {/* Add notification or user profile link here if needed */}
+          {hasAlertsAccess && (
+            <Link
+              to="/alerts"
+              className="relative p-2 rounded-full text-gray-600 hover:text-emerald-700 hover:bg-gray-100 transition flex items-center justify-center cursor-pointer"
+              title="Alertas del Sistema"
+            >
+              <Bell size={22} />
+              {pendingCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[11px] font-bold rounded-full h-5 min-w-5 px-1 flex items-center justify-center shadow-xs">
+                  {pendingCount > 99 ? '99+' : pendingCount}
+                </span>
+              )}
+            </Link>
+          )}
         </header>
         <div style={{ padding: '30px' }}>
           <Outlet />

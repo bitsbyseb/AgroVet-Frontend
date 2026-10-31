@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router";
+﻿import { createBrowserRouter, Navigate } from "react-router";
 import LogIn from "./pages/LogIn";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -22,6 +22,7 @@ import PaddockListView, { PaddockDetailView } from "./pages/Paddocks";
 import GrazingListView, { GrazingHistoryView } from "./pages/Grazing";
 import MyAnimalsView from "./pages/owner/MyAnimalsView";
 import Reminders from "./pages/owner/Reminders";
+import AlertsView from "./pages/Alerts";
 
 import { authService } from "./services/api";
 
@@ -124,6 +125,15 @@ export const router = createBrowserRouter([
                 </RoleProtectedRoute>
               ) 
             },
+            { 
+              path: "alerts", 
+              element: (
+                <RoleProtectedRoute allowedRoles={['administrator', 'veterinarian', 'zootechnician']}>
+                  <AlertsView />
+                </RoleProtectedRoute>
+              ) 
+            },
         ],
     },
 ]);
+
