@@ -79,7 +79,7 @@ const AppointmentsList: React.FC = () => {
         app.id === id ? { ...app, status: newStatus as "Scheduled" | "Completed" | "Cancelled" } : app
       ));
     } catch (err: unknown) {
-      alert((err as { response?: { data?: { error?: string }, status?: number } }).response?.data?.error || 'Error al actualizar el estado de la cita.');
+      setError((err as { response?: { data?: { error?: string }, status?: number } }).response?.data?.error || 'Error al actualizar el estado de la cita.');
     }
   };
 
@@ -116,7 +116,7 @@ const AppointmentsList: React.FC = () => {
       </div>
 
       {error && (
-        <div style={{ backgroundColor: '#ffebee', color: 'var(--error)', padding: '10px', borderRadius: '6px', marginBottom: '20px' }}>
+        <div role="alert" aria-live="assertive" style={{ backgroundColor: '#ffebee', color: 'var(--error)', padding: '10px', borderRadius: '6px', marginBottom: '20px' }}>
           {error}
         </div>
       )}

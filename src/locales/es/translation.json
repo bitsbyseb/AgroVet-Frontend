@@ -1,0 +1,371 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "alerts": "Alertas",
+    "myAnimals": "Mis Animales",
+    "myReminders": "Recordatorios",
+    "animals": "Animales",
+    "paddocks": "Potreros",
+    "grazing": "Pastoreo",
+    "appointments": "Consultas",
+    "foods": "Alimentos",
+    "owners": "Propietarios",
+    "registerUser": "Registrar Usuario"
+  },
+  "roles": {
+    "administrator": "Administrador",
+    "zootechnician": "Zootecnista",
+    "owner": "Propietario",
+    "veterinarian": "Veterinario"
+  },
+  "common": {
+    "logout": "Cerrar Sesión",
+    "menu": "Menú",
+    "close": "Cerrar",
+    "loading": "Cargando...",
+    "systemAlerts": "Alertas del Sistema",
+    "language": "Idioma",
+    "spanish": "Español",
+    "english": "Inglés",
+    "search": "Buscar",
+    "actions": "Acciones",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "cancel": "Cancelar",
+    "back": "Regresar",
+    "refresh": "Refrescar",
+    "new": "Nuevo",
+    "newRecord": "Nuevo Registro",
+    "status": "Estado",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "confirmDelete": "¿Estás seguro de que deseas eliminar permanentemente a {{name}}? Esta acción no se puede deshacer.",
+    "noResults": "No se encontraron resultados",
+    "error": "Error",
+    "success": "Éxito",
+    "required": "obligatorio",
+    "optional": "Opcional",
+    "select": "Seleccionar...",
+    "update": "Actualizar",
+    "accessDenied": "Acceso Denegado",
+    "restricted": "Acceso Restringido"
+  },
+  "dashboard": {
+    "welcome": "Bienvenido, {{username}}",
+    "subtitle": "Panel de control general de AgroVet",
+    "totalAnimals": "Total Animales",
+    "owners": "Propietarios",
+    "appointmentsToday": "Consultas Hoy",
+    "alerts": "Alertas",
+    "recentActivity": "Actividad Reciente",
+    "noRecentActivity": "No hay actividad reciente para mostrar."
+  },
+  "animals": {
+    "title": "Gestión de Animales",
+    "subtitle": "Catálogo y control clínico, reproductivo, productivo y ubicación en potreros de los ejemplares registrados.",
+    "searchPlaceholder": "Buscar por nombre, especie, raza o potrero...",
+    "table": {
+      "animal": "Animal",
+      "species": "Especie",
+      "breed": "Raza",
+      "currentPaddock": "Potrero Actual",
+      "birthDate": "Fecha Nac.",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "loading": "Cargando animales...",
+    "emptyTitle": "No se encontraron animales",
+    "emptySearch": "Intenta con otro término de búsqueda.",
+    "emptyInitial": "No hay animales registrados aún. Comienza registrando un nuevo animal.",
+    "noPaddock": "Sin potrero",
+    "grazing": "Pastoreo",
+    "rotation": "Rotación #{{num}}",
+    "tooltips": {
+      "history": "Historial Clínico",
+      "vaccines": "Vacunas",
+      "production": "Producción",
+      "reproduction": "Reproducción",
+      "diet": "Dieta y Nutrición",
+      "transfer": "Transferir Propiedad",
+      "edit": "Editar Animal",
+      "delete": "Eliminar Animal"
+    },
+    "species": {
+      "canine": "Canino",
+      "feline": "Felino",
+      "bovine": "Bovino",
+      "caprine": "Caprino",
+      "equine": "Equino",
+      "poultry": "Aves",
+      "pig": "Porcino"
+    },
+    "animalType": {
+      "urban": "Urbano",
+      "rural": "Rural"
+    },
+    "gender": {
+      "male": "Macho",
+      "female": "Hembra"
+    },
+    "form": {
+      "createTitle": "Registrar Nuevo Animal",
+      "editTitle": "Editar Animal",
+      "name": "Nombre del Animal",
+      "namePlaceholder": "Ej: Luna, Toro Negro, Estrella...",
+      "species": "Especie",
+      "selectSpecies": "Seleccione una especie",
+      "animalType": "Tipo de Animal",
+      "selectType": "Seleccione el tipo",
+      "breed": "Raza",
+      "breedPlaceholder": "Ej: Holstein, Labrador, Angus...",
+      "gender": "Sexo",
+      "selectGender": "Seleccione el sexo",
+      "birthDate": "Fecha de Nacimiento",
+      "color": "Color / Marcas",
+      "colorPlaceholder": "Ej: Negro con manchas blancas...",
+      "owner": "Propietario",
+      "selectOwner": "Seleccione un propietario",
+      "paddock": "Potrero Asignado",
+      "selectPaddock": "Sin potrero (asignar después)",
+      "noOwnerAccess": "El propietario será asignado automáticamente.",
+      "ownerRequired": "Debes ingresar o seleccionar un propietario.",
+      "birthDateRequired": "Debes ingresar una fecha de nacimiento válida."
+    }
+  },
+  "history": {
+    "title": "Historial Clínico",
+    "titleWithName": "Historial Clínico: {{name}}",
+    "loading": "Cargando historial médico...",
+    "loadingTab": "Cargando datos...",
+    "tabs": {
+      "historial": "Historial Médico",
+      "vacunas": "Vacunas",
+      "produccion": "Producción",
+      "reproduccion": "Reproducción"
+    },
+    "newRecord": "Nuevo Registro",
+    "addRecord": "Agregar Nuevo Registro Médico",
+    "editRecord": "Editar Registro Médico",
+    "updateRecord": "Actualizar Registro",
+    "saveRecord": "Guardar Registro",
+    "editTooltip": "Editar registro clínico",
+    "noRecords": "No hay registros médicos",
+    "noRecordsSubtitle": "Este animal no cuenta con atenciones clínicas registradas.",
+    "fields": {
+      "date": "Fecha de la Consulta",
+      "reason": "Motivo de Consulta",
+      "reasonPlaceholder": "Ej: Control de peso, Herida en pata, Fiebre...",
+      "diagnosis": "Diagnóstico",
+      "diagnosisPlaceholder": "Descripción del diagnóstico clínico...",
+      "treatment": "Tratamiento",
+      "treatmentPlaceholder": "Medicamentos, dosis, frecuencia y duración...",
+      "observations": "Observaciones Adicionales (Opcional)",
+      "observationsPlaceholder": "Otras notas relevantes, indicaciones al dueño, fecha de control sugerida...",
+      "observations_label": "Observaciones"
+    },
+    "evolution": {
+      "label": "Evolución Médica",
+      "description": "Registre notas sobre la respuesta al tratamiento, estado clínico progresivo o cambios entre sesiones.",
+      "placeholder": "Ej: Paciente responde favorablemente al antibiótico, herida cicatriza sin signos de infección...",
+      "clinical": "Evolución Clínica"
+    },
+    "vitals": {
+      "title": "Constantes Fisiológicas",
+      "heartRate": "FC (lpm)",
+      "heartRateFull": "Frecuencia Cardíaca",
+      "respiratoryRate": "FR (rpm)",
+      "respiratoryRateFull": "Frecuencia Respiratoria",
+      "temperature": "T° (°C)",
+      "temperatureFull": "Temperatura",
+      "capillaryRefillTime": "TRC (seg)",
+      "capillaryRefillTimeFull": "Tiempo de Llenado Capilar",
+      "mucosalState": "Mucosas",
+      "mucosalStateFull": "Estado de Mucosas",
+      "selectMucosal": "Seleccionar...",
+      "weight": "Peso Corporal (kg)",
+      "weightShort": "Peso",
+      "bodyConditionScore": "Condición Corporal (Escala 1 al 9)",
+      "bodyConditionShort": "CC",
+      "bodyConditionPlaceholder": "1 (emaciado) - 5 (ideal) - 9 (obeso)",
+      "bcs": {
+        "thin": "Delgado",
+        "ideal": "Ideal",
+        "overweight": "Sobrepeso",
+        "obese": "Obesidad"
+      }
+    },
+    "mucosal": {
+      "rosadas": "Rosadas (Normal)",
+      "palidas": "Pálidas (Anemia / Hipovolemia)",
+      "cianoticas": "Cianóticas (Hipoxia)",
+      "ictericas": "Ictéricas (Hepatopatía / Hemólisis)",
+      "congestivas": "Congestivas / Hiperémicas (Fiebre / Sepsis)"
+    },
+    "sections": {
+      "diagnosis": "Diagnóstico",
+      "treatment": "Tratamiento"
+    },
+    "validation": {
+      "dateRequired": "La fecha de consulta es obligatoria.",
+      "reasonRequired": "El motivo de consulta es obligatorio.",
+      "reasonMinLength": "El motivo debe tener al menos 3 caracteres.",
+      "diagnosisRequired": "El diagnóstico es obligatorio.",
+      "diagnosisMinLength": "El diagnóstico debe tener al menos 3 caracteres.",
+      "treatmentRequired": "El tratamiento es obligatorio.",
+      "treatmentMinLength": "El tratamiento debe tener al menos 3 caracteres.",
+      "weightPositive": "El peso debe ser un número positivo mayor a 0.",
+      "weightMax": "El peso no puede exceder 3000 kg.",
+      "bcsRange": "La condición corporal debe estar entre 1 y 9.",
+      "heartRateRange": "La frecuencia cardíaca debe ser un número entero entre 1 y 500 lpm.",
+      "respiratoryRateRange": "La frecuencia respiratoria debe estar entre 1 y 200 rpm.",
+      "temperatureRange": "La temperatura debe estar en el rango biológico de 25°C a 45°C.",
+      "capillaryRefillRange": "El tiempo de llenado capilar debe estar entre 0 y 20 segundos."
+    },
+    "errors": {
+      "loadFailed": "No se pudo cargar la información del animal o su historial.",
+      "tabLoadFailed": "No se pudo cargar la información de {{tab}}.",
+      "saveFailed": "Error al guardar el registro médico."
+    },
+    "vaccines": {
+      "applied": "Aplicada el {{date}}",
+      "nextDose": "Próxima dosis: {{date}}",
+      "batch": "Lote",
+      "noRecords": "Sin registros de vacunación",
+      "noRecordsSubtitle": "Este animal no tiene vacunas registradas en el sistema."
+    }
+  },
+  "reproduction": {
+    "title": "Registro Reproductivo",
+    "titleWithName": "Registro Reproductivo: {{name}}",
+    "loading": "Cargando datos de reproducción...",
+    "newEvent": "Nuevo Evento",
+    "addEvent": "Agregar Nuevo Evento Reproductivo",
+    "saveEvent": "Guardar Evento",
+    "noRecords": "No hay eventos reproductivos",
+    "noRecordsSubtitle": "Este animal no cuenta con registros reproductivos ingresados.",
+    "forbiddenTitle": "Acceso Denegado",
+    "forbiddenMessage": "Tu rol actual no tiene permisos para ver los registros reproductivos.",
+    "backToAnimals": "Volver a Animales",
+    "fields": {
+      "reproductiveStatus": "Estado Reproductivo",
+      "breedingType": "Tipo de Reproducción",
+      "lastCalvingDate": "Fecha de Último Parto (Opcional)",
+      "offspringCount": "Número de Crías",
+      "estrusDate": "Fecha de Celo",
+      "matingDate": "Fecha de Monta",
+      "inseminationDate": "Fecha de Inseminación",
+      "expectedDueDate": "Fecha Probable de Parto"
+    },
+    "status": {
+      "pregnant": "Preñada (Pregnant)",
+      "open": "Vacía (Open)",
+      "lactating": "Lactando (Lactating)",
+      "dry": "Seca (Dry)"
+    },
+    "breedingType": {
+      "natural": "Monta Natural",
+      "artificial": "Inseminación Artificial",
+      "embryo_transfer": "Transferencia de Embriones"
+    },
+    "display": {
+      "status": "Estado reproductivo",
+      "offspring": "Crías",
+      "breedingType": "Tipo de monta",
+      "lastCalving": "Último parto",
+      "statusLabel": "Estado: {{value}}",
+      "offspringLabel": "Crías: {{count}} | Tipo: {{type}}"
+    },
+    "errors": {
+      "loadFailed": "No se pudo cargar la información de reproducción.",
+      "saveFailed": "Error al guardar el registro de reproducción."
+    }
+  },
+  "production": {
+    "title": "Registro de Producción",
+    "titleWithName": "Registro de Producción: {{name}}",
+    "loading": "Cargando datos de producción...",
+    "newRecord": "Nuevo Registro",
+    "addRecord": "Agregar Nuevo Registro de Producción",
+    "saveRecord": "Guardar Registro",
+    "noRecords": "No hay registros de producción",
+    "noRecordsSubtitle": "Este animal no cuenta con lotes productivos ingresados.",
+    "fields": {
+      "date": "Fecha de Registro",
+      "type": "Tipo de Producto",
+      "typePlaceholder": "Ej: Leche, Carne, Huevos...",
+      "quantity": "Cantidad",
+      "quantityPlaceholder": "Ej: 15.5",
+      "unit": "Unidad de Medida",
+      "unitPlaceholder": "Ej: Litros, Kg...",
+      "purpose": "Propósito"
+    },
+    "purpose": {
+      "milk": "Leche",
+      "meat": "Carne",
+      "eggs": "Huevos",
+      "wool": "Lana",
+      "dual": "Doble Propósito",
+      "other": "Otro"
+    },
+    "display": {
+      "quantity": "Cantidad",
+      "typeAndPurpose": "Tipo & Propósito",
+      "purposeLabel": "Propósito: {{value}}",
+      "liters": "litros",
+      "kg": "kg"
+    },
+    "errors": {
+      "loadFailed": "No se pudo cargar la información de producción.",
+      "saveFailed": "Error al guardar el registro de producción."
+    }
+  },
+  "alerts": {
+    "title": "Centro de Alertas del Sistema",
+    "subtitle": "Notificaciones automáticas y eventos críticos clínicos, nutricionales y reproductivos.",
+    "evaluateAnimal": "Evaluar Animal",
+    "pending": "Pendientes",
+    "read": "Revisadas",
+    "all": "Todas",
+    "markAsRead": "Marcar como revisada",
+    "markAllAsRead": "Marcar todas como revisadas",
+    "highPriority": "Alta Prioridad",
+    "mediumPriority": "Media Prioridad",
+    "lowPriority": "Baja Prioridad",
+    "criticalPending": "Críticas Pendientes",
+    "totalPending": "Pendientes Totales",
+    "reviewed": "Revisadas / Atendidas",
+    "noAlerts": "No hay alertas que coincidan",
+    "emailSent": "Email enviado",
+    "evaluationCompleted": "Evaluación completada: se generaron {{count}} nuevas alertas.",
+    "daysAhead": "Días de Anticipación (Umbral)",
+    "daysAheadPlaceholder": "Por defecto: 7 días",
+    "selectAnimal": "Seleccione un animal...",
+    "restrictedTitle": "Acceso Restringido",
+    "restrictedMessage": "Solo el personal veterinario, zootécnico o administrador tiene acceso al centro de alertas.",
+    "modules": {
+      "all": "Todos los Módulos",
+      "vaccination": "Vacunación",
+      "treatment": "Tratamiento",
+      "control": "Control Clínico",
+      "feeding": "Alimentación",
+      "reproduction": "Reproducción",
+      "production": "Producción",
+      "grazing": "Pastoreo"
+    },
+    "priorities": {
+      "all": "Todas las Prioridades",
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja"
+    },
+    "errors": {
+      "loadFailed": "No se pudieron cargar las alertas del sistema.",
+      "refreshFailed": "Error al refrescar las alertas.",
+      "markFailed": "No se pudo marcar la alerta como revisada.",
+      "markAllFailed": "No se pudieron marcar todas las alertas.",
+      "generateFailed": "Error al generar las alertas automáticas para el animal."
+    }
+  }
+}

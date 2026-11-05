@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { animalService, paddockService, grazingService, authService } from '../../services/api';
 import type { Animal, IPaddock, IGrazingActivity } from '../../types';
+import { formatDateShort } from '../../utils/l10n';
 import {
   Plus,
   Cat,
@@ -18,6 +20,8 @@ import {
 } from 'lucide-react';
 
 export const AnimalsList: React.FC = () => {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [paddocks, setPaddocks] = useState<IPaddock[]>([]);
   const [grazingActivities, setGrazingActivities] = useState<IGrazingActivity[]>([]);
@@ -25,11 +29,34 @@ export const AnimalsList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [user, setUser] = useState(authService.getCurrentUser());
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     setUser(authService.getCurrentUser());
     fetchData();
   }, []);
+
+  // Manejo de accesibilidad en diálogo de confirmación (Escape y scroll lock)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && deleteTarget && !deleting) {
+        setDeleteTarget(null);
+      }
+    };
+
+    if (deleteTarget) {
+      document.body.style.overflow = 'hidden';
+      window.addEventListener('keydown', handleKeyDown);
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [deleteTarget, deleting]);
 
   const fetchData = async () => {
     try {
@@ -49,16 +76,19 @@ export const AnimalsList: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (window.confirm(`¿Estás seguro de que deseas eliminar permanentemente a ${name}? Esta acción no se puede deshacer.`)) {
-      try {
-        await animalService.delete(id);
-        setAnimals(animals.filter(animal => animal.id !== id));
-      } catch (err: unknown) {
-        const axiosError = err as { response?: { data?: { error?: string } } };
-        setError(axiosError.response?.data?.error || 'Error al eliminar el animal.');
-        setTimeout(() => setError(null), 5000);
-      }
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      setDeleting(true);
+      await animalService.delete(deleteTarget.id);
+      setAnimals((prev) => prev.filter((animal) => animal.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { error?: string } } };
+      setError(axiosError.response?.data?.error || t('common.error'));
+      setTimeout(() => setError(null), 5000);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -106,33 +136,33 @@ export const AnimalsList: React.FC = () => {
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
             <Cat className="text-emerald-700" size={28} />
-            Gestión de Animales
+            <span>{t('animals.title')}</span>
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Catálogo y control clínico, reproductivo, productivo y ubicación en potreros de los ejemplares registrados.
+            {t('animals.subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={fetchData}
-            className="btn bg-gray-100 hover:bg-gray-200 text-gray-700 p-2.5 rounded-lg"
-            title="Refrescar listado"
+            className="btn bg-gray-100 hover:bg-gray-200 text-gray-700 p-2.5 rounded-lg transition cursor-pointer"
+            title={t('common.refresh')}
           >
             <RefreshCw size={16} />
           </button>
           <Link 
             to="/animals/new" 
-            className="btn btn-primary bg-emerald-700 hover:bg-emerald-800 text-white inline-flex items-center justify-center gap-2 shadow-xs transition"
+            className="btn btn-primary bg-emerald-700 hover:bg-emerald-800 text-white inline-flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
           >
             <Plus size={18} />
-            <span>Nuevo Registro</span>
+            <span>{t('common.newRecord')}</span>
           </Link>
         </div>
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border-l-4 border-red-600 text-red-800 rounded-r-md shadow-xs flex items-center gap-2 text-sm">
+        <div role="alert" aria-live="assertive" className="p-4 bg-red-50 border-l-4 border-red-600 text-red-800 rounded-r-md shadow-xs flex items-center gap-2 text-sm">
           <AlertCircle size={18} className="shrink-0" />
           <span>{error}</span>
         </div>
@@ -143,7 +173,8 @@ export const AnimalsList: React.FC = () => {
         <div className="w-full md:w-96">
           <input
             type="text"
-            placeholder="Buscar por nombre, especie, raza o potrero..."
+            placeholder={t('animals.searchPlaceholder')}
+            aria-label={t('animals.searchPlaceholder')}
             className="form-control px-4 py-2 w-full text-sm rounded-lg border-gray-200"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -155,16 +186,16 @@ export const AnimalsList: React.FC = () => {
         {loading ? (
           <div className="text-center py-16">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-600 border-t-transparent mb-3" />
-            <p className="text-gray-500 text-sm">Cargando animales...</p>
+            <p className="text-gray-500 text-sm">{t('animals.loading')}</p>
           </div>
         ) : filteredAnimals.length === 0 ? (
           <div className="text-center py-16 px-4">
             <Cat size={48} className="text-gray-300 mx-auto mb-3" />
-            <h3 className="text-base font-semibold text-gray-700">No se encontraron animales</h3>
+            <h3 className="text-base font-semibold text-gray-700">{t('animals.emptyTitle')}</h3>
             <p className="text-xs text-gray-500 mt-1">
               {searchTerm
-                ? 'Intenta con otro término de búsqueda.'
-                : 'No hay animales registrados aún. Comienza registrando un nuevo animal.'}
+                ? t('animals.emptySearch')
+                : t('animals.emptyInitial')}
             </p>
           </div>
         ) : (
@@ -172,13 +203,13 @@ export const AnimalsList: React.FC = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider border-b border-gray-200">
-                  <th className="py-3.5 px-4 font-bold">Animal</th>
-                  <th className="py-3.5 px-4 font-bold">Especie</th>
-                  <th className="py-3.5 px-4 font-bold">Raza</th>
-                  <th className="py-3.5 px-4 font-bold">Potrero Actual</th>
-                  <th className="py-3.5 px-4 font-bold">Fecha Nac.</th>
-                  <th className="py-3.5 px-4 font-bold">Estado</th>
-                  <th className="py-3.5 px-4 font-bold text-right">Acciones</th>
+                  <th className="py-3.5 px-4 font-bold">{t('animals.table.animal')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('animals.table.species')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('animals.table.breed')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('animals.table.currentPaddock')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('animals.table.birthDate')}</th>
+                  <th className="py-3.5 px-4 font-bold">{t('animals.table.status')}</th>
+                  <th className="py-3.5 px-4 font-bold text-right">{t('animals.table.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-sm">
@@ -204,8 +235,8 @@ export const AnimalsList: React.FC = () => {
                             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition border border-emerald-200"
                             title={
                               paddockInfo.isGrazing
-                                ? `En Pastoreo: Rotación #${paddockInfo.rotationNumber}`
-                                : 'Asignación Permanente al Potrero'
+                                ? `${t('animals.grazing')}: ${t('animals.rotation', { num: paddockInfo.rotationNumber })}`
+                                : paddockInfo.paddock.name
                             }
                           >
                             <Layers size={12} className="text-emerald-700" />
@@ -217,11 +248,11 @@ export const AnimalsList: React.FC = () => {
                             )}
                           </Link>
                         ) : (
-                          <span className="text-gray-400 text-xs italic">Sin potrero</span>
+                          <span className="text-gray-400 text-xs italic">{t('animals.noPaddock')}</span>
                         )}
                       </td>
                       <td className="py-3.5 px-4 text-gray-600">
-                        {animal.birthDate ? new Date(animal.birthDate).toLocaleDateString() : 'N/A'}
+                        {animal.birthDate ? formatDateShort(animal.birthDate, lang) : 'N/A'}
                       </td>
                       <td className="py-3.5 px-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
@@ -229,30 +260,33 @@ export const AnimalsList: React.FC = () => {
                             ? 'bg-red-100 text-red-800'
                             : 'bg-emerald-100 text-emerald-800'
                         }`}>
-                          {animal.status === 'inactive' ? 'Inactivo' : 'Activo'}
+                          {animal.status === 'inactive' ? t('common.inactive') : t('common.active')}
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-right">
-                        <div className="inline-flex items-center justify-end gap-1.5">
+                        <div className="inline-flex items-center justify-end gap-1">
                           <Link 
                             to={`/animals/${animal.id}/history`} 
-                            className="p-1.5 text-emerald-700 hover:bg-emerald-50 rounded-lg transition inline-flex items-center justify-center" 
-                            title="Historial Médico"
+                            className="p-2 min-h-[36px] min-w-[36px] text-emerald-700 hover:bg-emerald-50 rounded-lg transition inline-flex items-center justify-center cursor-pointer" 
+                            title={t('animals.tooltips.history')}
+                            aria-label={t('animals.tooltips.history')}
                           >
                             <Stethoscope size={16} />
                           </Link>
                           <Link 
                             to={`/animals/${animal.id}/vaccines`} 
-                            className="p-1.5 text-cyan-700 hover:bg-cyan-50 rounded-lg transition inline-flex items-center justify-center" 
-                            title="Vacunas"
+                            className="p-2 min-h-[36px] min-w-[36px] text-cyan-700 hover:bg-cyan-50 rounded-lg transition inline-flex items-center justify-center cursor-pointer" 
+                            title={t('animals.tooltips.vaccines')}
+                            aria-label={t('animals.tooltips.vaccines')}
                           >
                             <Syringe size={16} />
                           </Link>
                           {user?.role !== 'veterinarian' && (
                             <Link 
                               to={`/animals/${animal.id}/diet`} 
-                              className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition inline-flex items-center justify-center" 
-                              title="Plan de Alimentación"
+                              className="p-2 min-h-[36px] min-w-[36px] text-orange-600 hover:bg-orange-50 rounded-lg transition inline-flex items-center justify-center cursor-pointer" 
+                              title={t('animals.tooltips.diet')}
+                              aria-label={t('animals.tooltips.diet')}
                             >
                               <Utensils size={16} />
                             </Link>
@@ -261,16 +295,18 @@ export const AnimalsList: React.FC = () => {
                             <>
                               <Link 
                                 to={`/animals/${animal.id}/production`} 
-                                className="p-1.5 text-emerald-800 hover:bg-emerald-50 rounded-lg transition inline-flex items-center justify-center" 
-                                title="Producción"
+                                className="p-2 min-h-[36px] min-w-[36px] text-emerald-800 hover:bg-emerald-50 rounded-lg transition inline-flex items-center justify-center cursor-pointer" 
+                                title={t('animals.tooltips.production')}
+                                aria-label={t('animals.tooltips.production')}
                               >
                                 <Package size={16} />
                               </Link>
                               {user?.role !== 'veterinarian' && (
                                 <Link 
                                   to={`/animals/${animal.id}/reproduction`} 
-                                  className="p-1.5 text-pink-600 hover:bg-pink-50 rounded-lg transition inline-flex items-center justify-center" 
-                                  title="Reproducción"
+                                  className="p-2 min-h-[36px] min-w-[36px] text-pink-600 hover:bg-pink-50 rounded-lg transition inline-flex items-center justify-center cursor-pointer" 
+                                  title={t('animals.tooltips.reproduction')}
+                                  aria-label={t('animals.tooltips.reproduction')}
                                 >
                                   <Activity size={16} />
                                 </Link>
@@ -279,22 +315,26 @@ export const AnimalsList: React.FC = () => {
                           )}
                           <Link 
                             to={`/animals/${animal.id}/edit`} 
-                            className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition inline-flex items-center justify-center" 
-                            title="Editar"
+                            className="p-2 min-h-[36px] min-w-[36px] text-gray-600 hover:bg-gray-100 rounded-lg transition inline-flex items-center justify-center cursor-pointer" 
+                            title={t('animals.tooltips.edit')}
+                            aria-label={t('animals.tooltips.edit')}
                           >
                             <Edit2 size={16} />
                           </Link>
                           <Link 
                             to={`/animals/${animal.id}/transfer`} 
-                            className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition inline-flex items-center justify-center" 
-                            title="Transferir Dueño"
+                            className="p-2 min-h-[36px] min-w-[36px] text-indigo-600 hover:bg-indigo-50 rounded-lg transition inline-flex items-center justify-center cursor-pointer" 
+                            title={t('animals.tooltips.transfer')}
+                            aria-label={t('animals.tooltips.transfer')}
                           >
                             <RefreshCw size={16} />
                           </Link>
                           <button 
-                            onClick={() => handleDelete(animal.id, animal.name)} 
-                            className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition inline-flex items-center justify-center cursor-pointer" 
-                            title="Eliminar"
+                            type="button"
+                            onClick={() => setDeleteTarget({ id: animal.id, name: animal.name })} 
+                            className="p-2 min-h-[36px] min-w-[36px] text-red-600 hover:bg-red-50 rounded-lg transition inline-flex items-center justify-center cursor-pointer" 
+                            title={t('animals.tooltips.delete')}
+                            aria-label={t('animals.tooltips.delete')}
                           >
                             <Trash2 size={16} />
                           </button>
@@ -308,6 +348,57 @@ export const AnimalsList: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Modal de confirmación accesible de eliminación */}
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 transition-opacity duration-200"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !deleting) setDeleteTarget(null);
+          }}
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="delete-animal-title"
+          aria-describedby="delete-animal-desc"
+        >
+          <div className="card bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4">
+            <div className="flex items-center gap-3 text-red-600">
+              <div className="p-2.5 bg-red-100 rounded-full shrink-0">
+                <Trash2 size={22} />
+              </div>
+              <h3 id="delete-animal-title" className="text-base font-bold text-gray-900">
+                {t('common.delete')}
+              </h3>
+            </div>
+
+            <p id="delete-animal-desc" className="text-sm text-gray-600 leading-relaxed">
+              {t('common.confirmDelete', { name: deleteTarget.name })}
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={() => setDeleteTarget(null)}
+                className="btn bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs py-2 px-3.5 transition cursor-pointer"
+              >
+                {t('common.cancel')}
+              </button>
+
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={confirmDelete}
+                className="btn bg-red-600 hover:bg-red-700 text-white text-xs py-2 px-4 shadow-xs transition inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                aria-busy={deleting}
+              >
+                <Trash2 size={14} />
+                <span>{deleting ? t('common.saving') : t('common.delete')}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

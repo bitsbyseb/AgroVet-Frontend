@@ -1,0 +1,371 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "alerts": "Alerts",
+    "myAnimals": "My Animals",
+    "myReminders": "Reminders",
+    "animals": "Animals",
+    "paddocks": "Paddocks",
+    "grazing": "Grazing",
+    "appointments": "Appointments",
+    "foods": "Foods",
+    "owners": "Owners",
+    "registerUser": "Register User"
+  },
+  "roles": {
+    "administrator": "Administrator",
+    "zootechnician": "Zootechnician",
+    "owner": "Owner",
+    "veterinarian": "Veterinarian"
+  },
+  "common": {
+    "logout": "Log Out",
+    "menu": "Menu",
+    "close": "Close",
+    "loading": "Loading...",
+    "systemAlerts": "System Alerts",
+    "language": "Language",
+    "spanish": "Spanish",
+    "english": "English",
+    "search": "Search",
+    "actions": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "back": "Back",
+    "refresh": "Refresh",
+    "new": "New",
+    "newRecord": "New Record",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "confirmDelete": "Are you sure you want to permanently delete {{name}}? This action cannot be undone.",
+    "noResults": "No results found",
+    "error": "Error",
+    "success": "Success",
+    "required": "required",
+    "optional": "Optional",
+    "select": "Select...",
+    "update": "Update",
+    "accessDenied": "Access Denied",
+    "restricted": "Restricted Access"
+  },
+  "dashboard": {
+    "welcome": "Welcome, {{username}}",
+    "subtitle": "General AgroVet management dashboard",
+    "totalAnimals": "Total Animals",
+    "owners": "Owners",
+    "appointmentsToday": "Appointments Today",
+    "alerts": "Alerts",
+    "recentActivity": "Recent Activity",
+    "noRecentActivity": "No recent activity to show."
+  },
+  "animals": {
+    "title": "Animal Management",
+    "subtitle": "Catalog and clinical, reproductive, productive control and paddock location of registered animals.",
+    "searchPlaceholder": "Search by name, species, breed or paddock...",
+    "table": {
+      "animal": "Animal",
+      "species": "Species",
+      "breed": "Breed",
+      "currentPaddock": "Current Paddock",
+      "birthDate": "Birth Date",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "loading": "Loading animals...",
+    "emptyTitle": "No animals found",
+    "emptySearch": "Try another search term.",
+    "emptyInitial": "No animals registered yet. Start by registering a new animal.",
+    "noPaddock": "No paddock",
+    "grazing": "Grazing",
+    "rotation": "Rotation #{{num}}",
+    "tooltips": {
+      "history": "Clinical History",
+      "vaccines": "Vaccines",
+      "production": "Production",
+      "reproduction": "Reproduction",
+      "diet": "Diet & Nutrition",
+      "transfer": "Transfer Ownership",
+      "edit": "Edit Animal",
+      "delete": "Delete Animal"
+    },
+    "species": {
+      "canine": "Canine",
+      "feline": "Feline",
+      "bovine": "Bovine",
+      "caprine": "Caprine",
+      "equine": "Equine",
+      "poultry": "Poultry",
+      "pig": "Pig"
+    },
+    "animalType": {
+      "urban": "Urban",
+      "rural": "Rural"
+    },
+    "gender": {
+      "male": "Male",
+      "female": "Female"
+    },
+    "form": {
+      "createTitle": "Register New Animal",
+      "editTitle": "Edit Animal",
+      "name": "Animal Name",
+      "namePlaceholder": "E.g.: Luna, Black Bull, Star...",
+      "species": "Species",
+      "selectSpecies": "Select a species",
+      "animalType": "Animal Type",
+      "selectType": "Select type",
+      "breed": "Breed",
+      "breedPlaceholder": "E.g.: Holstein, Labrador, Angus...",
+      "gender": "Sex",
+      "selectGender": "Select sex",
+      "birthDate": "Date of Birth",
+      "color": "Color / Markings",
+      "colorPlaceholder": "E.g.: Black with white spots...",
+      "owner": "Owner",
+      "selectOwner": "Select an owner",
+      "paddock": "Assigned Paddock",
+      "selectPaddock": "No paddock (assign later)",
+      "noOwnerAccess": "The owner will be assigned automatically.",
+      "ownerRequired": "You must enter or select an owner.",
+      "birthDateRequired": "You must enter a valid date of birth."
+    }
+  },
+  "history": {
+    "title": "Clinical History",
+    "titleWithName": "Clinical History: {{name}}",
+    "loading": "Loading medical history...",
+    "loadingTab": "Loading data...",
+    "tabs": {
+      "historial": "Medical History",
+      "vacunas": "Vaccines",
+      "produccion": "Production",
+      "reproduccion": "Reproduction"
+    },
+    "newRecord": "New Record",
+    "addRecord": "Add New Medical Record",
+    "editRecord": "Edit Medical Record",
+    "updateRecord": "Update Record",
+    "saveRecord": "Save Record",
+    "editTooltip": "Edit clinical record",
+    "noRecords": "No medical records",
+    "noRecordsSubtitle": "This animal has no clinical care records.",
+    "fields": {
+      "date": "Appointment Date",
+      "reason": "Reason for Visit",
+      "reasonPlaceholder": "E.g.: Weight check, Leg wound, Fever...",
+      "diagnosis": "Diagnosis",
+      "diagnosisPlaceholder": "Clinical diagnosis description...",
+      "treatment": "Treatment",
+      "treatmentPlaceholder": "Medications, dosage, frequency and duration...",
+      "observations": "Additional Observations (Optional)",
+      "observationsPlaceholder": "Other relevant notes, owner instructions, suggested follow-up date...",
+      "observations_label": "Observations"
+    },
+    "evolution": {
+      "label": "Medical Evolution",
+      "description": "Record notes on treatment response, progressive clinical status or changes between sessions.",
+      "placeholder": "E.g.: Patient responds favorably to antibiotic, wound healing without signs of infection...",
+      "clinical": "Clinical Evolution"
+    },
+    "vitals": {
+      "title": "Physiological Constants",
+      "heartRate": "HR (bpm)",
+      "heartRateFull": "Heart Rate",
+      "respiratoryRate": "RR (brpm)",
+      "respiratoryRateFull": "Respiratory Rate",
+      "temperature": "T° (°C)",
+      "temperatureFull": "Temperature",
+      "capillaryRefillTime": "CRT (sec)",
+      "capillaryRefillTimeFull": "Capillary Refill Time",
+      "mucosalState": "Mucosae",
+      "mucosalStateFull": "Mucosal State",
+      "selectMucosal": "Select...",
+      "weight": "Body Weight (kg)",
+      "weightShort": "Weight",
+      "bodyConditionScore": "Body Condition Score (Scale 1 to 9)",
+      "bodyConditionShort": "BCS",
+      "bodyConditionPlaceholder": "1 (emaciated) - 5 (ideal) - 9 (obese)",
+      "bcs": {
+        "thin": "Thin",
+        "ideal": "Ideal",
+        "overweight": "Overweight",
+        "obese": "Obese"
+      }
+    },
+    "mucosal": {
+      "rosadas": "Pink (Normal)",
+      "palidas": "Pale (Anemia / Hypovolemia)",
+      "cianoticas": "Cyanotic (Hypoxia)",
+      "ictericas": "Icteric (Hepatopathy / Hemolysis)",
+      "congestivas": "Congested / Hyperemic (Fever / Sepsis)"
+    },
+    "sections": {
+      "diagnosis": "Diagnosis",
+      "treatment": "Treatment"
+    },
+    "validation": {
+      "dateRequired": "Appointment date is required.",
+      "reasonRequired": "Reason for visit is required.",
+      "reasonMinLength": "The reason must have at least 3 characters.",
+      "diagnosisRequired": "Diagnosis is required.",
+      "diagnosisMinLength": "Diagnosis must have at least 3 characters.",
+      "treatmentRequired": "Treatment is required.",
+      "treatmentMinLength": "Treatment must have at least 3 characters.",
+      "weightPositive": "Weight must be a positive number greater than 0.",
+      "weightMax": "Weight cannot exceed 3000 kg.",
+      "bcsRange": "Body condition must be between 1 and 9.",
+      "heartRateRange": "Heart rate must be an integer between 1 and 500 bpm.",
+      "respiratoryRateRange": "Respiratory rate must be between 1 and 200 brpm.",
+      "temperatureRange": "Temperature must be in the biological range of 25°C to 45°C.",
+      "capillaryRefillRange": "Capillary refill time must be between 0 and 20 seconds."
+    },
+    "errors": {
+      "loadFailed": "Could not load animal information or its history.",
+      "tabLoadFailed": "Could not load {{tab}} data.",
+      "saveFailed": "Error saving medical record."
+    },
+    "vaccines": {
+      "applied": "Applied on {{date}}",
+      "nextDose": "Next dose: {{date}}",
+      "batch": "Batch",
+      "noRecords": "No vaccination records",
+      "noRecordsSubtitle": "This animal has no vaccines registered in the system."
+    }
+  },
+  "reproduction": {
+    "title": "Reproductive Record",
+    "titleWithName": "Reproductive Record: {{name}}",
+    "loading": "Loading reproduction data...",
+    "newEvent": "New Event",
+    "addEvent": "Add New Reproductive Event",
+    "saveEvent": "Save Event",
+    "noRecords": "No reproductive events",
+    "noRecordsSubtitle": "This animal has no reproductive records entered.",
+    "forbiddenTitle": "Access Denied",
+    "forbiddenMessage": "Your current role does not have permission to view reproductive records.",
+    "backToAnimals": "Back to Animals",
+    "fields": {
+      "reproductiveStatus": "Reproductive Status",
+      "breedingType": "Breeding Type",
+      "lastCalvingDate": "Last Calving Date (Optional)",
+      "offspringCount": "Number of Offspring",
+      "estrusDate": "Estrus Date",
+      "matingDate": "Mating Date",
+      "inseminationDate": "Insemination Date",
+      "expectedDueDate": "Expected Due Date"
+    },
+    "status": {
+      "pregnant": "Pregnant",
+      "open": "Open",
+      "lactating": "Lactating",
+      "dry": "Dry"
+    },
+    "breedingType": {
+      "natural": "Natural Mating",
+      "artificial": "Artificial Insemination",
+      "embryo_transfer": "Embryo Transfer"
+    },
+    "display": {
+      "status": "Reproductive status",
+      "offspring": "Offspring",
+      "breedingType": "Breeding type",
+      "lastCalving": "Last calving",
+      "statusLabel": "Status: {{value}}",
+      "offspringLabel": "Offspring: {{count}} | Type: {{type}}"
+    },
+    "errors": {
+      "loadFailed": "Could not load reproduction information.",
+      "saveFailed": "Error saving reproduction record."
+    }
+  },
+  "production": {
+    "title": "Production Record",
+    "titleWithName": "Production Record: {{name}}",
+    "loading": "Loading production data...",
+    "newRecord": "New Record",
+    "addRecord": "Add New Production Record",
+    "saveRecord": "Save Record",
+    "noRecords": "No production records",
+    "noRecordsSubtitle": "This animal has no production batches entered.",
+    "fields": {
+      "date": "Record Date",
+      "type": "Product Type",
+      "typePlaceholder": "E.g.: Milk, Meat, Eggs...",
+      "quantity": "Quantity",
+      "quantityPlaceholder": "E.g.: 15.5",
+      "unit": "Unit of Measurement",
+      "unitPlaceholder": "E.g.: Liters, Kg...",
+      "purpose": "Purpose"
+    },
+    "purpose": {
+      "milk": "Milk",
+      "meat": "Meat",
+      "eggs": "Eggs",
+      "wool": "Wool",
+      "dual": "Dual Purpose",
+      "other": "Other"
+    },
+    "display": {
+      "quantity": "Quantity",
+      "typeAndPurpose": "Type & Purpose",
+      "purposeLabel": "Purpose: {{value}}",
+      "liters": "liters",
+      "kg": "kg"
+    },
+    "errors": {
+      "loadFailed": "Could not load production information.",
+      "saveFailed": "Error saving production record."
+    }
+  },
+  "alerts": {
+    "title": "System Alert Center",
+    "subtitle": "Automated notifications and critical clinical, nutritional, and reproductive events.",
+    "evaluateAnimal": "Evaluate Animal",
+    "pending": "Pending",
+    "read": "Reviewed",
+    "all": "All",
+    "markAsRead": "Mark as reviewed",
+    "markAllAsRead": "Mark all as reviewed",
+    "highPriority": "High Priority",
+    "mediumPriority": "Medium Priority",
+    "lowPriority": "Low Priority",
+    "criticalPending": "Critical Pending",
+    "totalPending": "Total Pending",
+    "reviewed": "Reviewed / Resolved",
+    "noAlerts": "No matching alerts",
+    "emailSent": "Email sent",
+    "evaluationCompleted": "Evaluation completed: {{count}} new alerts generated.",
+    "daysAhead": "Days Ahead (Threshold)",
+    "daysAheadPlaceholder": "Default: 7 days",
+    "selectAnimal": "Select an animal...",
+    "restrictedTitle": "Restricted Access",
+    "restrictedMessage": "Only veterinary, zootechnical or administrator staff have access to the alert center.",
+    "modules": {
+      "all": "All Modules",
+      "vaccination": "Vaccination",
+      "treatment": "Treatment",
+      "control": "Clinical Control",
+      "feeding": "Feeding",
+      "reproduction": "Reproduction",
+      "production": "Production",
+      "grazing": "Grazing"
+    },
+    "priorities": {
+      "all": "All Priorities",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "errors": {
+      "loadFailed": "Could not load system alerts.",
+      "refreshFailed": "Error refreshing alerts.",
+      "markFailed": "Could not mark alert as reviewed.",
+      "markAllFailed": "Could not mark all alerts as reviewed.",
+      "generateFailed": "Error generating automatic alerts for the animal."
+    }
+  }
+}

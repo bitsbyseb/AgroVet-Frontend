@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Bell,
   AlertTriangle,
@@ -26,51 +27,44 @@ import type { AlertRecord, AlertModuleType, AlertPriority, AlertStatus, Animal }
 
 // ─── Module Metadata ──────────────────────────────────────────────────────────
 
-const MODULE_CONFIG: Record<AlertModuleType, { label: string; icon: React.ReactNode; colorClass: string; borderClass: string; bgClass: string }> = {
+const MODULE_VISUALS: Record<AlertModuleType, { icon: React.ReactNode; colorClass: string; borderClass: string; bgClass: string }> = {
   vaccination: {
-    label: 'Vacunación',
     icon: <Syringe size={16} />,
     colorClass: 'text-sky-700',
     borderClass: 'border-l-sky-500',
     bgClass: 'bg-sky-50'
   },
   treatment: {
-    label: 'Tratamiento',
     icon: <Pill size={16} />,
     colorClass: 'text-amber-700',
     borderClass: 'border-l-amber-500',
     bgClass: 'bg-amber-50'
   },
   control: {
-    label: 'Control Clínico',
     icon: <Stethoscope size={16} />,
     colorClass: 'text-emerald-700',
     borderClass: 'border-l-emerald-500',
     bgClass: 'bg-emerald-50'
   },
   feeding: {
-    label: 'Alimentación',
     icon: <Utensils size={16} />,
     colorClass: 'text-orange-700',
     borderClass: 'border-l-orange-500',
     bgClass: 'bg-orange-50'
   },
   reproduction: {
-    label: 'Reproducción',
     icon: <Baby size={16} />,
     colorClass: 'text-pink-700',
     borderClass: 'border-l-pink-500',
     bgClass: 'bg-pink-50'
   },
   production: {
-    label: 'Producción',
     icon: <BarChart2 size={16} />,
     colorClass: 'text-indigo-700',
     borderClass: 'border-l-indigo-500',
     bgClass: 'bg-indigo-50'
   },
   grazing: {
-    label: 'Pastoreo',
     icon: <Compass size={16} />,
     colorClass: 'text-emerald-800',
     borderClass: 'border-l-emerald-700',
@@ -78,25 +72,23 @@ const MODULE_CONFIG: Record<AlertModuleType, { label: string; icon: React.ReactN
   }
 };
 
-const PRIORITY_BADGES: Record<AlertPriority, { label: string; badgeClass: string; icon: React.ReactNode }> = {
+const PRIORITY_BADGES: Record<AlertPriority, { badgeClass: string; icon: React.ReactNode }> = {
   high: {
-    label: 'Alta',
     badgeClass: 'bg-red-100 text-red-800 border-red-200',
     icon: <AlertCircle size={14} className="text-red-600" />
   },
   medium: {
-    label: 'Media',
     badgeClass: 'bg-amber-100 text-amber-800 border-amber-200',
     icon: <AlertTriangle size={14} className="text-amber-600" />
   },
   low: {
-    label: 'Baja',
     badgeClass: 'bg-blue-100 text-blue-800 border-blue-200',
     icon: <Clock size={14} className="text-blue-600" />
   }
 };
 
 const AlertsView: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const currentUser = authService.getCurrentUser();
   const [alerts, setAlerts] = useState<AlertRecord[]>([]);
   const [animals, setAnimals] = useState<Animal[]>([]);
@@ -128,6 +120,27 @@ const AlertsView: React.FC = () => {
     fetchData();
   }, []);
 
+  // Manejo de accesibilidad en modal (Escape y bloqueo de scroll)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showGenerateModal) {
+        setShowGenerateModal(false);
+      }
+    };
+
+    if (showGenerateModal) {
+      document.body.style.overflow = 'hidden';
+      window.addEventListener('keydown', handleKeyDown);
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showGenerateModal]);
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -140,7 +153,7 @@ const AlertsView: React.FC = () => {
       setAnimals(animalsData);
     } catch (err: unknown) {
       console.error('Error fetching alerts:', err);
-      setError('No se pudieron cargar las alertas del sistema.');
+      setError(t('alerts.errors.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -153,7 +166,7 @@ const AlertsView: React.FC = () => {
       const alertsData = await alertService.list();
       setAlerts(alertsData);
     } catch {
-      setError('Error al refrescar las alertas.');
+      setError(t('alerts.errors.refreshFailed'));
     } finally {
       setRefreshing(false);
     }
@@ -167,11 +180,11 @@ const AlertsView: React.FC = () => {
       setAlerts((prev) =>
         prev.map((a) => (a.id === alertId ? { ...a, status: 'read' as AlertStatus } : a))
       );
-      setActionSuccess('Alerta marcada como revisada.');
+      setActionSuccess(t('alerts.markAsRead'));
       setTimeout(() => setActionSuccess(null), 3000);
     } catch (err: unknown) {
       console.error('Error marking alert as read:', err);
-      setError('No se pudo marcar la alerta como revisada.');
+      setError(t('alerts.errors.markFailed'));
     } finally {
       setMarkingId(null);
     }
@@ -183,11 +196,11 @@ const AlertsView: React.FC = () => {
       setError(null);
       const res = await alertService.markAllAsRead();
       setAlerts((prev) => prev.map((a) => ({ ...a, status: 'read' as AlertStatus })));
-      setActionSuccess(`Se marcaron ${res.marked} alertas como revisadas.`);
+      setActionSuccess(`(${res.marked}) ${t('alerts.markAllAsRead')}`);
       setTimeout(() => setActionSuccess(null), 3000);
     } catch (err: unknown) {
       console.error('Error marking all as read:', err);
-      setError('No se pudieron marcar todas las alertas.');
+      setError(t('alerts.errors.markAllFailed'));
     } finally {
       setMarkingAll(false);
     }
@@ -206,12 +219,12 @@ const AlertsView: React.FC = () => {
       });
       setShowGenerateModal(false);
       setSelectedAnimalForGen('');
-      setActionSuccess(`Evaluación completada: se generaron ${res.generated} nuevas alertas.`);
+      setActionSuccess(t('alerts.evaluationCompleted', { count: res.generated }));
       setTimeout(() => setActionSuccess(null), 4000);
       await handleRefresh();
     } catch (err: unknown) {
       console.error('Error generating alerts:', err);
-      setError('Error al generar las alertas automáticas para el animal.');
+      setError(t('alerts.errors.generateFailed'));
     } finally {
       setGenerating(false);
     }
@@ -257,9 +270,9 @@ const AlertsView: React.FC = () => {
     return (
       <div className="card text-center py-16 px-4 bg-white rounded-xl shadow-xs border border-gray-100">
         <AlertTriangle size={48} className="text-amber-500 mx-auto mb-3" />
-        <h2 className="text-lg font-bold text-gray-800">Acceso Restringido</h2>
+        <h2 className="text-lg font-bold text-gray-800">{t('alerts.restrictedTitle')}</h2>
         <p className="text-sm text-gray-500 mt-1">
-          Solo el personal veterinario, zootécnico o administrador tiene acceso al centro de alertas.
+          {t('alerts.restrictedMessage')}
         </p>
       </div>
     );
@@ -272,10 +285,10 @@ const AlertsView: React.FC = () => {
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2.5">
             <Bell className="text-emerald-700" size={28} />
-            <span>Centro de Alertas del Sistema</span>
+            <span>{t('alerts.title')}</span>
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Notificaciones automáticas y eventos críticos clínicos, nutricionales y reproductivos.
+            {t('alerts.subtitle')}
           </p>
         </div>
 
@@ -284,10 +297,10 @@ const AlertsView: React.FC = () => {
             onClick={handleRefresh}
             disabled={refreshing}
             className="btn bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 shadow-xs inline-flex items-center justify-center gap-2 transition cursor-pointer"
-            title="Refrescar alertas"
+            title={t('common.refresh')}
           >
             <RefreshCw size={16} className={refreshing ? 'animate-spin text-emerald-600' : ''} />
-            <span className="hidden sm:inline">Refrescar</span>
+            <span className="hidden sm:inline">{t('common.refresh')}</span>
           </button>
 
           <button
@@ -295,21 +308,21 @@ const AlertsView: React.FC = () => {
             className="btn btn-primary bg-emerald-700 hover:bg-emerald-800 text-white inline-flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
           >
             <Sparkles size={16} />
-            <span>Evaluar Animal</span>
+            <span>{t('alerts.evaluateAnimal')}</span>
           </button>
         </div>
       </div>
 
       {/* ─── Mensajes de estado ────────────────────────────────────────────── */}
       {error && (
-        <div className="p-4 bg-red-50 border-l-4 border-red-600 text-red-800 rounded-r-md shadow-xs flex items-center gap-2 text-sm">
+        <div role="alert" aria-live="assertive" className="p-4 bg-red-50 border-l-4 border-red-600 text-red-800 rounded-r-md shadow-xs flex items-center gap-2 text-sm">
           <AlertCircle size={18} className="shrink-0 text-red-600" />
           <span>{error}</span>
         </div>
       )}
 
       {actionSuccess && (
-        <div className="p-4 bg-emerald-50 border-l-4 border-emerald-600 text-emerald-800 rounded-r-md shadow-xs flex items-center gap-2 text-sm">
+        <div role="status" aria-live="polite" className="p-4 bg-emerald-50 border-l-4 border-emerald-600 text-emerald-800 rounded-r-md shadow-xs flex items-center gap-2 text-sm">
           <CheckCircle2 size={18} className="shrink-0 text-emerald-600" />
           <span>{actionSuccess}</span>
         </div>
@@ -322,7 +335,7 @@ const AlertsView: React.FC = () => {
             <AlertCircle size={24} />
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Críticas Pendientes</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-gray-500">{t('alerts.criticalPending')}</p>
             <p className="text-2xl font-extrabold text-red-600">{highPriorityPendingCount}</p>
           </div>
         </div>
@@ -332,7 +345,7 @@ const AlertsView: React.FC = () => {
             <Clock size={24} />
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Pendientes Totales</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-gray-500">{t('alerts.totalPending')}</p>
             <p className="text-2xl font-extrabold text-amber-600">{pendingCount}</p>
           </div>
         </div>
@@ -342,7 +355,7 @@ const AlertsView: React.FC = () => {
             <CheckCircle2 size={24} />
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Revisadas / Atendidas</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-gray-500">{t('alerts.reviewed')}</p>
             <p className="text-2xl font-extrabold text-emerald-700">{readCount}</p>
           </div>
         </div>
@@ -362,7 +375,7 @@ const AlertsView: React.FC = () => {
               }`}
             >
               <Clock size={14} />
-              <span>Pendientes ({pendingCount})</span>
+              <span>{t('alerts.pending')} ({pendingCount})</span>
             </button>
 
             <button
@@ -374,7 +387,7 @@ const AlertsView: React.FC = () => {
               }`}
             >
               <CheckCircle2 size={14} />
-              <span>Revisadas ({readCount})</span>
+              <span>{t('alerts.read')} ({readCount})</span>
             </button>
 
             <button
@@ -385,7 +398,7 @@ const AlertsView: React.FC = () => {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              <span>Todas ({alerts.length})</span>
+              <span>{t('alerts.all')} ({alerts.length})</span>
             </button>
           </div>
 
@@ -396,7 +409,7 @@ const AlertsView: React.FC = () => {
               className="btn text-xs py-1.5 px-3 bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 border border-gray-200 transition inline-flex items-center gap-1.5 cursor-pointer"
             >
               <Check size={14} />
-              <span>{markingAll ? 'Marcando...' : 'Marcar todas como revisadas'}</span>
+              <span>{markingAll ? t('common.saving') : t('alerts.markAllAsRead')}</span>
             </button>
           )}
         </div>
@@ -408,7 +421,8 @@ const AlertsView: React.FC = () => {
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Buscar por mensaje o animal..."
+              placeholder={t('common.search') + '...'}
+              aria-label={t('common.search')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="form-control w-full pl-9 text-xs bg-white"
@@ -420,17 +434,18 @@ const AlertsView: React.FC = () => {
             <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <select
               value={moduleFilter}
+              aria-label={t('alerts.modules.all')}
               onChange={(e) => setModuleFilter(e.target.value as 'all' | AlertModuleType)}
               className="form-control w-full pl-8 text-xs bg-white"
             >
-              <option value="all">Todos los Módulos</option>
-              <option value="vaccination">Vacunación</option>
-              <option value="treatment">Tratamiento</option>
-              <option value="control">Control Clínico</option>
-              <option value="feeding">Alimentación</option>
-              <option value="reproduction">Reproducción</option>
-              <option value="production">Producción</option>
-              <option value="grazing">Pastoreo</option>
+              <option value="all">{t('alerts.modules.all')}</option>
+              <option value="vaccination">{t('alerts.modules.vaccination')}</option>
+              <option value="treatment">{t('alerts.modules.treatment')}</option>
+              <option value="control">{t('alerts.modules.control')}</option>
+              <option value="feeding">{t('alerts.modules.feeding')}</option>
+              <option value="reproduction">{t('alerts.modules.reproduction')}</option>
+              <option value="production">{t('alerts.modules.production')}</option>
+              <option value="grazing">{t('alerts.modules.grazing')}</option>
             </select>
           </div>
 
@@ -438,13 +453,14 @@ const AlertsView: React.FC = () => {
           <div>
             <select
               value={priorityFilter}
+              aria-label={t('alerts.priorities.all')}
               onChange={(e) => setPriorityFilter(e.target.value as 'all' | AlertPriority)}
               className="form-control w-full text-xs bg-white"
             >
-              <option value="all">Todas las Prioridades</option>
-              <option value="high">Alta Prioridad</option>
-              <option value="medium">Media Prioridad</option>
-              <option value="low">Baja Prioridad</option>
+              <option value="all">{t('alerts.priorities.all')}</option>
+              <option value="high">{t('alerts.priorities.high')}</option>
+              <option value="medium">{t('alerts.priorities.medium')}</option>
+              <option value="low">{t('alerts.priorities.low')}</option>
             </select>
           </div>
         </div>
@@ -454,29 +470,28 @@ const AlertsView: React.FC = () => {
       {loading ? (
         <div className="p-12 text-center text-gray-500 flex items-center justify-center gap-2">
           <RefreshCw className="animate-spin text-emerald-600" size={20} />
-          <span>Cargando alertas...</span>
+          <span>{t('common.loading')}</span>
         </div>
       ) : filteredAlerts.length === 0 ? (
         <div className="card text-center py-16 px-4 bg-white rounded-xl shadow-xs border border-gray-100">
           <CheckCircle2 size={48} className="text-gray-300 mx-auto mb-3" />
-          <h3 className="text-base font-semibold text-gray-700">No hay alertas que coincidan</h3>
+          <h3 className="text-base font-semibold text-gray-700">{t('alerts.noAlerts')}</h3>
           <p className="text-xs text-gray-500 mt-1">
             {searchTerm || moduleFilter !== 'all' || priorityFilter !== 'all'
-              ? 'Prueba modificando los filtros aplicados.'
-              : 'El sistema no tiene alertas pendientes para revisar.'}
+              ? t('animals.emptySearch')
+              : t('alerts.noAlerts')}
           </p>
         </div>
       ) : (
         <div className="space-y-3">
           {filteredAlerts.map((alert) => {
-            const moduleInfo = MODULE_CONFIG[alert.moduleType] || {
-              label: alert.moduleType,
+            const visual = MODULE_VISUALS[alert.moduleType] || {
               icon: <AlertCircle size={16} />,
               colorClass: 'text-gray-700',
               borderClass: 'border-l-gray-400',
               bgClass: 'bg-gray-50'
             };
-            const priorityInfo = PRIORITY_BADGES[alert.priority] || PRIORITY_BADGES.medium;
+            const priorityBadge = PRIORITY_BADGES[alert.priority] || PRIORITY_BADGES.medium;
             const animal = animalMap.get(alert.animalId);
             const isRead = alert.status === 'read';
             const isProcessing = markingId === alert.id;
@@ -484,27 +499,27 @@ const AlertsView: React.FC = () => {
             return (
               <div
                 key={alert.id}
-                className={`card bg-white rounded-xl shadow-xs border border-gray-100 border-l-4 ${moduleInfo.borderClass} p-4 transition hover:shadow-sm ${
+                className={`card bg-white rounded-xl shadow-xs border border-gray-100 border-l-4 ${visual.borderClass} p-4 transition hover:shadow-sm ${
                   isRead ? 'opacity-70 bg-gray-50/50' : ''
                 }`}
               >
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                   {/* Icono + Información Principal */}
                   <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className={`p-2.5 rounded-xl shrink-0 ${moduleInfo.bgClass} ${moduleInfo.colorClass}`}>
-                      {moduleInfo.icon}
+                    <div className={`p-2.5 rounded-xl shrink-0 ${visual.bgClass} ${visual.colorClass}`}>
+                      {visual.icon}
                     </div>
 
                     <div className="space-y-1 min-w-0 flex-1">
                       {/* Badges superiores */}
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full border ${priorityInfo.badgeClass}`}>
-                          {priorityInfo.icon}
-                          <span>Prioridad {priorityInfo.label}</span>
+                        <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full border ${priorityBadge.badgeClass}`}>
+                          {priorityBadge.icon}
+                          <span>{t('alerts.priorities.' + alert.priority)}</span>
                         </span>
 
-                        <span className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${moduleInfo.bgClass} ${moduleInfo.colorClass}`}>
-                          <span>{moduleInfo.label}</span>
+                        <span className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${visual.bgClass} ${visual.colorClass}`}>
+                          <span>{t('alerts.modules.' + alert.moduleType)}</span>
                         </span>
 
                         {animal && (
@@ -514,9 +529,9 @@ const AlertsView: React.FC = () => {
                         )}
 
                         {alert.emailSent && (
-                          <span className="inline-flex items-center gap-1 text-[11px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full" title="Notificación por correo enviada">
+                          <span className="inline-flex items-center gap-1 text-[11px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full" title={t('alerts.emailSent')}>
                             <Mail size={12} className="text-gray-400" />
-                            <span>Email enviado</span>
+                            <span>{t('alerts.emailSent')}</span>
                           </span>
                         )}
                       </div>
@@ -530,8 +545,7 @@ const AlertsView: React.FC = () => {
                       <div className="flex items-center gap-1.5 text-xs text-gray-400">
                         <Calendar size={12} />
                         <span>
-                          Fecha programada:{' '}
-                          {new Date(alert.triggerDate).toLocaleDateString('es-ES', {
+                          {new Date(alert.triggerDate).toLocaleDateString(i18n.language || 'es', {
                             weekday: 'short',
                             year: 'numeric',
                             month: 'short',
@@ -547,17 +561,17 @@ const AlertsView: React.FC = () => {
                     {isRead ? (
                       <span className="inline-flex items-center gap-1 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg font-medium">
                         <Check size={14} />
-                        <span>Revisada</span>
+                        <span>{t('alerts.read')}</span>
                       </span>
                     ) : (
                       <button
                         onClick={() => handleMarkAsRead(alert.id)}
                         disabled={isProcessing}
                         className="btn bg-emerald-700 hover:bg-emerald-800 text-white text-xs py-1.5 px-3 rounded-lg shadow-xs transition inline-flex items-center gap-1.5 cursor-pointer"
-                        title="Marcar esta alerta como revisada"
+                        title={t('alerts.markAsRead')}
                       >
                         <Check size={14} />
-                        <span>{isProcessing ? 'Guardando...' : 'Marcar como revisada'}</span>
+                        <span>{isProcessing ? t('common.saving') : t('alerts.markAsRead')}</span>
                       </button>
                     )}
                   </div>
@@ -570,37 +584,49 @@ const AlertsView: React.FC = () => {
 
       {/* ─── Modal para Evaluar/Generar Alertas ─────────────────────────────── */}
       {showGenerateModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="card bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 transition-opacity duration-200"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowGenerateModal(false);
+          }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="generate-modal-title"
+        >
+          <div className="card bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4">
             <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-              <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+              <h3 id="generate-modal-title" className="text-base font-bold text-gray-900 flex items-center gap-2">
                 <Sparkles size={18} className="text-emerald-700" />
-                <span>Evaluar y Generar Alertas</span>
+                <span>{t('alerts.evaluateAnimal')}</span>
               </h3>
               <button
+                type="button"
                 onClick={() => setShowGenerateModal(false)}
-                className="p-1 text-gray-400 hover:text-gray-600 rounded-lg cursor-pointer"
+                className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors"
+                aria-label={t('common.close')}
               >
                 <X size={18} />
               </button>
             </div>
 
             <p className="text-xs text-gray-500">
-              Seleccione un animal para evaluar sus vacunas vencidas o próximas, dosis pendientes y controles clínicos programados.
+              {t('alerts.subtitle')}
             </p>
 
             <form onSubmit={handleGenerateAlerts} className="space-y-4">
               <div className="form-group mb-0">
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Animal a Evaluar <span className="text-red-500">*</span>
+                <label htmlFor="animal-select-gen" className="block text-xs font-semibold text-gray-700 mb-1">
+                  {t('animals.table.animal')} <span className="text-red-500">*</span>
                 </label>
                 <select
+                  id="animal-select-gen"
                   value={selectedAnimalForGen}
                   onChange={(e) => setSelectedAnimalForGen(e.target.value)}
                   className="form-control w-full text-sm bg-white"
                   required
+                  aria-required="true"
                 >
-                  <option value="">Seleccione un animal...</option>
+                  <option value="">{t('alerts.selectAnimal')}</option>
                   {animals.map((a) => (
                     <option key={a.id} value={a.id}>
                       {a.name} ({a.species} - {a.breed})
@@ -610,21 +636,20 @@ const AlertsView: React.FC = () => {
               </div>
 
               <div className="form-group mb-0">
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Días de Anticipación (Umbral)
+                <label htmlFor="days-ahead-input" className="block text-xs font-semibold text-gray-700 mb-1">
+                  {t('alerts.daysAhead')}
                 </label>
                 <input
+                  id="days-ahead-input"
                   type="number"
                   min="1"
                   max="90"
+                  step="1"
                   value={daysAhead}
-                  onChange={(e) => setDaysAhead(Number(e.target.value))}
+                  onChange={(e) => setDaysAhead(Math.min(90, Math.max(1, Number(e.target.value) || 1)))}
                   className="form-control w-full text-sm bg-white"
-                  placeholder="Por defecto: 7 días"
+                  placeholder={t('alerts.daysAheadPlaceholder')}
                 />
-                <p className="text-[11px] text-gray-400 mt-0.5">
-                  Eventos dentro de estos días generarán alertas de prioridad media.
-                </p>
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
@@ -633,16 +658,17 @@ const AlertsView: React.FC = () => {
                   onClick={() => setShowGenerateModal(false)}
                   className="btn bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs py-2 px-3 transition cursor-pointer"
                 >
-                  Cancelar
+                  {t('common.cancel')}
                 </button>
 
                 <button
                   type="submit"
                   disabled={generating || !selectedAnimalForGen}
                   className="btn btn-primary bg-emerald-700 hover:bg-emerald-800 text-white text-xs py-2 px-4 shadow-xs transition inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  aria-busy={generating}
                 >
                   <Sparkles size={14} />
-                  <span>{generating ? 'Evaluando...' : 'Ejecutar Evaluación'}</span>
+                  <span>{generating ? t('common.loading') : t('alerts.evaluateAnimal')}</span>
                 </button>
               </div>
             </form>

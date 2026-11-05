@@ -1,36 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { animalService, authService } from '../../services/api';
 import type { Animal, ReproductionRecord, ReproductionInput } from '../../types';
 import { ArrowLeft, Plus, Save, X, Activity, Heart } from 'lucide-react';
+import { formatDateShort } from '../../utils/l10n';
 
 const AnimalReproduction: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   const currentUser = authService.getCurrentUser();
-  
+
   const [animal, setAnimal] = useState<Animal | null>(null);
   const [reproduction, setReproduction] = useState<ReproductionRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [forbidden, setForbidden] = useState(false);
-  
+
   const [showAddForm, setShowAddForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<ReproductionInput>({
     reproductiveStatus: 'pregnant',
     lastCalvingDate: '',
     offspringCount: 0,
-    breedingType: 'natural'
+    breedingType: 'natural',
   });
 
   // Only Zootechnician can add reproduction records
   const canAddReproduction = currentUser?.role === 'zootechnician';
 
   useEffect(() => {
-    if (id) {
-      fetchData();
-    }
+    if (id) fetchData();
   }, [id]);
 
   const fetchData = async () => {
@@ -38,22 +40,20 @@ const AnimalReproduction: React.FC = () => {
       setLoading(true);
       const animalData = await animalService.getById(id!);
       setAnimal(animalData);
-      
+
       try {
         const reproductionData = await animalService.getReproduction(id!);
         setReproduction(reproductionData);
       } catch (err: unknown) {
-        if ((err as { response?: { data?: { error?: string }, status?: number } }).response?.status === 403) {
+        if ((err as { response?: { status?: number } }).response?.status === 403) {
           setForbidden(true);
         } else {
           throw err;
         }
       }
-    } catch(err) {
-      // eslint-disable-next-line no-unused-vars
-
+    } catch (err) {
       console.error('Error fetching reproduction:', err);
-      setError('No se pudo cargar la información de reproducción.');
+      setError(t('reproduction.errors.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -62,10 +62,10 @@ const AnimalReproduction: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id || !currentUser) return;
-    
-    const submissionData: any = {
-        ...formData,
-        offspringCount: Number(formData.offspringCount)
+
+    const submissionData: ReproductionInput & { lastCalvingDate?: string } = {
+      ...formData,
+      offspringCount: Number(formData.offspringCount),
     };
     if (formData.lastCalvingDate) {
       submissionData.lastCalvingDate = new Date(formData.lastCalvingDate).toISOString();
@@ -81,25 +81,40 @@ const AnimalReproduction: React.FC = () => {
         reproductiveStatus: 'pregnant',
         lastCalvingDate: '',
         offspringCount: 0,
-        breedingType: 'natural'
+        breedingType: 'natural',
       });
-      fetchData(); // Refresh list
+      fetchData();
     } catch (err: unknown) {
-      setError((err as { response?: { data?: { error?: string }, status?: number } }).response?.data?.error || 'Error al guardar el registro de reproducción.');
+      setError(
+        (err as { response?: { data?: { error?: string } } }).response?.data?.error ||
+          t('reproduction.errors.saveFailed'),
+      );
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) return <div style={{ padding: '20px' }}>Cargando datos de reproducción...</div>;
+  if (loading) {
+    return (
+      <div className="p-8 text-center text-gray-500 flex items-center justify-center gap-2">
+        <Activity className="animate-spin text-pink-600" size={20} />
+        <span>{t('reproduction.loading')}</span>
+      </div>
+    );
+  }
 
   if (forbidden) {
     return (
-      <div style={{ padding: '40px', textAlign: 'center' }}>
-        <h2 style={{ color: 'var(--error)' }}>Acceso Denegado</h2>
-        <p>Tu rol actual no tiene permisos para ver los registros reproductivos.</p>
-        <button onClick={() => navigate('/animals')} className="btn btn-primary" style={{ marginTop: '20px' }}>
-          Volver a Animales
+      <div className="card bg-white rounded-xl shadow-xs border border-gray-100 text-center py-16 px-4">
+        <Heart size={48} className="text-red-400 mx-auto mb-3" />
+        <h2 className="text-lg font-bold text-gray-800">{t('reproduction.forbiddenTitle')}</h2>
+        <p className="text-sm text-gray-500 mt-1">{t('reproduction.forbiddenMessage')}</p>
+        <button
+          onClick={() => navigate('/animals')}
+          className="btn btn-primary bg-emerald-700 hover:bg-emerald-800 text-white mt-5 inline-flex items-center gap-2 cursor-pointer"
+        >
+          <ArrowLeft size={16} />
+          {t('reproduction.backToAnimals')}
         </button>
       </div>
     );
@@ -108,12 +123,12 @@ const AnimalReproduction: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <button 
-          onClick={() => navigate('/animals')} 
+        <button
+          onClick={() => navigate('/animals')}
           className="btn bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 shadow-xs inline-flex items-center justify-center gap-2 transition cursor-pointer"
         >
           <ArrowLeft size={18} />
-          <span>Regresar</span>
+          <span>{t('common.back')}</span>
         </button>
       </div>
 
@@ -121,20 +136,22 @@ const AnimalReproduction: React.FC = () => {
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
             <Heart className="text-pink-600" size={28} />
-            <span>Registro Reproductivo: <span className="text-pink-600">{animal?.name}</span></span>
+            <span>
+              {t('reproduction.titleWithName', { name: animal?.name })}
+            </span>
           </h1>
           <p className="text-sm text-gray-500 mt-0.5 capitalize">
-            {animal?.species} • {animal?.breed} • {animal?.gender === 'male' ? 'Macho' : 'Hembra'}
+            {animal?.species} • {animal?.breed} • {t(`animals.gender.${animal?.gender}`)}
           </p>
         </div>
-        
+
         {canAddReproduction && !showAddForm && (
-          <button 
-            onClick={() => setShowAddForm(true)} 
+          <button
+            onClick={() => setShowAddForm(true)}
             className="btn btn-primary bg-pink-600 hover:bg-pink-700 text-white inline-flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
           >
             <Plus size={18} />
-            <span>Nuevo Evento</span>
+            <span>{t('reproduction.newEvent')}</span>
           </button>
         )}
       </div>
@@ -150,85 +167,97 @@ const AnimalReproduction: React.FC = () => {
           <div className="flex justify-between items-center pb-4 mb-6 border-b border-gray-100">
             <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
               <Heart size={20} className="text-pink-600" />
-              <span>Agregar Nuevo Evento Reproductivo</span>
+              <span>{t('reproduction.addEvent')}</span>
             </h2>
-            <button 
-              onClick={() => setShowAddForm(false)} 
+            <button
+              onClick={() => setShowAddForm(false)}
               className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition inline-flex items-center justify-center cursor-pointer"
             >
               <X size={18} />
             </button>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Estado Reproductivo */}
               <div className="form-group">
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Estado Reproductivo <span className="text-red-500">*</span></label>
-                <select 
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  {t('reproduction.fields.reproductiveStatus')} <span className="text-red-500">*</span>
+                </label>
+                <select
                   className="form-control w-full text-sm"
                   value={formData.reproductiveStatus}
-                  onChange={(e) => setFormData({...formData, reproductiveStatus: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, reproductiveStatus: e.target.value })}
                   required
                 >
-                  <option value="pregnant">Preñada (Pregnant)</option>
-                  <option value="open">Vacía (Open)</option>
-                  <option value="lactating">Lactando (Lactating)</option>
-                  <option value="dry">Seca (Dry)</option>
+                  <option value="pregnant">{t('reproduction.status.pregnant')}</option>
+                  <option value="open">{t('reproduction.status.open')}</option>
+                  <option value="lactating">{t('reproduction.status.lactating')}</option>
+                  <option value="dry">{t('reproduction.status.dry')}</option>
                 </select>
               </div>
 
+              {/* Tipo de Reproducción */}
               <div className="form-group">
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Tipo de Reproducción <span className="text-red-500">*</span></label>
-                <select 
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  {t('reproduction.fields.breedingType')} <span className="text-red-500">*</span>
+                </label>
+                <select
                   className="form-control w-full text-sm"
                   value={formData.breedingType}
-                  onChange={(e) => setFormData({...formData, breedingType: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, breedingType: e.target.value })}
                 >
-                  <option value="natural">Monta Natural</option>
-                  <option value="artificial">Inseminación Artificial</option>
-                  <option value="embryo_transfer">Transferencia de Embriones</option>
+                  <option value="natural">{t('reproduction.breedingType.natural')}</option>
+                  <option value="artificial">{t('reproduction.breedingType.artificial')}</option>
+                  <option value="embryo_transfer">{t('reproduction.breedingType.embryo_transfer')}</option>
                 </select>
               </div>
 
+              {/* Fecha Último Parto */}
               <div className="form-group">
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Fecha de Último Parto (Opcional)</label>
-                <input 
-                  type="date" 
-                  className="form-control w-full text-sm" 
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  {t('reproduction.fields.lastCalvingDate')}
+                </label>
+                <input
+                  type="date"
+                  className="form-control w-full text-sm"
                   value={formData.lastCalvingDate}
-                  onChange={(e) => setFormData({...formData, lastCalvingDate: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, lastCalvingDate: e.target.value })}
                 />
               </div>
 
+              {/* Número de Crías */}
               <div className="form-group">
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Número de Crías <span className="text-red-500">*</span></label>
-                <input 
-                  type="number" 
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  {t('reproduction.fields.offspringCount')} <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
                   min="0"
-                  className="form-control w-full text-sm" 
+                  className="form-control w-full text-sm"
                   value={formData.offspringCount}
-                  onChange={(e) => setFormData({...formData, offspringCount: Number(e.target.value)})}
+                  onChange={(e) => setFormData({ ...formData, offspringCount: Number(e.target.value) })}
                   required
                 />
               </div>
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
-              <button 
-                type="button" 
-                onClick={() => setShowAddForm(false)} 
+              <button
+                type="button"
+                onClick={() => setShowAddForm(false)}
                 className="btn bg-gray-100 hover:bg-gray-200 text-gray-700 transition inline-flex items-center justify-center gap-2 cursor-pointer"
               >
                 <X size={18} />
-                <span>Cancelar</span>
+                <span>{t('common.cancel')}</span>
               </button>
-              <button 
-                type="submit" 
-                className="btn btn-primary bg-pink-600 hover:bg-pink-700 text-white transition inline-flex items-center justify-center gap-2 shadow-xs cursor-pointer" 
+              <button
+                type="submit"
+                className="btn btn-primary bg-pink-600 hover:bg-pink-700 text-white transition inline-flex items-center justify-center gap-2 shadow-xs cursor-pointer"
                 disabled={saving}
               >
                 <Save size={18} />
-                <span>{saving ? 'Guardando...' : 'Guardar Evento'}</span>
+                <span>{saving ? t('common.saving') : t('reproduction.saveEvent')}</span>
               </button>
             </div>
           </form>
@@ -239,27 +268,40 @@ const AnimalReproduction: React.FC = () => {
         {reproduction.length === 0 ? (
           <div className="card bg-white rounded-xl shadow-xs border border-gray-100 text-center py-16 px-4">
             <Activity size={48} className="text-gray-300 mx-auto mb-3" />
-            <h3 className="text-base font-semibold text-gray-700">No hay eventos reproductivos</h3>
-            <p className="text-xs text-gray-500 mt-1">Este animal no cuenta con registros reproductivos ingresados.</p>
+            <h3 className="text-base font-semibold text-gray-700">{t('reproduction.noRecords')}</h3>
+            <p className="text-xs text-gray-500 mt-1">{t('reproduction.noRecordsSubtitle')}</p>
           </div>
         ) : (
           reproduction.map((record) => (
-            <div key={record.id} className="card bg-white rounded-xl shadow-xs border-l-4 border-l-pink-500 border border-gray-100 p-5">
+            <div
+              key={record.id}
+              className="card bg-white rounded-xl shadow-xs border-l-4 border-l-pink-500 border border-gray-100 p-5"
+            >
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-pink-50 text-pink-600 rounded-xl flex items-center justify-center shrink-0">
                     <Heart size={20} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 text-base capitalize">
-                      Estado: {record.reproductiveStatus}
+                    <h3 className="font-bold text-gray-900 text-base">
+                      {t('reproduction.display.statusLabel', {
+                        value: t(`reproduction.status.${record.reproductiveStatus}`, {
+                          defaultValue: record.reproductiveStatus,
+                        }),
+                      })}
                     </h3>
                     <p className="text-xs text-gray-500">
-                      Crías: {record.offspringCount} | Tipo: {record.breedingType || 'N/A'}
+                      {t('reproduction.display.offspringLabel', {
+                        count: record.offspringCount,
+                        type: record.breedingType
+                          ? t(`reproduction.breedingType.${record.breedingType}`, { defaultValue: record.breedingType })
+                          : 'N/A',
+                      })}
                     </p>
                     {record.lastCalvingDate && (
                       <p className="text-xs text-gray-500 mt-0.5">
-                        Último Parto: {new Date(record.lastCalvingDate).toLocaleDateString('es-ES')}
+                        {t('reproduction.display.lastCalving')}:{' '}
+                        {formatDateShort(record.lastCalvingDate, lang)}
                       </p>
                     )}
                   </div>

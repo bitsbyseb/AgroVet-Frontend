@@ -55,7 +55,7 @@ const LogIn: React.FC = () => {
 
         <form onSubmit={handleSubmit}>
           {error && (
-            <div style={{ backgroundColor: '#ffebee', color: 'var(--error)', padding: '10px', borderRadius: '6px', marginBottom: '16px', fontSize: '0.9rem' }}>
+            <div role="alert" aria-live="assertive" style={{ backgroundColor: '#ffebee', color: 'var(--error)', padding: '10px', borderRadius: '6px', marginBottom: '16px', fontSize: '0.9rem' }}>
               {error}
             </div>
           )}
@@ -66,7 +66,7 @@ const LogIn: React.FC = () => {
               id="email"
               type="email" 
               className="form-control" 
-              placeholder="ejemplo@agrovet.com"
+              placeholder="ejemplo@agrovet.com" autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -79,7 +79,7 @@ const LogIn: React.FC = () => {
               id="password"
               type="password" 
               className="form-control" 
-              placeholder="********"
+              placeholder="********" autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -90,7 +90,7 @@ const LogIn: React.FC = () => {
             type="submit" 
             className="btn btn-primary" 
             style={{ width: '100%', marginTop: '10px' }}
-            disabled={loading}
+            disabled={loading} aria-busy={loading}
           >
             {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
           </button>
