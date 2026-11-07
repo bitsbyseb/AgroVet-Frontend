@@ -1067,6 +1067,36 @@ const AnimalHistory: React.FC = () => {
                         </p>
                       </div>
                     )}
+                    {rep.heatDate && (
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-0.5">
+                          {t('reproduction.display.heatDate')}
+                        </p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {formatDateShort(rep.heatDate, lang)}
+                        </p>
+                      </div>
+                    )}
+                    {rep.expectedCalvingDate && (
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-pink-600 mb-0.5">
+                          {t('reproduction.display.expectedCalving')}
+                        </p>
+                        <p className="text-sm font-semibold text-pink-800">
+                          {formatDateShort(rep.expectedCalvingDate, lang)}
+                        </p>
+                      </div>
+                    )}
+                    {rep.bullId && (
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-0.5">
+                          {t('reproduction.display.bull')}
+                        </p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {rep.bullId}
+                        </p>
+                      </div>
+                    )}
                     {rep.lastCalvingDate && (
                       <div>
                         <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-0.5">

@@ -256,18 +256,31 @@
       "estrusDate": "Estrus Date",
       "matingDate": "Mating Date",
       "inseminationDate": "Insemination Date",
-      "expectedDueDate": "Expected Due Date"
+      "expectedDueDate": "Expected Due Date",
+      "heatDate": "Heat / Service Date",
+      "expectedCalvingDate": "Expected Calving Date",
+      "bullId": "Bull / Sire Identifier",
+      "bullIdPlaceholder": "E.g.: BULL-098, Prime Angus...",
+      "semenBatch": "Semen Batch / Straw",
+      "semenBatchPlaceholder": "E.g.: BATCH-2026-A...",
+      "inseminationDetails": "Insemination / Breeding Details",
+      "inseminationDetailsPlaceholder": "Technician, protocol, procedure notes...",
+      "calculateNotice": "Auto-estimated calving date for cattle (~283 days)",
+      "autoCalculate": "Auto-calculate from heat date"
     },
     "status": {
       "pregnant": "Pregnant",
       "open": "Open",
       "lactating": "Lactating",
-      "dry": "Dry"
+      "dry": "Dry",
+      "empty": "Empty",
+      "anestrus": "Anestrus"
     },
     "breedingType": {
       "natural": "Natural Mating",
       "artificial": "Artificial Insemination",
-      "embryo_transfer": "Embryo Transfer"
+      "embryo_transfer": "Embryo Transfer",
+      "insemination": "Artificial Insemination"
     },
     "display": {
       "status": "Reproductive status",
@@ -275,11 +288,43 @@
       "breedingType": "Breeding type",
       "lastCalving": "Last calving",
       "statusLabel": "Status: {{value}}",
-      "offspringLabel": "Offspring: {{count}} | Type: {{type}}"
+      "offspringLabel": "Offspring: {{count}} | Type: {{type}}",
+      "heatDate": "Heat",
+      "expectedCalving": "Expected Calving",
+      "bull": "Bull",
+      "batch": "Semen Batch",
+      "details": "Details"
+    },
+    "timeline": {
+      "title": "Reproductive Timeline",
+      "sortDesc": "Most recent first",
+      "sortAsc": "Chronological order",
+      "viewTimeline": "Timeline",
+      "viewTable": "Structured Table",
+      "activeStatus": "Current Reproductive Status",
+      "pendingCalving": "Upcoming Expected Calving",
+      "daysRemaining": "Approx. {{days}} days remaining",
+      "overdue": "Expected date reached or overdue",
+      "event": "Reproductive Event",
+      "noTimeline": "No events for the timeline"
+    },
+    "table": {
+      "date": "Date",
+      "status": "Status",
+      "type": "Breeding Type",
+      "calvingExpected": "Expected Calving",
+      "bullSemen": "Bull / Straw",
+      "offspring": "Offspring",
+      "notes": "Details"
     },
     "errors": {
       "loadFailed": "Could not load reproduction information.",
       "saveFailed": "Error saving reproduction record."
+    },
+    "validation": {
+      "offspringNegative": "Number of offspring cannot be negative.",
+      "calvingBeforeHeat": "Expected calving date must be after heat date.",
+      "invalidDate": "Please enter a valid date."
     }
   },
   "production": {

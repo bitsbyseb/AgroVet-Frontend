@@ -256,18 +256,31 @@
       "estrusDate": "Fecha de Celo",
       "matingDate": "Fecha de Monta",
       "inseminationDate": "Fecha de Inseminación",
-      "expectedDueDate": "Fecha Probable de Parto"
+      "expectedDueDate": "Fecha Probable de Parto",
+      "heatDate": "Fecha de Celo / Servicio",
+      "expectedCalvingDate": "Fecha Probable de Parto",
+      "bullId": "Identificador del Toro / Reproductor",
+      "bullIdPlaceholder": "Ej: TORO-098, Campeón Angus...",
+      "semenBatch": "Lote de Semen / Pajilla",
+      "semenBatchPlaceholder": "Ej: LOTE-2026-A...",
+      "inseminationDetails": "Detalles de Inseminación / Monta",
+      "inseminationDetailsPlaceholder": "Técnico, método, observaciones del procedimiento...",
+      "calculateNotice": "Cálculo automático de parto estimado para bovinos (~283 días)",
+      "autoCalculate": "Calcular automáticamente según celo"
     },
     "status": {
       "pregnant": "Preñada (Pregnant)",
       "open": "Vacía (Open)",
       "lactating": "Lactando (Lactating)",
-      "dry": "Seca (Dry)"
+      "dry": "Seca (Dry)",
+      "empty": "Vacía (Empty)",
+      "anestrus": "Anestro (Anestrus)"
     },
     "breedingType": {
       "natural": "Monta Natural",
       "artificial": "Inseminación Artificial",
-      "embryo_transfer": "Transferencia de Embriones"
+      "embryo_transfer": "Transferencia de Embriones",
+      "insemination": "Inseminación Artificial"
     },
     "display": {
       "status": "Estado reproductivo",
@@ -275,11 +288,43 @@
       "breedingType": "Tipo de monta",
       "lastCalving": "Último parto",
       "statusLabel": "Estado: {{value}}",
-      "offspringLabel": "Crías: {{count}} | Tipo: {{type}}"
+      "offspringLabel": "Crías: {{count}} | Tipo: {{type}}",
+      "heatDate": "Celo",
+      "expectedCalving": "Parto Estimado",
+      "bull": "Toro",
+      "batch": "Lote Semen",
+      "details": "Detalles"
+    },
+    "timeline": {
+      "title": "Línea de Tiempo Reproductiva",
+      "sortDesc": "Más recientes primero",
+      "sortAsc": "Orden cronológico",
+      "viewTimeline": "Línea de Tiempo",
+      "viewTable": "Tabla estructurada",
+      "activeStatus": "Estado Reproductivo Actual",
+      "pendingCalving": "Parto Próximo Esperado",
+      "daysRemaining": "Faltan aprox. {{days}} días",
+      "overdue": "Fecha esperada cumplida o superada",
+      "event": "Evento Reproductivo",
+      "noTimeline": "Sin eventos para la línea de tiempo"
+    },
+    "table": {
+      "date": "Fecha",
+      "status": "Estado",
+      "type": "Tipo de Reproducción",
+      "calvingExpected": "Parto Estimado",
+      "bullSemen": "Toro / Pajilla",
+      "offspring": "Crías",
+      "notes": "Detalles"
     },
     "errors": {
       "loadFailed": "No se pudo cargar la información de reproducción.",
       "saveFailed": "Error al guardar el registro de reproducción."
+    },
+    "validation": {
+      "offspringNegative": "El número de crías no puede ser negativo.",
+      "calvingBeforeHeat": "La fecha probable de parto debe ser posterior a la fecha de celo.",
+      "invalidDate": "Por favor ingrese una fecha válida."
     }
   },
   "production": {

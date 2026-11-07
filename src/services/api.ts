@@ -149,6 +149,23 @@ export const animalService = {
   },
 };
 
+
+export const reproductionService = {
+  getByAnimalId: async (animalId: string): Promise<ReproductionRecord[]> => {
+    const response = await api.get<ReproductionRecord[]>(`/animals/${animalId}/reproduction`);
+    return response.data;
+  },
+  create: async (animalId: string, data: ReproductionInput): Promise<ReproductionRecord> => {
+    const response = await api.post<ReproductionRecord>(`/animals/${animalId}/reproduction`, data);
+    return response.data;
+  },
+  getReproduction: async (animalId: string): Promise<ReproductionRecord[]> => {
+    return reproductionService.getByAnimalId(animalId);
+  },
+  addReproduction: async (animalId: string, data: ReproductionInput): Promise<ReproductionRecord> => {
+    return reproductionService.create(animalId, data);
+  }
+};
 export const ownerService = {
   list: async (): Promise<Owner[]> => {
     const response = await api.get<Owner[]>('/owners');

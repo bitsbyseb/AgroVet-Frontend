@@ -216,18 +216,31 @@ export interface ProductionInput {
 
 export interface ReproductionRecord {
   id: string;
-  reproductiveStatus: string;
-  lastCalvingDate?: string;
-  offspringCount: number;
-  breedingType?: string;
   animalId: string;
+  reproductiveStatus: string;
+  lastCalvingDate?: string | null;
+  offspringCount: number;
+  breedingType?: string | null;
+  heatDate?: string | null;
+  expectedCalvingDate?: string | null;
+  bullId?: string | null;
+  semenBatch?: string | null;
+  inseminationDetails?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ReproductionInput {
   reproductiveStatus: string;
-  lastCalvingDate?: string;
+  lastCalvingDate?: string | null;
   offspringCount: number;
-  breedingType?: string;
+  breedingType?: string | null;
+  heatDate?: string | null;
+  expectedCalvingDate?: string | null;
+  bullId?: string | null;
+  semenBatch?: string | null;
+  inseminationDetails?: string | null;
+  gestationDays?: number;
 }
 
 export interface Food {
