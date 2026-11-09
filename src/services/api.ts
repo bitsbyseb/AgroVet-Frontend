@@ -3,7 +3,7 @@ import { jwtDecode } from 'jwt-decode';
 import type {
   User, AuthResponse, LoginCredentials, SignupData,
   AnimalInput, OwnerInput, Animal, Owner,
-  AnimalUpdateInput, OwnerUpdateInput,
+  AnimalUpdateInput, AnimalSearchParams, OwnerUpdateInput,
   MedicalHistoryRecord, MedicalHistoryInput,
   VaccineRecord, VaccineInput,
   ProductionRecord, ProductionInput,
@@ -79,8 +79,13 @@ export const authService = {
 };
 
 export const animalService = {
-  list: async (): Promise<Animal[]> => {
-    const response = await api.get<Animal[]>('/animals');
+  list: async (params?: AnimalSearchParams): Promise<Animal[]> => {
+    const response = await api.get<Animal[]>('/animals', { params });
+    return response.data;
+  },
+  search: async (params: string | AnimalSearchParams): Promise<Animal[]> => {
+    const queryParams = typeof params === 'string' ? { query: params } : params;
+    const response = await api.get<Animal[]>('/animals/search', { params: queryParams });
     return response.data;
   },
   getById: async (id: string): Promise<Animal> => {

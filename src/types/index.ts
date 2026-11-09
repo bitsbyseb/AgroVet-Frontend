@@ -104,6 +104,16 @@ export interface AnimalUpdateInput {
   paddockId?: string | null;
 }
 
+export interface AnimalSearchParams {
+  query?: string;
+  name?: string;
+  identification?: string;
+  q?: string;
+  species?: SpeciesType | string;
+  ownerId?: string;
+  status?: 'active' | 'inactive' | string;
+}
+
 export interface PhysiologicalConstants {
   heartRate?: number | null;
   respiratoryRate?: number | null;

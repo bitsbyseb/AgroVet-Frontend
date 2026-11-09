@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { animalService, paddockService, grazingService, authService } from '../../services/api';
-import type { Animal, IPaddock, IGrazingActivity } from '../../types';
+import { animalService, paddockService, grazingService, ownerService, authService } from '../../services/api';
+import type { Animal, IPaddock, IGrazingActivity, Owner, AnimalSearchParams } from '../../types';
 import { formatDateShort } from '../../utils/l10n';
+import { AnimalSearch } from '../../components/AnimalSearch';
+import { AnimalFilters, type FilterValues } from '../../components/AnimalFilters';
 import {
   Plus,
   Cat,
@@ -16,7 +18,10 @@ import {
   Activity,
   Utensils,
   AlertCircle,
-  Layers
+  Layers,
+  X,
+  SlidersHorizontal,
+  RotateCcw
 } from 'lucide-react';
 
 export const AnimalsList: React.FC = () => {
@@ -25,9 +30,16 @@ export const AnimalsList: React.FC = () => {
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [paddocks, setPaddocks] = useState<IPaddock[]>([]);
   const [grazingActivities, setGrazingActivities] = useState<IGrazingActivity[]>([]);
+  const [owners, setOwners] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Search & Filters state (HU14 & HU15)
   const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState<FilterValues>({});
+  const [showFilters, setShowFilters] = useState(false);
+
   const [user, setUser] = useState(authService.getCurrentUser());
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -61,20 +73,77 @@ export const AnimalsList: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [animalsData, paddocksData, grazingData] = await Promise.all([
+      setError(null);
+      const [animalsData, paddocksData, grazingData, ownersData] = await Promise.all([
         animalService.list().catch(() => [] as Animal[]),
         paddockService.getPaddocks().catch(() => [] as IPaddock[]),
-        grazingService.getGrazingActivities().catch(() => [] as IGrazingActivity[])
+        grazingService.getGrazingActivities().catch(() => [] as IGrazingActivity[]),
+        ownerService.list().catch(() => [] as Owner[])
       ]);
       setAnimals(animalsData);
       setPaddocks(paddocksData);
       setGrazingActivities(grazingData);
+      setOwners(ownersData.map(o => ({ id: o.id, name: o.name })));
+      setSearchTerm('');
+      setFilters({});
     } catch (err) {
       console.error('Error fetching animals:', err);
+      setError(t('common.error'));
     } finally {
       setLoading(false);
     }
   };
+
+  // Unified function combining text search and filters
+  const fetchWithParams = async (search: string, currentFilters: FilterValues) => {
+    try {
+      setSearching(true);
+      setError(null);
+      const params: AnimalSearchParams = {
+        query: search.trim() || undefined,
+        species: currentFilters.species,
+        ownerId: currentFilters.ownerId,
+        status: currentFilters.status,
+      };
+
+      const hasParams = Boolean(params.query || params.species || params.ownerId || params.status);
+      const results = hasParams
+        ? await animalService.search(params)
+        : await animalService.list();
+
+      setAnimals(results);
+    } catch (err) {
+      console.error('Error fetching animals with parameters:', err);
+      setError(t('common.error'));
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    fetchWithParams(term, filters);
+  };
+
+  const handleFiltersChange = (newFilters: FilterValues) => {
+    setFilters(newFilters);
+    fetchWithParams(searchTerm, newFilters);
+  };
+
+  const handleResetFilters = () => {
+    const emptyFilters: FilterValues = {};
+    setFilters(emptyFilters);
+    fetchWithParams(searchTerm, emptyFilters);
+  };
+
+  const handleResetAll = () => {
+    setSearchTerm('');
+    const emptyFilters: FilterValues = {};
+    setFilters(emptyFilters);
+    fetchWithParams('', emptyFilters);
+  };
+
+  const activeFiltersCount = Object.values(filters).filter(Boolean).length;
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
@@ -117,19 +186,6 @@ export const AnimalsList: React.FC = () => {
     return map;
   }, [animals, paddocks, grazingActivities]);
 
-  const filteredAnimals = useMemo(() => {
-    return animals.filter((animal) => {
-      const term = searchTerm.toLowerCase();
-      const paddockName = animalPaddockMap.get(animal.id)?.paddock.name.toLowerCase() || '';
-      return (
-        animal.name.toLowerCase().includes(term) ||
-        animal.species.toLowerCase().includes(term) ||
-        animal.breed.toLowerCase().includes(term) ||
-        paddockName.includes(term)
-      );
-    });
-  }, [animals, searchTerm, animalPaddockMap]);
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -168,18 +224,62 @@ export const AnimalsList: React.FC = () => {
         </div>
       )}
 
-      {/* Barra de búsqueda */}
-      <div className="card bg-white shadow-xs border border-gray-100 p-4 rounded-xl">
-        <div className="w-full md:w-96">
-          <input
-            type="text"
-            placeholder={t('animals.searchPlaceholder')}
-            aria-label={t('animals.searchPlaceholder')}
-            className="form-control px-4 py-2 w-full text-sm rounded-lg border-gray-200"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      {/* Barra de búsqueda y Filtros avanzados (HU14 & HU15) */}
+      <div className="card bg-white shadow-xs border border-gray-100 p-4 rounded-xl space-y-3">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          <div className="w-full md:w-96">
+            <AnimalSearch
+              onSearch={handleSearch}
+              initialValue={searchTerm}
+              isLoading={searching}
+              placeholder={t('animals.searchPlaceholder')}
+            />
+          </div>
+
+          <div className="flex items-center gap-2 self-end md:self-auto">
+            {/* Toggle Filtros */}
+            <button
+              type="button"
+              onClick={() => setShowFilters(prev => !prev)}
+              className={`btn text-xs px-3.5 py-2 rounded-xl border transition inline-flex items-center gap-1.5 cursor-pointer ${
+                showFilters || activeFiltersCount > 0
+                  ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                  : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+              }`}
+              title={t('animals.filters.filterButton')}
+            >
+              <SlidersHorizontal size={14} className={activeFiltersCount > 0 ? 'text-emerald-700' : 'text-gray-500'} />
+              <span>{t('animals.filters.filterButton')}</span>
+              {activeFiltersCount > 0 && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-700 text-white">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
+
+            {/* Limpiar búsqueda y filtros combinados */}
+            {(searchTerm || activeFiltersCount > 0) && (
+              <button
+                type="button"
+                onClick={handleResetAll}
+                className="text-xs text-gray-500 hover:text-emerald-700 font-medium underline inline-flex items-center gap-1 transition cursor-pointer px-1 py-1"
+              >
+                <X size={13} />
+                <span>{t('animals.filters.clearFilters')}</span>
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Panel Desplegable de Filtros */}
+        {showFilters && (
+          <AnimalFilters
+            filters={filters}
+            onChange={handleFiltersChange}
+            onReset={handleResetFilters}
+            owners={owners}
+          />
+        )}
       </div>
 
       <div className="card bg-white shadow-xs border border-gray-100 rounded-xl overflow-hidden">
@@ -188,15 +288,25 @@ export const AnimalsList: React.FC = () => {
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-600 border-t-transparent mb-3" />
             <p className="text-gray-500 text-sm">{t('animals.loading')}</p>
           </div>
-        ) : filteredAnimals.length === 0 ? (
+        ) : animals.length === 0 ? (
           <div className="text-center py-16 px-4">
             <Cat size={48} className="text-gray-300 mx-auto mb-3" />
             <h3 className="text-base font-semibold text-gray-700">{t('animals.emptyTitle')}</h3>
             <p className="text-xs text-gray-500 mt-1">
-              {searchTerm
-                ? t('animals.emptySearch')
+              {searchTerm || activeFiltersCount > 0
+                ? t('animals.filters.noMatchingFilter')
                 : t('animals.emptyInitial')}
             </p>
+            {(searchTerm || activeFiltersCount > 0) && (
+              <button
+                type="button"
+                onClick={handleResetAll}
+                className="btn bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs mt-4 px-3.5 py-2 rounded-lg inline-flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <RotateCcw size={14} />
+                <span>{t('animals.filters.clearFilters')}</span>
+              </button>
+            )}
           </div>
         ) : (
           <div className="table-container">
@@ -213,7 +323,7 @@ export const AnimalsList: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-sm">
-                {filteredAnimals.map((animal) => {
+                {animals.map((animal) => {
                   const paddockInfo = animalPaddockMap.get(animal.id);
 
                   return (
@@ -223,10 +333,17 @@ export const AnimalsList: React.FC = () => {
                           <div className="p-2 bg-amber-50 text-amber-700 rounded-xl flex items-center justify-center shrink-0">
                             <Cat size={18} />
                           </div>
-                          <span className="font-bold text-gray-900">{animal.name}</span>
+                          <div className="flex flex-col">
+                            <span className="font-bold text-gray-900">{animal.name}</span>
+                            <span className="text-[11px] text-gray-400 font-mono tracking-tight" title={animal.id}>
+                              ID: {animal.id.substring(0, 8)}...
+                            </span>
+                          </div>
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 capitalize text-gray-700">{animal.species}</td>
+                      <td className="py-3.5 px-4 capitalize text-gray-700">
+                        {t(`animals.species.${animal.species}`, { defaultValue: animal.species })}
+                      </td>
                       <td className="py-3.5 px-4 text-gray-700">{animal.breed}</td>
                       <td className="py-3.5 px-4">
                         {paddockInfo ? (
