@@ -366,7 +366,12 @@
       "quantityPlaceholder": "Ej: 15.5",
       "unit": "Unidad de Medida",
       "unitPlaceholder": "Ej: Litros, Kg...",
-      "purpose": "Propósito"
+      "purpose": "Propósito",
+      "productionDate": "Fecha de Producción",
+      "weightGain": "Ganancia de Peso (kg)",
+      "weightGainPlaceholder": "Ej: 2.5",
+      "productQuality": "Calidad del Producto",
+      "productQualityPlaceholder": "Ej: Alta, Media, Premium..."
     },
     "purpose": {
       "milk": "Leche",
@@ -381,11 +386,41 @@
       "typeAndPurpose": "Tipo & Propósito",
       "purposeLabel": "Propósito: {{value}}",
       "liters": "litros",
-      "kg": "kg"
+      "kg": "kg",
+      "productionDate": "Fecha de producción",
+      "weightGain": "Ganancia de peso",
+      "productQuality": "Calidad"
     },
     "errors": {
       "loadFailed": "No se pudo cargar la información de producción.",
       "saveFailed": "Error al guardar el registro de producción."
+    },
+    "indicators": {
+      "tabRecords": "Registros de Producción",
+      "tabIndicators": "Indicadores & Evolución",
+      "periodFilter": "Filtro de Período",
+      "from": "Desde",
+      "to": "Hasta",
+      "apply": "Filtrar",
+      "last30Days": "30 días",
+      "last90Days": "90 días",
+      "allTime": "Todo",
+      "summaryTitle": "Indicadores Agregados del Período",
+      "totalRecords": "Lotes Registrados",
+      "avgWeight": "Peso Promedio",
+      "totalWeight": "Peso Acumulado",
+      "avgMilk": "Promedio Leche / Lote",
+      "totalMilk": "Leche Total Producida",
+      "accumulatedWeightGain": "Ganancia de Peso Acumulada",
+      "qualityTitle": "Distribución por Calidad del Producto",
+      "purposeTitle": "Distribución por Propósito",
+      "evolutionTitle": "Evolución Productiva y Ganancia de Peso",
+      "evolutionSubtitle": "Seguimiento cronológico del incremento ponderal y peso corporal.",
+      "noIndicators": "No se encontraron registros de producción para el período seleccionado.",
+      "chartWeight": "Peso corporal",
+      "chartGain": "Ganancia en lote",
+      "chartCumulative": "Ganancia acumulada",
+      "unspecified": "Sin especificar"
     }
   },
   "alerts": {

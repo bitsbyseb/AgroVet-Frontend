@@ -6,7 +6,7 @@ import type {
   AnimalUpdateInput, AnimalSearchParams, OwnerUpdateInput,
   MedicalHistoryRecord, MedicalHistoryInput,
   VaccineRecord, VaccineInput,
-  ProductionRecord, ProductionInput,
+  ProductionRecord, ProductionInput, ProductionIndicators, ProductionIndicatorsQuery,
   ReproductionRecord, ReproductionInput,
   Food, FoodInput,
   DietRecord, DietInput,
@@ -132,6 +132,10 @@ export const animalService = {
     const response = await api.get<ProductionRecord[]>(`/animals/${id}/production`);
     return response.data;
   },
+  getProductionIndicators: async (id: string, params?: ProductionIndicatorsQuery): Promise<ProductionIndicators> => {
+    const response = await api.get<ProductionIndicators>(`/animals/${id}/production/indicators`, { params });
+    return response.data;
+  },
   addProduction: async (id: string, data: ProductionInput): Promise<ProductionRecord> => {
     const response = await api.post<ProductionRecord>(`/animals/${id}/production`, data);
     return response.data;
@@ -154,6 +158,21 @@ export const animalService = {
   },
 };
 
+
+export const productionService = {
+  getByAnimalId: async (animalId: string): Promise<ProductionRecord[]> => {
+    const response = await api.get<ProductionRecord[]>(`/animals/${animalId}/production`);
+    return response.data;
+  },
+  create: async (animalId: string, data: ProductionInput): Promise<ProductionRecord> => {
+    const response = await api.post<ProductionRecord>(`/animals/${animalId}/production`, data);
+    return response.data;
+  },
+  getIndicators: async (animalId: string, params?: ProductionIndicatorsQuery): Promise<ProductionIndicators> => {
+    const response = await api.get<ProductionIndicators>(`/animals/${animalId}/production/indicators`, { params });
+    return response.data;
+  }
+};
 
 export const reproductionService = {
   getByAnimalId: async (animalId: string): Promise<ReproductionRecord[]> => {

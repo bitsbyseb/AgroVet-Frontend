@@ -214,6 +214,9 @@ export interface ProductionRecord {
   date: string;
   purpose: string;
   animalId: string;
+  productionDate?: string | null;
+  weightGain?: number | null;
+  productQuality?: string | null;
 }
 
 export interface ProductionInput {
@@ -222,6 +225,40 @@ export interface ProductionInput {
   unit: string;
   date: string;
   purpose: string;
+  productionDate?: string | null;
+  weightGain?: number | null;
+  productQuality?: string | null;
+}
+
+export interface PeriodSummary {
+  from: string;
+  to: string;
+  totalRecords: number;
+  totalWeight: number | null;
+  avgWeight: number | null;
+  totalMilkProduction: number | null;
+  avgMilkProduction: number | null;
+  totalWeightGain: number | null;
+  qualityDistribution: Record<string, number>;
+  purposeDistribution: Record<string, number>;
+}
+
+export interface WeightGainEvolution {
+  date: string;
+  weight: number | null;
+  weightGain: number | null;
+  cumulativeWeightGain: number;
+}
+
+export interface ProductionIndicators {
+  animalId: string;
+  period: PeriodSummary;
+  weightGainEvolution: WeightGainEvolution[];
+}
+
+export interface ProductionIndicatorsQuery {
+  from?: string;
+  to?: string;
 }
 
 export interface ReproductionRecord {

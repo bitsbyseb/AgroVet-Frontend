@@ -366,7 +366,12 @@
       "quantityPlaceholder": "E.g.: 15.5",
       "unit": "Unit of Measurement",
       "unitPlaceholder": "E.g.: Liters, Kg...",
-      "purpose": "Purpose"
+      "purpose": "Purpose",
+      "productionDate": "Production Date",
+      "weightGain": "Weight Gain (kg)",
+      "weightGainPlaceholder": "E.g.: 2.5",
+      "productQuality": "Product Quality",
+      "productQualityPlaceholder": "E.g.: High, Medium, Premium..."
     },
     "purpose": {
       "milk": "Milk",
@@ -381,11 +386,41 @@
       "typeAndPurpose": "Type & Purpose",
       "purposeLabel": "Purpose: {{value}}",
       "liters": "liters",
-      "kg": "kg"
+      "kg": "kg",
+      "productionDate": "Production date",
+      "weightGain": "Weight gain",
+      "productQuality": "Quality"
     },
     "errors": {
       "loadFailed": "Could not load production information.",
       "saveFailed": "Error saving production record."
+    },
+    "indicators": {
+      "tabRecords": "Production Records",
+      "tabIndicators": "Indicators & Evolution",
+      "periodFilter": "Period Filter",
+      "from": "From",
+      "to": "To",
+      "apply": "Filter",
+      "last30Days": "30 days",
+      "last90Days": "90 days",
+      "allTime": "All",
+      "summaryTitle": "Aggregate Period Indicators",
+      "totalRecords": "Recorded Batches",
+      "avgWeight": "Average Weight",
+      "totalWeight": "Total Recorded Weight",
+      "avgMilk": "Average Milk / Batch",
+      "totalMilk": "Total Milk Produced",
+      "accumulatedWeightGain": "Accumulated Weight Gain",
+      "qualityTitle": "Product Quality Distribution",
+      "purposeTitle": "Purpose Distribution",
+      "evolutionTitle": "Productive Evolution & Weight Gain",
+      "evolutionSubtitle": "Chronological tracking of weight increments and body mass.",
+      "noIndicators": "No production records found for the selected period.",
+      "chartWeight": "Body weight",
+      "chartGain": "Batch gain",
+      "chartCumulative": "Cumulative gain",
+      "unspecified": "Unspecified"
     }
   },
   "alerts": {
