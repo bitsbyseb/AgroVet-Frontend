@@ -10,7 +10,8 @@
     "appointments": "Consultas",
     "foods": "Alimentos",
     "owners": "Propietarios",
-    "registerUser": "Registrar Usuario"
+    "registerUser": "Registrar Usuario",
+    "audit": "Auditoría"
   },
   "roles": {
     "administrator": "Administrador",
@@ -55,12 +56,49 @@
   "dashboard": {
     "welcome": "Bienvenido, {{username}}",
     "subtitle": "Panel de control general de AgroVet",
+    "adminTitle": "Panel de Administración",
+    "adminSubtitle": "Métricas globales del sistema, resumen de usuarios, especies y actividades recientes.",
+    "totalUsers": "Usuarios Totales",
     "totalAnimals": "Total Animales",
+    "activeAnimals": "Activos",
     "owners": "Propietarios",
     "appointmentsToday": "Consultas Hoy",
     "alerts": "Alertas",
-    "recentActivity": "Actividad Reciente",
-    "noRecentActivity": "No hay actividad reciente para mostrar."
+    "recentActivity": "Actividades Recientes",
+    "noRecentActivity": "No hay actividad reciente para mostrar.",
+    "speciesDistribution": "Distribución por Especie",
+    "userRolesDistribution": "Distribución por Rol",
+    "viewAllActivities": "Ver todas las actividades",
+    "quickActions": "Acciones Rápidas",
+    "manageUsers": "Registrar Personal",
+    "manageOwners": "Gestionar Propietarios",
+    "manageAnimals": "Gestionar Animales",
+    "viewAudit": "Auditoría del Sistema",
+    "noData": "Sin datos disponibles",
+    "percentage": "Porcentaje",
+    "count": "Cantidad",
+    "errorLoading": "Error al cargar los indicadores administrativos",
+    "backup": {
+      "title": "Gestión de Copias de Seguridad",
+      "subtitle": "Genera un respaldo completo de la base de datos o restaura desde un archivo SQL existente.",
+      "downloadBtn": "Descargar Respaldo (.sql)",
+      "downloading": "Generando respaldo...",
+      "downloadSuccess": "Respaldo descargado exitosamente.",
+      "downloadError": "Error al generar el respaldo. Intente nuevamente.",
+      "restoreBtn": "Restaurar Base de Datos",
+      "restoring": "Restaurando...",
+      "restoreSuccess": "Base de datos restaurada exitosamente.",
+      "restoreError": "Error al restaurar la base de datos.",
+      "selectFile": "Seleccionar archivo .sql",
+      "fileSelected": "Archivo seleccionado: {{name}}",
+      "noFileSelected": "Ningún archivo seleccionado",
+      "confirmTitle": "⚠️ Confirmar Restauración",
+      "confirmMessage": "Esta acción reemplazará TODOS los datos actuales de la base de datos con el contenido del archivo seleccionado. Esta operación es irreversible. ¿Desea continuar?",
+      "confirmBtn": "Sí, restaurar ahora",
+      "cancelBtn": "Cancelar",
+      "warningLabel": "Zona de alto riesgo",
+      "warningDesc": "La restauración sobreescribe permanentemente todos los datos existentes. Asegúrese de tener un respaldo reciente antes de proceder."
+    }
   },
   "animals": {
     "title": "Gestión de Animales",
@@ -468,6 +506,51 @@
       "markFailed": "No se pudo marcar la alerta como revisada.",
       "markAllFailed": "No se pudieron marcar todas las alertas.",
       "generateFailed": "Error al generar las alertas automáticas para el animal."
+    }
+  },
+  "audit": {
+    "title": "Auditoría y Registro de Actividades",
+    "subtitle": "Supervisión de eventos de seguridad, mutaciones de datos y actividad de usuarios del sistema.",
+    "filters": {
+      "user": "Usuario",
+      "userPlaceholder": "Filtrar por ID de usuario...",
+      "action": "Acción",
+      "allActions": "Todas las acciones",
+      "resource": "Recurso",
+      "allResources": "Todos los recursos",
+      "from": "Fecha inicial",
+      "to": "Fecha final",
+      "status": "Estado",
+      "allStatuses": "Todos los estados",
+      "apply": "Filtrar",
+      "reset": "Limpiar filtros"
+    },
+    "kpi": {
+      "totalEvents": "Eventos Registrados",
+      "logins": "Inicios de Sesión",
+      "mutations": "Creaciones / Modificaciones",
+      "failures": "Eventos Fallidos"
+    },
+    "table": {
+      "timestamp": "Fecha y Hora",
+      "user": "Usuario",
+      "role": "Rol",
+      "action": "Acción",
+      "resource": "Recurso",
+      "status": "Estado",
+      "details": "Detalles",
+      "ip": "Dirección IP",
+      "noLogs": "No se encontraron registros de auditoría",
+      "noLogsSubtitle": "Intenta ajustar los filtros de fecha o usuario."
+    },
+    "actions": {
+      "LOGIN": "Inicio de Sesión",
+      "LOGOUT": "Cierre de Sesión",
+      "CREATE": "Creación",
+      "UPDATE": "Modificación",
+      "DELETE": "Eliminación",
+      "ROLE_CHANGE": "Cambio de Rol",
+      "TRANSFER": "Transferencia"
     }
   }
 }

@@ -15,7 +15,9 @@ import type {
   IGrazingActivity, GrazingActivityInput,
   IGrazingHistoryItem, GrazingHistoryFilters,
   OwnerReminderDTO, OwnerAnimal,
-  AlertRecord, AlertFilter, GenerateAlertsInput, GenerateAlertsResult
+  AlertRecord, AlertFilter, GenerateAlertsInput, GenerateAlertsResult,
+  AuditLogFilters, AuditLogListResponse,
+  AdminIndicators
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_SERVICE_URL + "/api/v1";
@@ -372,6 +374,55 @@ export const alertService = {
     return response.data;
   },
 };
+export const auditService = {
+  getLogs: async (filters?: AuditLogFilters): Promise<AuditLogListResponse> => {
+    const response = await api.get<AuditLogListResponse>('/audit', { params: filters });
+    return response.data;
+  }
+};
+
+export const adminService = {
+  getIndicators: async (): Promise<AdminIndicators> => {
+    const response = await api.get<AdminIndicators>('/admin/indicators');
+    return response.data;
+  },
+
+  /**
+   * Genera y descarga un volcado SQL completo de la base de datos.
+   * Crea un enlace temporal en el DOM para disparar la descarga del archivo .sql.
+   */
+  downloadBackup: async (): Promise<void> => {
+    const response = await api.get('/admin/backup', {
+      responseType: 'blob',
+    });
+    const blob = new Blob([response.data], { type: 'application/octet-stream' });
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    const date = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    anchor.download = `agrovet-backup-${date}.sql`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    window.URL.revokeObjectURL(url);
+  },
+
+  /**
+   * Envía un archivo .sql al servidor para restaurar la base de datos.
+   * @param file - Archivo .sql seleccionado por el usuario
+   */
+  restoreDatabase: async (file: File): Promise<{ message: string; filename: string; sizeBytes: number }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post<{ message: string; filename: string; sizeBytes: number }>(
+      '/admin/restore',
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+    return response.data;
+  }
+};
+
 export default api;
 
 

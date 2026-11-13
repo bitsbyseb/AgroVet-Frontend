@@ -10,7 +10,8 @@
     "appointments": "Appointments",
     "foods": "Foods",
     "owners": "Owners",
-    "registerUser": "Register User"
+    "registerUser": "Register User",
+    "audit": "Audit Logs"
   },
   "roles": {
     "administrator": "Administrator",
@@ -55,12 +56,49 @@
   "dashboard": {
     "welcome": "Welcome, {{username}}",
     "subtitle": "General AgroVet management dashboard",
+    "adminTitle": "Admin Dashboard",
+    "adminSubtitle": "Global system indicators, overview of users, animal species and recent audit activity.",
+    "totalUsers": "Total Users",
     "totalAnimals": "Total Animals",
+    "activeAnimals": "Active",
     "owners": "Owners",
     "appointmentsToday": "Appointments Today",
     "alerts": "Alerts",
-    "recentActivity": "Recent Activity",
-    "noRecentActivity": "No recent activity to show."
+    "recentActivity": "Recent Activities",
+    "noRecentActivity": "No recent activity to show.",
+    "speciesDistribution": "Species Distribution",
+    "userRolesDistribution": "Roles Distribution",
+    "viewAllActivities": "View all activities",
+    "quickActions": "Quick Actions",
+    "manageUsers": "Register Staff",
+    "manageOwners": "Manage Owners",
+    "manageAnimals": "Manage Animals",
+    "viewAudit": "System Audit",
+    "noData": "No data available",
+    "percentage": "Percentage",
+    "count": "Count",
+    "errorLoading": "Error loading administrative indicators",
+    "backup": {
+      "title": "Database Backup & Restore",
+      "subtitle": "Generate a full database backup or restore from an existing SQL file.",
+      "downloadBtn": "Download Backup (.sql)",
+      "downloading": "Generating backup...",
+      "downloadSuccess": "Backup downloaded successfully.",
+      "downloadError": "Error generating backup. Please try again.",
+      "restoreBtn": "Restore Database",
+      "restoring": "Restoring...",
+      "restoreSuccess": "Database restored successfully.",
+      "restoreError": "Error restoring the database.",
+      "selectFile": "Select .sql file",
+      "fileSelected": "File selected: {{name}}",
+      "noFileSelected": "No file selected",
+      "confirmTitle": "⚠️ Confirm Restoration",
+      "confirmMessage": "This action will REPLACE ALL current database data with the contents of the selected file. This operation is irreversible. Do you want to proceed?",
+      "confirmBtn": "Yes, restore now",
+      "cancelBtn": "Cancel",
+      "warningLabel": "High-risk zone",
+      "warningDesc": "Restoration permanently overwrites all existing data. Make sure you have a recent backup before proceeding."
+    }
   },
   "animals": {
     "title": "Animal Management",
@@ -468,6 +506,51 @@
       "markFailed": "Could not mark alert as reviewed.",
       "markAllFailed": "Could not mark all alerts as reviewed.",
       "generateFailed": "Error generating automatic alerts for the animal."
+    }
+  },
+  "audit": {
+    "title": "Audit & Activity Logs",
+    "subtitle": "Supervision of security events, data mutations, and system user activity.",
+    "filters": {
+      "user": "User",
+      "userPlaceholder": "Filter by user ID...",
+      "action": "Action",
+      "allActions": "All actions",
+      "resource": "Resource",
+      "allResources": "All resources",
+      "from": "Start date",
+      "to": "End date",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "apply": "Filter",
+      "reset": "Clear filters"
+    },
+    "kpi": {
+      "totalEvents": "Logged Events",
+      "logins": "User Logins",
+      "mutations": "Creations / Updates",
+      "failures": "Failed Events"
+    },
+    "table": {
+      "timestamp": "Date & Time",
+      "user": "User",
+      "role": "Role",
+      "action": "Action",
+      "resource": "Resource",
+      "status": "Status",
+      "details": "Details",
+      "ip": "IP Address",
+      "noLogs": "No audit records found",
+      "noLogsSubtitle": "Try adjusting the date or user filters."
+    },
+    "actions": {
+      "LOGIN": "Login",
+      "LOGOUT": "Logout",
+      "CREATE": "Create",
+      "UPDATE": "Update",
+      "DELETE": "Delete",
+      "ROLE_CHANGE": "Role Change",
+      "TRANSFER": "Transfer"
     }
   }
 }

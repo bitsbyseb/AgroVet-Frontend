@@ -23,6 +23,7 @@ import GrazingListView, { GrazingHistoryView } from "./pages/Grazing";
 import MyAnimalsView from "./pages/owner/MyAnimalsView";
 import Reminders from "./pages/owner/Reminders";
 import AlertsView from "./pages/Alerts";
+import AuditLogsView from "./pages/Audit/AuditLogs";
 
 import { authService } from "./services/api";
 
@@ -133,7 +134,22 @@ export const router = createBrowserRouter([
                 </RoleProtectedRoute>
               ) 
             },
+            { 
+              path: "audit", 
+              element: (
+                <RoleProtectedRoute allowedRoles={['administrator']}>
+                  <AuditLogsView />
+                </RoleProtectedRoute>
+              ) 
+            },
+            { 
+              path: "audit-logs", 
+              element: (
+                <RoleProtectedRoute allowedRoles={['administrator']}>
+                  <AuditLogsView />
+                </RoleProtectedRoute>
+              ) 
+            },
         ],
     },
 ]);
-

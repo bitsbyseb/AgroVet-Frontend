@@ -19,7 +19,8 @@ import {
   Menu,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ShieldCheck
 } from 'lucide-react';
 
 const MainLayout: React.FC = () => {
@@ -124,6 +125,7 @@ const MainLayout: React.FC = () => {
     { name: t('nav.foods'), path: '/foods', icon: <Wheat size={20} />, roles: ['veterinarian', 'zootechnician', 'administrator'] },
     { name: t('nav.owners'), path: '/owners', icon: <Users size={20} />, roles: ['veterinarian', 'administrator'] },
     { name: t('nav.registerUser'), path: '/register', icon: <UserPlus size={20} />, roles: ['administrator'] },
+    { name: t('nav.audit'), path: '/audit', icon: <ShieldCheck size={20} />, roles: ['administrator'] },
   ];
 
   const visibleMenuItems = menuItems.filter((item) => !user || item.roles.includes(user.role));

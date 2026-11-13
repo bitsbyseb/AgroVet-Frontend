@@ -261,6 +261,63 @@ export interface ProductionIndicatorsQuery {
   to?: string;
 }
 
+export interface AuditLog {
+  id: string;
+  userId?: string | null;
+  userEmail?: string | null;
+  userRole?: string | null;
+  action: string;
+  resource: string;
+  resourceId?: string | null;
+  details?: string | null;
+  ipAddress?: string | null;
+  status: string;
+  createdAt: string;
+}
+
+export interface AuditLogFilters {
+  userId?: string;
+  action?: string;
+  resource?: string;
+  from?: string;
+  to?: string;
+  status?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface AuditLogListResponse {
+  logs: AuditLog[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface AdminOverviewIndicators {
+  totalUsers: number;
+  totalAnimals: number;
+  totalOwners: number;
+  activeAnimals: number;
+}
+
+export interface AdminRecentActivity {
+  id: string;
+  userId: string | null;
+  userEmail: string | null;
+  userRole: string | null;
+  action: string;
+  resource: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface AdminIndicators {
+  overview: AdminOverviewIndicators;
+  usersByRole: Record<string, number>;
+  animalsBySpecies: Record<string, number>;
+  recentActivities: AdminRecentActivity[];
+}
+
 export interface ReproductionRecord {
   id: string;
   animalId: string;
