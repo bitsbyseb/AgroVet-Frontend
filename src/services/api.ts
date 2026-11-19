@@ -381,6 +381,36 @@ export const auditService = {
   }
 };
 
+/**
+ * Extrae el mensaje de error de la API. Con `responseType: 'blob'` el backend
+ * devuelve el JSON como Blob, por lo que hay que leerlo como texto para
+ * mostrar el detalle real (por ejemplo "No se encontró el binario mysqldump").
+ */
+const readApiErrorMessage = async (error: unknown): Promise<string | null> => {
+  const data = (error as { response?: { data?: unknown } })?.response?.data;
+  if (!data) return null;
+
+  if (typeof data === 'string') return data.trim() || null;
+
+  if (data instanceof Blob) {
+    try {
+      const text = (await data.text()).trim();
+      if (!text) return null;
+      try {
+        const parsed = JSON.parse(text) as { error?: string; message?: string };
+        return parsed.error || parsed.message || text;
+      } catch {
+        return text;
+      }
+    } catch {
+      return null;
+    }
+  }
+
+  const parsed = data as { error?: string; message?: string };
+  return parsed.error || parsed.message || null;
+};
+
 export const adminService = {
   getIndicators: async (): Promise<AdminIndicators> => {
     const response = await api.get<AdminIndicators>('/admin/indicators');
@@ -392,19 +422,24 @@ export const adminService = {
    * Crea un enlace temporal en el DOM para disparar la descarga del archivo .sql.
    */
   downloadBackup: async (): Promise<void> => {
-    const response = await api.get('/admin/backup', {
-      responseType: 'blob',
-    });
-    const blob = new Blob([response.data], { type: 'application/octet-stream' });
-    const url = window.URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    const date = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    anchor.download = `agrovet-backup-${date}.sql`;
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
-    window.URL.revokeObjectURL(url);
+    try {
+      const response = await api.get('/admin/backup', {
+        responseType: 'blob',
+      });
+      const blob = new Blob([response.data], { type: 'application/octet-stream' });
+      const url = window.URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      const date = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      anchor.download = `agrovet-backup-${date}.sql`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      const detail = await readApiErrorMessage(error);
+      throw new Error(detail || 'No se pudo generar el respaldo de la base de datos.');
+    }
   },
 
   /**
@@ -414,10 +449,10 @@ export const adminService = {
   restoreDatabase: async (file: File): Promise<{ message: string; filename: string; sizeBytes: number }> => {
     const formData = new FormData();
     formData.append('file', file);
+    // El Content-Type debe fijarlo el navegador para incluir el boundary del multipart.
     const response = await api.post<{ message: string; filename: string; sizeBytes: number }>(
       '/admin/restore',
-      formData,
-      { headers: { 'Content-Type': 'multipart/form-data' } }
+      formData
     );
     return response.data;
   }

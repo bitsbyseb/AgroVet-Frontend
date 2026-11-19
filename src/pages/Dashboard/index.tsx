@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { authService, adminService } from '../../services/api';
 import type { AdminIndicators } from '../../types';
+import BackupPanel from '../../components/admin/BackupPanel';
 import {
   Users,
   Cat,
@@ -521,6 +522,9 @@ const Dashboard: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Gestión de Copias de Seguridad (Respaldo y Restauración de la BD) */}
+      <BackupPanel />
 
       {/* Accesos Rápidos Administrativos (HU21 - Optimización táctil y mobile responsive) */}
       <div className="bg-white rounded-2xl shadow-xs border border-gray-100 p-5 sm:p-6 space-y-4">

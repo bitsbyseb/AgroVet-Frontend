@@ -38,8 +38,10 @@ const BackupPanel: React.FC = () => {
     try {
       await adminService.downloadBackup();
       setDownloadFeedback({ type: 'success', message: t('dashboard.backup.downloadSuccess') });
-    } catch {
-      setDownloadFeedback({ type: 'error', message: t('dashboard.backup.downloadError') });
+    } catch (err: unknown) {
+      // El servicio propaga el detalle del backend (p. ej. mysqldump no instalado)
+      const detail = err instanceof Error && err.message ? err.message : '';
+      setDownloadFeedback({ type: 'error', message: detail || t('dashboard.backup.downloadError') });
     } finally {
       setDownloading(false);
     }
@@ -71,6 +73,7 @@ const BackupPanel: React.FC = () => {
       setSelectedFile(null);
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+        || (err instanceof Error ? err.message : '')
         || t('dashboard.backup.restoreError');
       setRestoreFeedback({ type: 'error', message: msg });
     } finally {

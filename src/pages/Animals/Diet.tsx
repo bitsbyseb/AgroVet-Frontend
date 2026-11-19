@@ -21,7 +21,7 @@ const AnimalDiet: React.FC = () => {
   const [formData, setFormData] = useState<DietInput>({
     foodId: '',
     quantity: 0,
-    frequency: 'Diario'
+    frequency: 'daily'
   });
 
   // Only Zootechnician can add diet records
@@ -74,7 +74,7 @@ const AnimalDiet: React.FC = () => {
       setFormData({
         foodId: '',
         quantity: 0,
-        frequency: 'Diario'
+        frequency: 'daily'
       });
       fetchData(); // Refresh list
     } catch (err: unknown) {
@@ -182,7 +182,7 @@ const AnimalDiet: React.FC = () => {
                 <input 
                   type="number" 
                   step="0.01"
-                  min="0"
+                  min="0.01"
                   className="form-control w-full text-sm" 
                   placeholder="Ej: 2.5"
                   value={formData.quantity || ''}
@@ -193,14 +193,15 @@ const AnimalDiet: React.FC = () => {
 
               <div className="form-group">
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">Frecuencia <span className="text-red-500">*</span></label>
-                <input 
-                  type="text" 
-                  className="form-control w-full text-sm" 
-                  placeholder="Ej: Diario, 2 veces al día..."
+                <select
+                  className="form-control w-full text-sm"
                   value={formData.frequency}
-                  onChange={(e) => setFormData({...formData, frequency: e.target.value})}
+                  onChange={(e) => setFormData({...formData, frequency: e.target.value as DietInput['frequency']})}
                   required
-                />
+                >
+                  <option value="daily">Diario</option>
+                  <option value="weekly">Semanal</option>
+                </select>
               </div>
             </div>
 
@@ -259,7 +260,9 @@ const AnimalDiet: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">Frecuencia</h4>
-                  <p className="text-base font-semibold text-gray-800 mt-0.5">{record.frequency}</p>
+                  <p className="text-base font-semibold text-gray-800 mt-0.5">
+                    {record.frequency === 'weekly' ? 'Semanal' : 'Diario'}
+                  </p>
                 </div>
               </div>
             </div>

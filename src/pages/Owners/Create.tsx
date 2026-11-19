@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ownerService, authService } from '../../services/api';
 import type { OwnerInput } from '../../types';
-import { ArrowLeft, Save, User, FileText, Phone, Mail, MapPin, Building, Trees, AlertCircle, Loader2, KeyRound } from 'lucide-react';
+import { ArrowLeft, Save, UserPlus, KeyRound, AlertCircle, Loader2 } from 'lucide-react';
 
 const CreateOwner: React.FC = () => {
   const navigate = useNavigate();
@@ -89,238 +89,225 @@ const CreateOwner: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto">
       {/* Botón Volver */}
-      <button 
-        onClick={() => navigate('/owners')} 
+      <button
+        type="button"
+        onClick={() => navigate('/owners')}
         className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+        style={{ marginBottom: '20px' }}
       >
         <ArrowLeft size={18} />
         <span>Volver a la lista de propietarios</span>
       </button>
 
+      {/* Encabezado de la página */}
+      <div style={{ marginBottom: '25px' }}>
+        <h1 style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>Registrar Nuevo Propietario</h1>
+        <p style={{ color: 'var(--text-muted)', marginTop: '4px' }}>
+          Información básica y de contacto del dueño o tutor responsable
+        </p>
+      </div>
+
+      {error && (
+        <div
+          className="flex items-center justify-between"
+          style={{
+            backgroundColor: '#ffebee',
+            color: 'var(--error)',
+            padding: '12px 16px',
+            borderRadius: '6px',
+            marginBottom: '20px',
+            gap: '12px'
+          }}
+        >
+          <span className="flex items-center gap-10" style={{ fontSize: '0.9rem' }}>
+            <AlertCircle size={18} />
+            {error}
+          </span>
+          <button
+            type="button"
+            onClick={() => setError(null)}
+            style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--error)' }}
+          >
+            Cerrar
+          </button>
+        </div>
+      )}
+
       {/* Tarjeta del Formulario */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
-        <div className="border-b border-gray-100 pb-5 mb-6">
-          <h1 className="text-xl font-bold text-gray-900">Registrar Nuevo Propietario</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Ingresa la información básica y de contacto del dueño o tutor responsable
-          </p>
+      <div className="card" style={{ border: '1px solid #2e7d32' }}>
+        <div className="flex items-center gap-10" style={{ marginBottom: '25px' }}>
+          <div style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', padding: '10px', borderRadius: '50%' }}>
+            <UserPlus size={22} />
+          </div>
+          <div>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#2e7d32' }}>
+              Datos del Propietario
+            </h2>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              Los campos marcados con <span style={{ color: '#c62828' }}>*</span> son obligatorios
+            </p>
+          </div>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 flex items-start gap-3">
-            <AlertCircle size={20} className="shrink-0 mt-0.5 text-red-600" />
-            <div className="flex-1 text-sm">{error}</div>
-            <button
-              onClick={() => setError(null)}
-              className="text-red-500 hover:text-red-700 text-xs font-semibold"
-            >
-              Cerrar
-            </button>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Nombre Completo */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Nombre Completo <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <User size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input 
-                type="text" 
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-hidden focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-2xs"
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+            <div className="form-group md:col-span-2">
+              <label htmlFor="ownerName">
+                Nombre Completo <span style={{ color: '#c62828' }}>*</span>
+              </label>
+              <input
+                id="ownerName"
+                type="text"
+                className="form-control"
                 placeholder="Ej. Juan Carlos Pérez Gómez"
                 value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
               />
             </div>
-          </div>
 
-          {/* Documento y Teléfono */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                Documento de Identidad <span className="text-red-500">*</span>
+            <div className="form-group">
+              <label htmlFor="ownerDocument">
+                Documento / CC <span style={{ color: '#c62828' }}>*</span>
               </label>
-              <div className="relative">
-                <FileText size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input 
-                  type="text" 
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-hidden focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-2xs"
-                  placeholder="Solo dígitos (ej. 1023456789)"
-                  value={formData.document}
-                  onChange={(e) => setFormData({...formData, document: e.target.value.replace(/\D/g, '')})}
-                  required
-                />
-              </div>
-              <span className="text-[11px] text-gray-400 mt-1 block">Sin puntos ni espacios</span>
+              <input
+                id="ownerDocument"
+                type="text"
+                inputMode="numeric"
+                className="form-control"
+                placeholder="Ej. 1023456789"
+                value={formData.document}
+                onChange={(e) => setFormData({ ...formData, document: e.target.value.replace(/\D/g, '') })}
+                required
+              />
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Solo dígitos, sin puntos ni espacios</span>
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                Teléfono de Contacto <span className="text-red-500">*</span>
+            <div className="form-group">
+              <label htmlFor="ownerPhone">
+                Teléfono de Contacto <span style={{ color: '#c62828' }}>*</span>
               </label>
-              <div className="relative">
-                <Phone size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input 
-                  type="text" 
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-hidden focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-2xs"
-                  placeholder="Ej. 3101234567"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value.replace(/\D/g, '')})}
-                  required
-                />
-              </div>
+              <input
+                id="ownerPhone"
+                type="tel"
+                inputMode="tel"
+                className="form-control"
+                placeholder="Ej. 3101234567"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, '') })}
+                required
+              />
             </div>
-          </div>
 
-          {/* Correo Electrónico */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Correo Electrónico <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <Mail size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input 
-                type="email" 
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-hidden focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-2xs"
+            <div className="form-group md:col-span-2">
+              <label htmlFor="ownerEmail">
+                Correo Electrónico <span style={{ color: '#c62828' }}>*</span>
+              </label>
+              <input
+                id="ownerEmail"
+                type="email"
+                className="form-control"
                 placeholder="juan.perez@ejemplo.com"
                 value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
               />
             </div>
-          </div>
 
-          {/* Dirección */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Dirección de Residencia o Predio <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <MapPin size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input 
-                type="text" 
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-hidden focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 shadow-2xs"
-                placeholder="Calle 12 # 34-56 o Vereda El Encanto, Finca La Esperanza"
+            <div className="form-group md:col-span-2">
+              <label htmlFor="ownerAddress">
+                Dirección de Residencia o Predio <span style={{ color: '#c62828' }}>*</span>
+              </label>
+              <input
+                id="ownerAddress"
+                type="text"
+                className="form-control"
+                placeholder="Ej. Calle 12 # 34-56 o Vereda El Encanto, Finca La Esperanza"
                 value={formData.address}
-                onChange={(e) => setFormData({...formData, address: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 required
               />
             </div>
-          </div>
 
-          {/* Ámbito / Tipo de Propietario (Selector en Tarjetas) */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Ámbito o Entorno de Explotación <span className="text-red-500">*</span>
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {/* Urbano */}
-              <label 
-                className={`relative flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
-                  formData.ownerType === 'urban'
-                    ? 'border-sky-500 bg-sky-50/50 ring-2 ring-sky-500/20'
-                    : 'border-gray-200 hover:border-gray-300 bg-white'
-                }`}
+            <div className="form-group">
+              <label htmlFor="ownerType">Tipo de Propietario <span style={{ color: '#c62828' }}>*</span></label>
+              <select
+                id="ownerType"
+                className="form-control"
+                value={formData.ownerType}
+                onChange={(e) => setFormData({ ...formData, ownerType: e.target.value as 'urban' | 'rural' })}
+                required
               >
-                <input 
-                  type="radio"
-                  name="ownerType"
-                  value="urban"
-                  checked={formData.ownerType === 'urban'}
-                  onChange={() => setFormData({...formData, ownerType: 'urban'})}
-                  className="mt-1 text-sky-600 focus:ring-sky-500"
-                />
-                <div>
-                  <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
-                    <Building size={16} className="text-sky-600" />
-                    <span>Urbano</span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Tutor de animales domésticos o mascotas (caninos, felinos).
-                  </p>
-                </div>
-              </label>
-
-              {/* Rural */}
-              <label 
-                className={`relative flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
-                  formData.ownerType === 'rural'
-                    ? 'border-amber-500 bg-amber-50/50 ring-2 ring-amber-500/20'
-                    : 'border-gray-200 hover:border-gray-300 bg-white'
-                }`}
-              >
-                <input 
-                  type="radio"
-                  name="ownerType"
-                  value="rural"
-                  checked={formData.ownerType === 'rural'}
-                  onChange={() => setFormData({...formData, ownerType: 'rural'})}
-                  className="mt-1 text-amber-600 focus:ring-amber-500"
-                />
-                <div>
-                  <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
-                    <Trees size={16} className="text-amber-600" />
-                    <span>Rural</span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Productor agropecuario o dueño de especies de producción (bovinos, equinos, etc.).
-                  </p>
-                </div>
-              </label>
+                <option value="urban">Urbano (mascotas: caninos y felinos)</option>
+                <option value="rural">Rural (productor agropecuario)</option>
+              </select>
             </div>
           </div>
 
-          {/* Opción de crear usuario para el portal */}
-          <div className="p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-4">
-            <label className="flex items-start gap-3 cursor-pointer">
+          {/* Acceso al portal */}
+          <div
+            style={{
+              backgroundColor: '#f1f8e9',
+              border: '1px solid #dcedc8',
+              borderRadius: '8px',
+              padding: '18px 20px',
+              marginTop: '25px'
+            }}
+          >
+            <label
+              className="flex items-start gap-10"
+              style={{ cursor: 'pointer', margin: 0 }}
+            >
               <input
                 type="checkbox"
                 checked={createPortalAccount}
                 onChange={(e) => setCreatePortalAccount(e.target.checked)}
-                className="mt-1 w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-gray-300 cursor-pointer"
+                style={{ marginTop: '3px', width: '16px', height: '16px', accentColor: '#2e7d32', cursor: 'pointer' }}
               />
-              <div>
-                <span className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
-                  <KeyRound size={16} className="text-emerald-700" />
+              <span>
+                <span className="flex items-center gap-10" style={{ fontWeight: 600, color: '#1b5e20' }}>
+                  <KeyRound size={16} />
                   Crear cuenta de acceso al portal para este propietario
                 </span>
-                <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">
-                  Permite al propietario iniciar sesión en AgroVet para consultar sus animales, historiales y recordatorios clínicos.
-                </p>
-              </div>
+                <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                  Podrá iniciar sesión para consultar sus animales, historiales y recordatorios clínicos.
+                </span>
+              </span>
             </label>
 
             {createPortalAccount && (
-              <div className="pt-3 border-t border-emerald-200/60 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">
-                    Nombre de Usuario (Opcional - se autogenera si se deja vacío)
-                  </label>
+              <div
+                className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5"
+                style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #dcedc8' }}
+              >
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label htmlFor="ownerUsername">Nombre de Usuario (opcional)</label>
                   <input
+                    id="ownerUsername"
                     type="text"
+                    className="form-control"
+                    placeholder="Ej. juan_perez"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Ej. juan_perez"
-                    className="w-full px-3.5 py-2 text-sm bg-white border border-emerald-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-hidden"
                   />
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    Si se deja vacío se genera automáticamente desde el nombre
+                  </span>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">
-                    Contraseña de Acceso <span className="text-red-500">*</span>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label htmlFor="ownerPassword">
+                    Contraseña de Acceso <span style={{ color: '#c62828' }}>*</span>
                   </label>
                   <input
+                    id="ownerPassword"
                     type="password"
+                    className="form-control"
+                    placeholder="Mínimo 10 caracteres"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Mínimo 10 caracteres"
-                    className="w-full px-3.5 py-2 text-sm bg-white border border-emerald-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-hidden"
                     required={createPortalAccount}
                   />
                 </div>
@@ -329,29 +316,34 @@ const CreateOwner: React.FC = () => {
           </div>
 
           {/* Botones de acción */}
-          <div className="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
+          <div
+            className="flex items-center justify-end gap-10"
+            style={{ marginTop: '25px', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}
+          >
             <button
               type="button"
               onClick={() => navigate('/owners')}
               disabled={loading}
-              className="px-4 py-2.5 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
+              className="btn"
+              style={{ backgroundColor: '#eceff1', color: '#37474f' }}
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-medium text-sm transition-colors shadow-xs disabled:opacity-50"
+              className="btn btn-primary"
+              style={{ backgroundColor: '#2e7d32', opacity: loading ? 0.7 : 1 }}
             >
               {loading ? (
                 <>
                   <Loader2 size={18} className="animate-spin" />
-                  <span>Guardando...</span>
+                  Guardando...
                 </>
               ) : (
                 <>
                   <Save size={18} />
-                  <span>Registrar Propietario</span>
+                  Guardar Propietario
                 </>
               )}
             </button>

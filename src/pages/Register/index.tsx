@@ -8,14 +8,23 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  PawPrint,
-  Stethoscope,
-  Wheat,
   UserPlus,
   ExternalLink,
-  Info,
-  Check
+  Info
 } from 'lucide-react';
+
+const ROLE_DESCRIPTIONS: Record<string, string> = {
+  owner: 'Propietario o tutor: accede al portal para consultar sus animales, historiales y recordatorios.',
+  veterinarian: 'Veterinario: gestiona historial clínico, vacunas y consultas veterinarias.',
+  zootechnician: 'Zootecnista: gestiona alimentación, dietas, producción, reproducción y potreros.'
+};
+
+const ROLE_LABELS: Record<string, string> = {
+  owner: 'Propietario',
+  veterinarian: 'Veterinario',
+  zootechnician: 'Zootecnista',
+  administrator: 'Administrador'
+};
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -194,27 +203,33 @@ const Register: React.FC = () => {
   // ─── Vista de Bloqueo si no es Administrador ───
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-200/80 p-8 sm:p-10 text-center space-y-6">
-          <div className="w-16 h-16 mx-auto bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center ring-8 ring-amber-50/50">
-            <ShieldCheck size={36} />
+      <div className="max-w-xl mx-auto">
+        <div className="card" style={{ border: '1px solid var(--border-color)', textAlign: 'center' }}>
+          <div
+            style={{
+              width: '56px',
+              height: '56px',
+              margin: '0 auto 20px',
+              backgroundColor: '#fff8e1',
+              color: '#f57f17',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <ShieldCheck size={28} />
           </div>
-          <div className="space-y-3">
-            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
-              Acceso Exclusivo de Administrador
-            </h2>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              La creación y asignación de cuentas de usuario en <strong>AgroVet</strong> (Veterinarios, Zootecnistas y Propietarios de animales) solo puede ser realizada por administradores autorizados.
-            </p>
-          </div>
-          <div className="pt-2">
-            <Link
-              to="/login"
-              className="inline-flex items-center justify-center gap-2 w-full px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition-all shadow-md shadow-emerald-600/20"
-            >
-              <span>Iniciar Sesión como Administrador</span>
-            </Link>
-          </div>
+          <h2 style={{ fontSize: '1.3rem', fontWeight: 'bold', marginBottom: '10px' }}>
+            Acceso Exclusivo de Administrador
+          </h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '25px' }}>
+            La creación y asignación de cuentas de usuario en <strong>AgroVet</strong> (veterinarios,
+            zootecnistas y propietarios) solo puede ser realizada por administradores autorizados.
+          </p>
+          <Link to="/login" className="btn btn-primary" style={{ backgroundColor: '#2e7d32', width: '100%' }}>
+            Iniciar Sesión como Administrador
+          </Link>
         </div>
       </div>
     );
@@ -222,83 +237,120 @@ const Register: React.FC = () => {
 
   // ─── Vista de Éxito tras crear usuario ───
   if (createdUser) {
-    const roleLabels: Record<string, { label: string; icon: any; bgBadge: string }> = {
-      owner: { label: 'Propietario / Dueño', icon: PawPrint, bgBadge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-      veterinarian: { label: 'Veterinario', icon: Stethoscope, bgBadge: 'bg-blue-50 text-blue-700 border-blue-200' },
-      zootechnician: { label: 'Zootecnista', icon: Wheat, bgBadge: 'bg-amber-50 text-amber-700 border-amber-200' },
-      administrator: { label: 'Administrador', icon: ShieldCheck, bgBadge: 'bg-purple-50 text-purple-700 border-purple-200' },
-    };
-
-    const currentMeta = roleLabels[createdUser.role] || roleLabels.owner;
-    const MetaIcon = currentMeta.icon;
-
     return (
-      <div className="min-h-screen bg-slate-50 py-16 px-4 flex items-center justify-center">
-        <div className="max-w-lg w-full bg-white rounded-3xl shadow-xl shadow-slate-200/70 border border-gray-100 p-8 sm:p-12 text-center space-y-8">
-          <div className="w-20 h-20 mx-auto bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center ring-8 ring-emerald-50/60 shadow-xs">
-            <CheckCircle2 size={44} />
-          </div>
-
-          <div className="space-y-3">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+      <div className="max-w-xl mx-auto">
+        <div className="card" style={{ border: '1px solid #2e7d32' }}>
+          <div style={{ textAlign: 'center', marginBottom: '25px' }}>
+            <div
+              style={{
+                width: '56px',
+                height: '56px',
+                margin: '0 auto 16px',
+                backgroundColor: '#e8f5e9',
+                color: '#2e7d32',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <CheckCircle2 size={30} />
+            </div>
+            <h2 style={{ fontSize: '1.3rem', fontWeight: 'bold', marginBottom: '6px' }}>
               ¡Usuario Creado con Éxito!
             </h2>
-            <p className="text-sm text-gray-500 max-w-sm mx-auto leading-relaxed">
-              La cuenta se encuentra activa en el sistema y lista para iniciar sesión en AgroVet.
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+              La cuenta se encuentra activa y lista para iniciar sesión en AgroVet.
             </p>
           </div>
 
-          {/* Tarjeta de Resumen */}
-          <div className="bg-slate-50 border border-slate-200/70 rounded-2xl p-6 text-left space-y-4">
-            <div className="flex justify-between items-center text-sm border-b border-slate-200/60 pb-3">
-              <span className="text-gray-500 font-medium">Nombre de Usuario:</span>
-              <span className="font-bold text-gray-900 tracking-wide">{createdUser.username}</span>
+          <div
+            style={{
+              backgroundColor: '#fafafa',
+              border: '1px solid var(--border-color)',
+              borderRadius: '8px',
+              padding: '18px 20px',
+              marginBottom: '20px'
+            }}
+          >
+            <div className="flex justify-between items-center" style={{ paddingBottom: '12px', borderBottom: '1px solid var(--border-color)' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Nombre de Usuario</span>
+              <strong style={{ fontSize: '0.9rem' }}>{createdUser.username}</strong>
             </div>
-            <div className="flex justify-between items-center text-sm border-b border-slate-200/60 pb-3">
-              <span className="text-gray-500 font-medium">Correo Electrónico:</span>
-              <span className="font-semibold text-gray-800">{createdUser.email}</span>
+            <div className="flex justify-between items-center" style={{ padding: '12px 0', borderBottom: '1px solid var(--border-color)' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Correo Electrónico</span>
+              <span style={{ fontSize: '0.9rem', fontWeight: 600, textAlign: 'right', wordBreak: 'break-all' }}>
+                {createdUser.email}
+              </span>
             </div>
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-500 font-medium">Rol Asignado:</span>
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${currentMeta.bgBadge}`}>
-                <MetaIcon size={14} />
-                <span>{currentMeta.label}</span>
+            <div className="flex justify-between items-center" style={{ paddingTop: '12px' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Rol Asignado</span>
+              <span
+                style={{
+                  display: 'inline-block',
+                  padding: '3px 12px',
+                  borderRadius: '12px',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  backgroundColor: '#e8f5e9',
+                  color: '#2e7d32',
+                  border: '1px solid #c8e6c9'
+                }}
+              >
+                {ROLE_LABELS[createdUser.role] ?? createdUser.role}
               </span>
             </div>
           </div>
 
           {createdUser.role === 'owner' && (
-            <div className="p-4 bg-emerald-50/80 border border-emerald-200/80 rounded-2xl text-xs sm:text-sm text-emerald-800 text-left flex items-start gap-3 leading-relaxed">
-              <PawPrint size={18} className="shrink-0 mt-0.5 text-emerald-600" />
-              <div>
-                <strong>Acceso habilitado para el Propietario:</strong> Este usuario podrá acceder directamente al portal de <em>Mis Animales</em> y <em>Recordatorios</em> para consultar el estado clínico de sus ejemplares.
-              </div>
+            <div
+              className="flex items-start gap-10"
+              style={{
+                backgroundColor: '#f1f8e9',
+                border: '1px solid #dcedc8',
+                borderRadius: '8px',
+                padding: '14px 16px',
+                fontSize: '0.85rem',
+                color: '#33691e',
+                marginBottom: '20px'
+              }}
+            >
+              <Info size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
+              <span>
+                Este usuario podrá acceder al portal de <em>Mis Animales</em> y <em>Recordatorios</em>
+                para consultar el estado clínico de sus ejemplares.
+              </span>
             </div>
           )}
 
-          {/* Botones de Acción */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+          <div className="flex items-center justify-end gap-10">
             <button
-              onClick={handleResetForm}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm transition-all shadow-md shadow-emerald-600/20 hover:shadow-lg cursor-pointer"
+              type="button"
+              onClick={() => navigate('/')}
+              className="btn"
+              style={{ backgroundColor: '#eceff1', color: '#37474f' }}
             >
-              <UserPlus size={18} />
-              <span>Crear otro usuario</span>
+              Ir al Panel
             </button>
             {createdUser.role === 'owner' && (
               <button
+                type="button"
                 onClick={() => navigate('/owners')}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-xl font-semibold text-sm transition-colors cursor-pointer"
+                className="btn"
+                style={{ backgroundColor: '#eceff1', color: '#37474f' }}
               >
-                <span>Ver Propietarios</span>
+                Ver Propietarios
                 <ExternalLink size={15} />
               </button>
             )}
             <button
-              onClick={() => navigate('/')}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-gray-700 rounded-xl font-semibold text-sm transition-colors cursor-pointer"
+              type="button"
+              onClick={handleResetForm}
+              className="btn btn-primary"
+              style={{ backgroundColor: '#2e7d32' }}
             >
-              <span>Ir al Panel</span>
+              <UserPlus size={18} />
+              Crear Otro Usuario
             </button>
           </div>
         </div>
@@ -308,392 +360,304 @@ const Register: React.FC = () => {
 
   // ─── Formulario Principal de Creación de Usuarios ───
   return (
-    <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
-      <div className="max-w-2xl w-full">
-        {/* Barra de Navegación Superior */}
-        <div className="flex items-center justify-between mb-8 px-1">
+    <div className="max-w-3xl mx-auto">
+      {/* Botón Volver */}
+      <button
+        type="button"
+        onClick={() => navigate('/')}
+        className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+        style={{ marginBottom: '20px' }}
+      >
+        <ArrowLeft size={18} />
+        <span>Volver al panel principal</span>
+      </button>
+
+      {/* Encabezado de la página */}
+      <div style={{ marginBottom: '25px' }}>
+        <h1 style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>Crear Nuevo Usuario</h1>
+        <p style={{ color: 'var(--text-muted)', marginTop: '4px' }}>
+          Registra las credenciales de veterinarios, zootecnistas o propietarios del sistema
+        </p>
+      </div>
+
+      {error && (
+        <div
+          className="flex items-center justify-between"
+          style={{
+            backgroundColor: '#ffebee',
+            color: 'var(--error)',
+            padding: '12px 16px',
+            borderRadius: '6px',
+            marginBottom: '20px',
+            gap: '12px'
+          }}
+        >
+          <span className="flex items-center gap-10" style={{ fontSize: '0.9rem' }}>
+            <AlertCircle size={18} />
+            {error}
+          </span>
           <button
             type="button"
-            onClick={() => navigate('/')}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-emerald-700 transition-colors group cursor-pointer"
+            onClick={() => setError(null)}
+            style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--error)' }}
           >
-            <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
-            <span>Volver al Panel Principal</span>
+            Cerrar
           </button>
-
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-100/90 text-emerald-800 border border-emerald-200">
-            <ShieldCheck size={14} className="text-emerald-700" />
-            <span>Panel de Administración</span>
-          </span>
         </div>
+      )}
 
-        {/* Tarjeta del Formulario Principal */}
-        <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-gray-200/70 p-8 sm:p-12 mb-10">
-          {/* Encabezado */}
-          <div className="text-center mb-10 pb-8 border-b border-gray-100">
-            <div className="inline-flex p-3.5 bg-emerald-600 text-white rounded-2xl shadow-md shadow-emerald-600/20 mb-4">
-              <UserPlus size={30} />
+      <form onSubmit={handleSubmit}>
+        {/* Tarjeta: Datos del usuario */}
+        <div className="card" style={{ border: '1px solid #2e7d32', marginBottom: '25px' }}>
+          <div className="flex items-center gap-10" style={{ marginBottom: '25px' }}>
+            <div style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', padding: '10px', borderRadius: '50%' }}>
+              <UserPlus size={22} />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight mb-3">
-              Crear Nuevo Usuario
-            </h1>
-            <p className="text-sm sm:text-base text-gray-500 max-w-lg mx-auto leading-relaxed">
-              Registra credenciales para veterinarios, zootecnistas o propietarios que interactúan con el sistema.
-            </p>
+            <div>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#2e7d32' }}>
+                Datos del Usuario
+              </h2>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                Los campos marcados con <span style={{ color: '#c62828' }}>*</span> son obligatorios
+              </p>
+            </div>
           </div>
 
-          {/* Banner de Error */}
-          {error && (
-            <div className="mb-8 p-5 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 flex items-start gap-3.5 text-sm">
-              <AlertCircle size={20} className="shrink-0 mt-0.5 text-rose-600" />
-              <div className="flex-1 font-medium leading-relaxed">{error}</div>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            {/* ─── 1. Selector de Rol con Cards Visuales ─── */}
-            <div className="mb-10">
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">
-                1. Selecciona el Tipo de Usuario / Rol
-              </label>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {/* Opción 1: Propietario */}
-                <button
-                  type="button"
-                  onClick={() => setRole('owner')}
-                  className={`p-5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer ${
-                    role === 'owner'
-                      ? 'bg-emerald-50/80 border-emerald-400 ring-2 ring-emerald-500/30 text-emerald-950 shadow-xs'
-                      : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50/60'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span
-                      className={`p-2.5 rounded-xl transition-colors ${
-                        role === 'owner' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-emerald-100 text-emerald-700'
-                      }`}
-                    >
-                      <PawPrint size={20} />
-                    </span>
-                    {role === 'owner' && (
-                      <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center">
-                        <Check size={12} strokeWidth={3} />
-                      </span>
-                    )}
-                  </div>
-                  <div>
-                    <span className="text-base font-bold block text-gray-900 mb-1">Propietario</span>
-                    <span className="text-xs text-gray-500 block leading-snug">Portal de consultas y recordatorios</span>
-                  </div>
-                </button>
-
-                {/* Opción 2: Veterinario */}
-                <button
-                  type="button"
-                  onClick={() => setRole('veterinarian')}
-                  className={`p-5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer ${
-                    role === 'veterinarian'
-                      ? 'bg-blue-50/80 border-blue-400 ring-2 ring-blue-500/30 text-blue-950 shadow-xs'
-                      : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50/60'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span
-                      className={`p-2.5 rounded-xl transition-colors ${
-                        role === 'veterinarian' ? 'bg-blue-600 text-white shadow-xs' : 'bg-blue-100 text-blue-700'
-                      }`}
-                    >
-                      <Stethoscope size={20} />
-                    </span>
-                    {role === 'veterinarian' && (
-                      <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center">
-                        <Check size={12} strokeWidth={3} />
-                      </span>
-                    )}
-                  </div>
-                  <div>
-                    <span className="text-base font-bold block text-gray-900 mb-1">Veterinario</span>
-                    <span className="text-xs text-gray-500 block leading-snug">Gestión clínica y vacunas</span>
-                  </div>
-                </button>
-
-                {/* Opción 3: Zootecnista */}
-                <button
-                  type="button"
-                  onClick={() => setRole('zootechnician')}
-                  className={`p-5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer ${
-                    role === 'zootechnician'
-                      ? 'bg-amber-50/80 border-amber-400 ring-2 ring-amber-500/30 text-amber-950 shadow-xs'
-                      : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50/60'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span
-                      className={`p-2.5 rounded-xl transition-colors ${
-                        role === 'zootechnician' ? 'bg-amber-600 text-white shadow-xs' : 'bg-amber-100 text-amber-700'
-                      }`}
-                    >
-                      <Wheat size={20} />
-                    </span>
-                    {role === 'zootechnician' && (
-                      <span className="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center">
-                        <Check size={12} strokeWidth={3} />
-                      </span>
-                    )}
-                  </div>
-                  <div>
-                    <span className="text-base font-bold block text-gray-900 mb-1">Zootecnista</span>
-                    <span className="text-xs text-gray-500 block leading-snug">Nutrición, potreros y dietas</span>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            {/* ─── Ayuda y Vinculación para Propietarios ─── */}
-            {role === 'owner' && (
-              <div className="mb-10 p-6 bg-emerald-50/80 border border-emerald-200/90 rounded-2xl space-y-6 shadow-2xs">
-                <div className="flex items-start gap-3 text-sm text-emerald-950 leading-relaxed">
-                  <Info size={20} className="shrink-0 mt-0.5 text-emerald-700" />
-                  <div>
-                    <strong className="font-bold block mb-1">Registro Unificado de Propietario</strong>
-                    Puedes ingresar los datos del propietario aquí mismo para crear su perfil en el sistema y asignarle credenciales de acceso al instante. También aparecerá registrado en la sección de <em>Propietarios</em>.
-                  </div>
-                </div>
-
-                {/* Selector Opcional de Propietarios Registrados */}
-                {existingOwners.length > 0 && (
-                  <div className="pt-4 border-t border-emerald-200/60">
-                    <label htmlFor="ownerSelect" className="block text-xs font-bold text-emerald-950 uppercase tracking-wider mb-2">
-                      ¿Deseas autocompletar con un Propietario ya registrado? (Opcional)
-                    </label>
-                    <select
-                      id="ownerSelect"
-                      value={selectedOwnerId}
-                      onChange={(e) => handleOwnerSelect(e.target.value)}
-                      className="w-full text-sm py-3 px-4 bg-white border border-emerald-300 text-gray-900 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-hidden transition-all shadow-2xs"
-                    >
-                      <option value="">
-                        {loadingOwners ? 'Cargando lista de propietarios...' : '-- Ingresar nuevo propietario manualmente --'}
-                      </option>
-                      {existingOwners.map((own) => (
-                        <option key={own.id} value={own.id}>
-                          {own.name} (CC: {own.document}) — {own.email}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {/* Campos de Perfil de Propietario */}
-                <div className="pt-4 border-t border-emerald-200/60 space-y-5">
-                  <span className="block text-xs font-bold text-emerald-900 uppercase tracking-wider">
-                    Datos del Perfil del Propietario
-                  </span>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div>
-                      <label htmlFor="ownerName" className="block text-xs font-bold text-gray-700 mb-1.5">
-                        Nombre Completo del Propietario
-                      </label>
-                      <input
-                        id="ownerName"
-                        type="text"
-                        placeholder="Ej. Juan Carlos Pérez"
-                        value={ownerName}
-                        onChange={(e) => setOwnerName(e.target.value)}
-                        className="w-full px-3.5 py-2.5 text-sm text-gray-900 bg-white border border-emerald-200 rounded-xl focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 focus:outline-hidden transition-all shadow-xs"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="ownerDocument" className="block text-xs font-bold text-gray-700 mb-1.5">
-                        Cédula / Documento de Identidad
-                      </label>
-                      <input
-                        id="ownerDocument"
-                        type="text"
-                        placeholder="Ej. 1023456789"
-                        value={ownerDocument}
-                        onChange={(e) => setOwnerDocument(e.target.value)}
-                        className="w-full px-3.5 py-2.5 text-sm text-gray-900 bg-white border border-emerald-200 rounded-xl focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 focus:outline-hidden transition-all shadow-xs"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div>
-                      <label htmlFor="ownerPhone" className="block text-xs font-bold text-gray-700 mb-1.5">
-                        Teléfono de Contacto
-                      </label>
-                      <input
-                        id="ownerPhone"
-                        type="text"
-                        placeholder="Ej. 3101234567"
-                        value={ownerPhone}
-                        onChange={(e) => setOwnerPhone(e.target.value)}
-                        className="w-full px-3.5 py-2.5 text-sm text-gray-900 bg-white border border-emerald-200 rounded-xl focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 focus:outline-hidden transition-all shadow-xs"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="ownerAddress" className="block text-xs font-bold text-gray-700 mb-1.5">
-                        Dirección o Predio
-                      </label>
-                      <input
-                        id="ownerAddress"
-                        type="text"
-                        placeholder="Ej. Calle 12 #34 o Vereda La Vega"
-                        value={ownerAddress}
-                        onChange={(e) => setOwnerAddress(e.target.value)}
-                        className="w-full px-3.5 py-2.5 text-sm text-gray-900 bg-white border border-emerald-200 rounded-xl focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 focus:outline-hidden transition-all shadow-xs"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-2">
-                      Ámbito del Propietario
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setOwnerType('urban')}
-                        className={`py-2 px-3 rounded-xl border text-xs font-bold text-center transition-all cursor-pointer ${
-                          ownerType === 'urban'
-                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        Urbano (Mascotas)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setOwnerType('rural')}
-                        className={`py-2 px-3 rounded-xl border text-xs font-bold text-center transition-all cursor-pointer ${
-                          ownerType === 'rural'
-                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        Rural (Productivo)
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ─── 2. Datos de Cuenta (Inputs Limpios sin Iconos Dentro) ─── */}
-            <div className="mb-8">
-              <label htmlFor="username" className="block text-sm font-semibold text-gray-800 mb-2.5">
-                Nombre de Usuario
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+            <div className="form-group">
+              <label htmlFor="username">
+                Nombre de Usuario <span style={{ color: '#c62828' }}>*</span>
               </label>
               <input
                 id="username"
                 type="text"
-                placeholder="Ejemplo: juan_perez"
+                className="form-control"
+                placeholder="Ej. juan_perez"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10 focus:outline-hidden transition-all shadow-xs"
                 required
               />
-              <p className="text-xs text-gray-500 mt-2">
-                Identificador único con el que el usuario iniciará sesión (mínimo 3 caracteres).
-              </p>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                Identificador de inicio de sesión (mínimo 3 caracteres)
+              </span>
             </div>
 
-            <div className="mb-8">
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-800 mb-2.5">
-                Correo Electrónico
+            <div className="form-group">
+              <label htmlFor="email">
+                Correo Electrónico <span style={{ color: '#c62828' }}>*</span>
               </label>
               <input
                 id="email"
                 type="email"
+                className="form-control"
                 placeholder="ejemplo@agrovet.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10 focus:outline-hidden transition-all shadow-xs"
                 required
               />
-              <p className="text-xs text-gray-500 mt-2">
-                Se enviará una notificación de bienvenida y confirmación a esta dirección.
-              </p>
             </div>
 
-            {/* ─── 3. Contraseñas en Grid Espacioso ─── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-              <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-800 mb-2.5">
-                  Contraseña
-                </label>
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Mínimo 10 caracteres"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10 focus:outline-hidden transition-all shadow-xs"
-                  required
-                />
-              </div>
-
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-800 mb-2.5">
-                  Confirmar Contraseña
-                </label>
-                <input
-                  id="confirmPassword"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Repite la contraseña"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10 focus:outline-hidden transition-all shadow-xs"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Control para mostrar contraseñas y requisitos */}
-            <div className="mb-10 flex items-center justify-between px-1">
-              <label className="inline-flex items-center gap-2.5 text-sm text-gray-600 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={showPassword}
-                  onChange={(e) => setShowPassword(e.target.checked)}
-                  className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-gray-300 cursor-pointer"
-                />
-                <span>Mostrar contraseñas</span>
+            <div className="form-group md:col-span-2">
+              <label htmlFor="role">
+                Rol del Usuario <span style={{ color: '#c62828' }}>*</span>
               </label>
-
-              <span className="text-xs text-gray-400">
-                Mínimo 10 caracteres de longitud
+              <select
+                id="role"
+                className="form-control"
+                value={role}
+                onChange={(e) => setRole(e.target.value as UserRole)}
+                required
+              >
+                <option value="owner">Propietario</option>
+                <option value="veterinarian">Veterinario</option>
+                <option value="zootechnician">Zootecnista</option>
+              </select>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                {ROLE_DESCRIPTIONS[role] ?? ''}
               </span>
             </div>
 
-            {/* ─── Botón de Envío ─── */}
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full inline-flex items-center justify-center gap-3 px-6 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-bold text-base transition-all shadow-lg shadow-emerald-700/20 hover:shadow-xl hover:shadow-emerald-700/25 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 size={20} className="animate-spin" />
-                    <span>Registrando cuenta de usuario...</span>
-                  </>
-                ) : (
-                  <>
-                    <UserPlus size={20} />
-                    <span>Crear Cuenta de Usuario</span>
-                  </>
-                )}
-              </button>
+            <div className="form-group">
+              <label htmlFor="password">
+                Contraseña <span style={{ color: '#c62828' }}>*</span>
+              </label>
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                className="form-control"
+                placeholder="Mínimo 10 caracteres"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
-          </form>
+
+            <div className="form-group">
+              <label htmlFor="confirmPassword">
+                Confirmar Contraseña <span style={{ color: '#c62828' }}>*</span>
+              </label>
+              <input
+                id="confirmPassword"
+                type={showPassword ? 'text' : 'password'}
+                className="form-control"
+                placeholder="Repite la contraseña"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <label
+            className="flex items-center gap-10"
+            style={{ marginTop: '20px', fontSize: '0.85rem', color: 'var(--text-muted)', cursor: 'pointer' }}
+          >
+            <input
+              type="checkbox"
+              checked={showPassword}
+              onChange={(e) => setShowPassword(e.target.checked)}
+              style={{ width: '16px', height: '16px', accentColor: '#2e7d32', cursor: 'pointer' }}
+            />
+            Mostrar contraseñas
+          </label>
         </div>
-      </div>
+
+        {/* Tarjeta: Perfil del propietario (solo rol owner) */}
+        {role === 'owner' && (
+          <div className="card" style={{ border: '1px solid #dcedc8', marginBottom: '25px' }}>
+            <div className="flex items-center gap-10" style={{ marginBottom: '20px' }}>
+              <div style={{ backgroundColor: '#f1f8e9', color: '#558b2f', padding: '10px', borderRadius: '50%' }}>
+                <Info size={22} />
+              </div>
+              <div>
+                <h2 style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#33691e' }}>
+                  Perfil del Propietario
+                </h2>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  Opcional: crea su ficha en la sección de Propietarios junto con el usuario
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+              {existingOwners.length > 0 && (
+                <div className="form-group md:col-span-2">
+                  <label htmlFor="ownerSelect">Autocompletar con un Propietario Registrado (opcional)</label>
+                  <select
+                    id="ownerSelect"
+                    className="form-control"
+                    value={selectedOwnerId}
+                    onChange={(e) => handleOwnerSelect(e.target.value)}
+                  >
+                    <option value="">
+                      {loadingOwners ? 'Cargando lista de propietarios...' : '-- Ingresar los datos manualmente --'}
+                    </option>
+                    {existingOwners.map((own) => (
+                      <option key={own.id} value={own.id}>
+                        {own.name} (CC: {own.document}) — {own.email}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="form-group">
+                <label htmlFor="ownerName">Nombre Completo del Propietario</label>
+                <input
+                  id="ownerName"
+                  type="text"
+                  className="form-control"
+                  placeholder="Ej. Juan Carlos Pérez"
+                  value={ownerName}
+                  onChange={(e) => setOwnerName(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="ownerDocument">Documento de Identidad</label>
+                <input
+                  id="ownerDocument"
+                  type="text"
+                  inputMode="numeric"
+                  className="form-control"
+                  placeholder="Ej. 1023456789"
+                  value={ownerDocument}
+                  onChange={(e) => setOwnerDocument(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="ownerPhone">Teléfono de Contacto</label>
+                <input
+                  id="ownerPhone"
+                  type="tel"
+                  inputMode="tel"
+                  className="form-control"
+                  placeholder="Ej. 3101234567"
+                  value={ownerPhone}
+                  onChange={(e) => setOwnerPhone(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="ownerAddress">Dirección o Predio</label>
+                <input
+                  id="ownerAddress"
+                  type="text"
+                  className="form-control"
+                  placeholder="Ej. Calle 12 #34 o Vereda La Vega"
+                  value={ownerAddress}
+                  onChange={(e) => setOwnerAddress(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="ownerType">Ámbito del Propietario</label>
+                <select
+                  id="ownerType"
+                  className="form-control"
+                  value={ownerType}
+                  onChange={(e) => setOwnerType(e.target.value as 'urban' | 'rural')}
+                >
+                  <option value="urban">Urbano (mascotas)</option>
+                  <option value="rural">Rural (productivo)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Botones de acción */}
+        <div className="flex items-center justify-end gap-10">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            disabled={loading}
+            className="btn"
+            style={{ backgroundColor: '#eceff1', color: '#37474f' }}
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-primary"
+            style={{ backgroundColor: '#2e7d32', opacity: loading ? 0.7 : 1 }}
+          >
+            {loading ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                Registrando cuenta...
+              </>
+            ) : (
+              <>
+                <UserPlus size={18} />
+                Crear Cuenta de Usuario
+              </>
+            )}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

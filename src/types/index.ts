@@ -360,20 +360,26 @@ export interface FoodInput {
   description: string;
 }
 
+/** Debe coincidir con el enum `frequency` del dominio en el backend */
+export type DietFrequency = 'daily' | 'weekly';
+
 export interface DietRecord {
   id: string;
   animalId: string;
   foodId: string;
   quantity: number;
-  frequency: string;
+  unit?: string;
+  frequency: DietFrequency;
   date: string;
-  food?: Food;
+  observations?: string;
+  food?: Food | null;
 }
 
 export interface DietInput {
   foodId: string;
   quantity: number;
-  frequency: string;
+  frequency: DietFrequency;
+  observations?: string;
 }
 
 export interface Appointment {
